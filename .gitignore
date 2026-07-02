@@ -1,0 +1,4 @@
+www/app.js
+src/web_assets.h
+*.pyc
+__pycache__/
