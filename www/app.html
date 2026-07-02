@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>awtrix-light</title>
+  <link rel="icon" href="/www/icon.png">
+  <link rel="shortcut icon" href="/www/icon.png">
+  <link rel="stylesheet" href="/www/app.css">
+</head>
+<body>
+  <div id="startupGate" class="startup-gate">
+    <section class="login-card startup-card">
+      <img class="login-logo" src="/www/icon.png" alt="awtrix-light">
+      <h2>awtrix-light</h2>
+      <p class="hint" id="startupHint">正在验证会话并初始化界面...</p>
+      <div class="startup-spinner" id="startupSpinner" aria-hidden="true"></div>
+      <div id="startupLoginForm" style="display:none">
+        <div class="field"><label>用户名</label><input id="startupUser" type="text" autocomplete="username"></div>
+        <div class="field"><label>密码</label><input id="startupPass" type="password" autocomplete="current-password"></div>
+        <button id="startupLoginBtn" class="primary" type="button" style="width:100%;margin-top:8px">登录</button>
+      </div>
+      <div id="startupStatus" class="status">检查认证...</div>
+    </section>
+  </div>
+
+  <main class="app">
+    <header class="bar">
+      <div class="top">
+        <div class="brand">
+          <img class="logo" src="/www/icon.png" alt="AWTRIX">
+          <div><h1 data-i="title">AWTRIX</h1></div>
+        </div>
+        <nav class="nav">
+          <button id="storeTab" class="tab" type="button" data-i="store">应用商店</button>
+          <button id="libraryTab" class="tab" type="button" data-i="mine">我的应用</button>
+          <button id="settingsTab" class="tab icon-tab" type="button" aria-label="设置" title="设置">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8Zm8 4a8 8 0 0 0-.1-1.2l2-1.5-2-3.5-2.4 1a8 8 0 0 0-2.1-1.2L15 3h-4l-.4 2.6a8 8 0 0 0-2.1 1.2l-2.4-1-2 3.5 2 1.5A8 8 0 0 0 6 12c0 .4 0 .8.1 1.2l-2 1.5 2 3.5 2.4-1a8 8 0 0 0 2.1 1.2L11 21h4l.4-2.6a8 8 0 0 0 2.1-1.2l2.4 1 2-3.5-2-1.5c.1-.4.1-.8.1-1.2Z"/></svg>
+          </button>
+          <button id="themeBtn" class="tonal" type="button">🌙</button>
+          <button id="langBtn" class="tonal" type="button">EN</button>
+        </nav>
+      </div>
+    </header>
+
+    <section class="content">
+      <section id="filesPanel" class="panel">
+        <div class="headline"><div><h2 data-i="settings">设置</h2></div></div>
+        <div id="filesSettingsTabs" class="settings-grid"></div>
+        <section class="files-card file-editor-pane">
+          <div class="actions-inline">
+            <div class="file-usage" id="fileUsage"></div>
+            <button id="fileUploadBtn" class="tonal" type="button" data-i="upload">上传</button>
+            <input id="fileUploadInput" type="file" hidden>
+            <button id="fileNewBtn" class="tonal" type="button" data-i="newFile">新建文件</button>
+            <button id="fileNewFolderBtn" class="tonal" type="button" data-i="newFolder">新建文件夹</button>
+            <button id="fileRefreshBtn" class="tonal" type="button" data-i="refresh">刷新</button>
+            <button id="fileDeleteBtn" class="tonal" type="button" data-i="deleteFile">删除</button>
+            <button id="fileSaveBtn" class="primary" type="button" data-i="saveFile">保存文件</button>
+          </div>
+          <div class="file-toolbar">
+            <button id="fileBackBtn" class="tonal" type="button">返回</button>
+            <div id="filePath" class="file-path">/</div>
+          </div>
+          <div class="file-manager">
+            <div id="fileList" class="file-list"></div>
+            <div class="file-editor-pane">
+              <div id="fileSelected" class="file-selected"></div>
+              <div id="filePreview" class="file-preview"></div>
+              <img id="fileImage" class="file-image" alt="">
+              <textarea id="fileEditor"></textarea>
+            </div>
+          </div>
+        </section>
+        <div id="filesStatus" class="status"></div>
+      </section>
+
+      <section id="settingsPanel" class="panel">
+        <div class="headline">
+          <div>
+            <h2 data-i="settings">设置</h2>
+          </div>
+          <div class="actions-inline">
+            <button id="saveDeviceSettings" class="primary" type="button" data-i="saveSettings">保存设置</button>
+          </div>
+        </div>
+        <div id="settingsGrid" class="settings-grid"></div>
+        <p id="settingsEmpty" class="empty" data-i="loadingSettings">正在读取设置...</p>
+        <div id="settingsStatus" class="status"></div>
+      </section>
+
+      <section id="storePanel" class="panel">
+        <div class="headline"><div><h2 data-i="store">应用商店</h2></div></div>
+        <div class="store-controls">
+          <div id="storeKindTabs" class="app-kind-tabs">
+            <button class="tonal active" type="button" data-kind="app">App</button>
+            <button class="tonal" type="button" data-kind="cast">Cast</button>
+          </div>
+          <div id="storeSourceSlot"></div>
+        </div>
+        <div class="store-filter" id="storeFilter">
+          <input id="storeSearchInput" type="text" placeholder="搜索 App...">
+          <div class="store-tags" id="storeTags"></div>
+        </div>
+        <div id="storeGrid" class="store-table"></div>
+        <div id="storeStatus" class="status"></div>
+      </section>
+
+      <section id="libraryPanel" class="panel">
+        <div class="headline">
+          <div><h2 data-i="mine">我的应用</h2></div>
+        </div>
+        <section id="liveAppsPanel" class="live-apps-panel">
+          <section class="live-card">
+            <h3>实时预览</h3>
+            <canvas id="liveCanvas" width="320" height="80"></canvas>
+            <div class="live-actions">
+              <button id="livePrev" class="tonal" type="button">&lt;</button>
+              <button id="liveDownload" class="tonal" type="button">PNG</button>
+              <button id="liveNext" class="tonal" type="button">&gt;</button>
+            </div>
+          </section>
+        </section>
+        <div class="library-controls">
+          <div id="libraryKindTabs" class="app-kind-tabs">
+            <button class="tonal active" type="button" data-kind="app">App</button>
+            <button class="tonal" type="button" data-kind="cast">Cast</button>
+          </div>
+          <div class="library-actions actions-inline">
+            <button id="createApp" class="tonal" type="button" data-i="createApp">创建 Flow</button>
+            <button id="globalDisplay" class="tonal" type="button" data-i="appSettings">App 设置</button>
+          </div>
+        </div>
+        <div id="libraryList" class="list"></div>
+        <div id="libraryStatus" class="status"></div>
+      </section>
+    </section>
+  </main>
+
+  <div id="sheetBackdrop" class="sheet-backdrop">
+    <section class="sheet">
+      <div class="sheet-head">
+        <h3 id="sheetTitle" data-i="appSettings">App 设置</h3>
+        <button id="closeSheet" class="close" type="button">×</button>
+      </div>
+      <div id="fields" class="fields"></div>
+      <div class="actions">
+        <button id="secondaryAction" class="tonal" type="button" style="display:none"></button>
+        <button id="saveSettings" class="primary" type="button" data-i="saveSettings">保存设置</button>
+      </div>
+      <div id="sheetStatus" class="status"></div>
+    </section>
+  </div>
+
+  <script src="/www/app.js"></script>
+</body>
+</html>
