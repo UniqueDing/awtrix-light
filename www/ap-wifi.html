@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>awtrix-light WiFi 配网</title>
+  <link rel="icon" href="/www/icon.png">
+  <link rel="shortcut icon" href="/www/icon.png">
+  <link rel="stylesheet" href="/www/ap-wifi.css">
+</head>
+<body>
+  <main class="setup-shell">
+    <section class="setup-card" aria-labelledby="setupTitle">
+      <header class="setup-head">
+        <img class="setup-logo" src="/www/icon.png" alt="awtrix-light">
+        <div>
+          <div class="head-line">
+            <p class="eyebrow">AP MODE SETUP</p>
+            <button id="langBtn" class="lang-toggle" type="button">EN</button>
+          </div>
+          <h1 id="setupTitle" data-i="title">连接 WiFi</h1>
+          <p class="setup-copy" data-i="copy">为 awtrix-light 选择家庭网络。连接成功后设备会保存 WiFi 并自动重启。</p>
+        </div>
+      </header>
+
+      <section class="scan-panel" aria-labelledby="scanTitle">
+        <div class="section-title">
+          <h2 id="scanTitle" data-i="nearby">附近网络</h2>
+          <button id="scanBtn" class="tonal" type="button" data-i="scan">扫描 SSID</button>
+        </div>
+        <div id="networkList" class="network-list" role="listbox" aria-label="扫描到的 WiFi 网络" data-aria="networkList"></div>
+        <p id="scanHint" class="hint" data-i="scanHint">如果扫描失败或没有看到你的网络，请直接在下方手动输入 SSID。</p>
+      </section>
+
+      <form id="wifiForm" class="wifi-form" autocomplete="off">
+        <label class="field">
+          <span data-i="ssidLabel">WiFi 名称 SSID</span>
+          <input id="ssidInput" name="ssid" type="text" placeholder="输入或从上方选择 SSID" data-placeholder="ssidPlaceholder" required>
+        </label>
+        <label class="field">
+          <span data-i="passwordLabel">WiFi 密码</span>
+          <input id="passwordInput" name="password" type="password" placeholder="留空可连接开放网络" data-placeholder="passwordPlaceholder" autocomplete="current-password">
+        </label>
+        <button id="connectBtn" class="primary" type="submit" data-i="connect">连接并保存</button>
+        <p id="status" class="status" role="status" aria-live="polite" data-i="ready">准备就绪，请选择或输入 WiFi。</p>
+      </form>
+    </section>
+  </main>
+  <script src="/www/ap-wifi.js"></script>
+</body>
+</html>
