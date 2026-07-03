@@ -1,0 +1,99 @@
+diff --git a/src/ServerManager.cpp b/src/ServerManager.cpp
+--- a/src/ServerManager.cpp
++++ b/src/ServerManager.cpp
+@@ -2,7 +2,6 @@
+ #include "Globals.h"
+ #include <WebServer.h>
+ #include <esp-fs-webserver.h>
+ #include "htmls.h"
+ #include <Update.h>
+ #include <ESPmDNS.h>
+ #include <LittleFS.h>
+@@ -15,7 +14,9 @@
+ #include <WiFiUdp.h>
+ #include <HTTPClient.h>
+-#include "Games/GameManager.h"
++#ifndef awtrix2_upgrade
++#include "Games/GameManager.h"
+ #include <EEPROM.h>
++#endif
+@@ -119,20 +120,6 @@ void addHandler()
+                    } });
+     mws.addHandler("/api/nextapp", HTTP_ANY, []()
+                    { DisplayManager.nextApp(); mws.webserver->send(200,F("text/plain"),F("OK")); });
+-    mws.addHandler("/fullscreen", HTTP_GET, []()
+-                   {
+-    String fps = mws.webserver->arg("fps");
+-    if (fps == "") {
+-        fps = "30"; 
+-    }
+-    String finalHTML = screenfull_html; 
+-    finalHTML.replace("%%FPS%%", fps);
+-
+-    mws.webserver->send(200, "text/html", finalHTML.c_str()); });
+-    mws.addHandler("/screen", HTTP_GET, []()
+-                   { mws.webserver->send(200, "text/html", screen_html); });
+-    mws.addHandler("/backup", HTTP_GET, []()
+-                   { mws.webserver->send(200, "text/html", backup_html); });
+     mws.addHandler("/api/previousapp", HTTP_POST, []()
+                    { DisplayManager.previousApp(); mws.webserver->send(200,F("text/plain"),F("OK")); });
+     mws.addHandler("/api/notify/dismiss", HTTP_ANY, []()
+@@ -356,7 +343,9 @@ void ServerManager_::handle()
+             char incomingByte = currentClient.read();            
+             if (incomingByte == '\n') {
+                 dataBuffer[bufferIndex] = '\0';               
++#ifndef awtrix2_upgrade
+                 GameManager.ControllerInput(dataBuffer);
++#endif
+                 bufferIndex = 0;
+             }
+diff --git a/src/DisplayManager.cpp b/src/DisplayManager.cpp
+--- a/src/DisplayManager.cpp
++++ b/src/DisplayManager.cpp
+@@ -21,7 +21,9 @@
+ #include "Effects.h"
+ #include "Globals.h"
+ #include <set>
++#ifndef awtrix2_upgrade
+ #include "Games/GameManager.h"
++#endif
+ #include <TJpg_Decoder.h>
+ #include "icons.h"
+@@ -1243,12 +1245,14 @@ void DisplayManager_::tick()
+ {
+   if (GAME_ACTIVE)
+   {
++#ifndef awtrix2_upgrade
+     GameManager.tick();
+     matrix->show();
+     memcpy(ledsCopy, leds, sizeof(leds));
++#endif
+   }
+   else if (AP_MODE)
+   {
+@@ -2126,6 +2130,7 @@ void DisplayManager_::setNewSettings(const char *json)
+       return;
+   }
+ 
++#ifndef awtrix2_upgrade
+   if (doc.containsKey("GAMEMODE"))
+   {
+     bool gamemode = doc["GAMEMODE"];
+@@ -2140,6 +2145,7 @@ void DisplayManager_::setNewSettings(const char *json)
+     GameManager.ChooseGame(game);
+     return;
+   }
++#endif
+ 
+   TIME_MODE = doc.containsKey("TMODE") ? doc["TMODE"].as<int>() : TIME_MODE;
+   TRANS_EFFECT = doc.containsKey("TEFF") ? doc["TEFF"] : TRANS_EFFECT;
+diff --git a/src/PeripheryManager.cpp b/src/PeripheryManager.cpp
+--- a/src/PeripheryManager.cpp
++++ b/src/PeripheryManager.cpp
+@@ -17,7 +17,9 @@
+ #include <ServerManager.h>
+ #include <MedianFilterLib.h>
+ #include <MeanFilterLib.h>
++#ifndef awtrix2_upgrade
+ #include <Games/GameManager.h>
++#endif

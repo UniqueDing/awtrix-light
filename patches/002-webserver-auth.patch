@@ -1,0 +1,28 @@
+diff --git a/lib/webserver/esp-fs-webserver.cpp b/lib/webserver/esp-fs-webserver.cpp
+index 16aa224..6cb1ca2 100644
+--- a/lib/webserver/esp-fs-webserver.cpp
++++ b/lib/webserver/esp-fs-webserver.cpp
+@@ -135,17 +135,18 @@ bool FSWebServer::begin( int port,const char *path)
+ WebServerClass::THandlerFunction FSWebServer::authMiddleware(WebServerClass::THandlerFunction fn)
+ {
+     if (authUser.isEmpty() || m_apmode)
+-    {
+         return fn;
+-    }
+ 
+     return [this, fn]()
+     {
+-        if (!webserver->authenticate(authUser.c_str(), authPass.c_str()))
++        String uri = webserver->uri();
++        if (uri.startsWith("/www/") || uri == "/api/auth/status" || uri == "/api/auth/check")
+         {
+-            return webserver->requestAuthentication();
++            fn();
++            return;
+         }
+-
++        if (!webserver->authenticate(authUser.c_str(), authPass.c_str()))
++            return webserver->requestAuthentication();
+         fn();
+     };
+ }

@@ -1,0 +1,34 @@
+diff --git a/src/ServerManager.cpp b/src/ServerManager.cpp
+index 0da6d87..c2541fc 100644
+--- a/src/ServerManager.cpp
++++ b/src/ServerManager.cpp
+@@ -7,7 +7,8 @@
+ #include <ESPmDNS.h>
+ #include <LittleFS.h>
+ #include <WiFi.h>
+-#include "DisplayManager.h"
++#include "DisplayManager.h"
++#include "AwtrixLightWeb.h"
+ #include "UpdateManager.h"
+ #include "PeripheryManager.h"
+ #include "PowerManager.h"
+@@ -201,7 +202,8 @@ void addHandler()
+                         mws.webserver->send(404,F("text/plain"),"NoUpdateFound");    
+                     } });
+     mws.addHandler("/api/r2d2", HTTP_POST, []()
+-                   { PeripheryManager.r2d2(mws.webserver->arg("plain").c_str()); mws.webserver->send(200,F("text/plain"),F("OK")); });
++                   { PeripheryManager.r2d2(mws.webserver->arg("plain").c_str()); mws.webserver->send(200,F("text/plain"),F("OK")); });
++    setupAwtrixLightWebRoutes(mws);
+ }
+ 
+ void ServerManager_::setup()
+@@ -391,7 +393,8 @@ void ServerManager_::loadSettings()
+ }
+ 
+ void ServerManager_::sendButton(byte btn, bool state)
+-{
++{
++    setAwtrixLightRuntimeButton(btn, state);
+     if (BUTTON_CALLBACK == "")
+         return;
+     static bool btn0State, btn1State, btn2State;

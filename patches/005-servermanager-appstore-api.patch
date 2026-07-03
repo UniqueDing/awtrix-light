@@ -1,0 +1,45 @@
+diff --git a/src/ServerManager.cpp b/src/ServerManager.cpp
+--- a/src/ServerManager.cpp
++++ b/src/ServerManager.cpp
+@@ -9,6 +9,7 @@
+ #include <WiFi.h>
+ #include "DisplayManager.h"
+ #include "AwtrixLightWeb.h"
++#include "AppStore.h"
+ #include "UpdateManager.h"
+ #include "PeripheryManager.h"
+ #include "PowerManager.h"
+@@ -151,6 +152,40 @@ void addHandler()
+         } });
+     mws.addHandler("/api/apps", HTTP_GET, []()
+                    { mws.webserver->send_P(200, "application/json", DisplayManager.getAppsWithIcon().c_str()); });
++    mws.addHandler("/api/app-store", HTTP_GET, []()
++                   { mws.webserver->send_P(200, "application/json", getAppStoreManifestJson()); });
++    mws.addHandler("/api/app-store/install", HTTP_POST, []()
++                   {
++                    String body = mws.webserver->arg("plain");
++                    if (!body.startsWith("{") || body.indexOf("\"id\"") < 0)
++                    {
++                        mws.webserver->send(400, "application/json", "{\"success\":false,\"error\":\"invalid request\"}");
++                        return;
++                    }
++
++                    String id = body.indexOf("demo-clock") >= 0 ? "demo-clock" : "";
++                    const char *appJson = getAppStoreAppJson(id);
++                    if (appJson == nullptr)
++                    {
++                        mws.webserver->send(404, "application/json", "{\"success\":false,\"error\":\"app not found\"}");
++                        return;
++                    }
++
++                    DisplayManager_::CustomAppInstallResult result = DisplayManager.installCustomAppFromJson(id, appJson);
++                    if (result == DisplayManager_::CUSTOM_APP_INSTALL_OK)
++                        mws.webserver->send(200, "application/json", "{\"success\":true,\"id\":\"" + id + "\"}");
++                    else if (result == DisplayManager_::CUSTOM_APP_INSTALL_DUPLICATE)
++                        mws.webserver->send(409, "application/json", "{\"success\":false,\"error\":\"app already installed\"}");
++                    else
++                        mws.webserver->send(500, "application/json", "{\"success\":false,\"error\":\"error parsing app json\"}");
++                   });
+     mws.addHandler("/api/settings", HTTP_POST, []()
+                    { DisplayManager.setNewSettings(mws.webserver->arg("plain").c_str()); mws.webserver->send(200,F("text/plain"),F("OK")); });
+     mws.addHandler("/api/erase", HTTP_ANY, []()

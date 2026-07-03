@@ -1,0 +1,59 @@
+diff --git a/src/DisplayManager.h b/src/DisplayManager.h
+index 88b5fdc..f3c72c9 100644
+--- a/src/DisplayManager.h
++++ b/src/DisplayManager.h
+@@ -16,6 +16,7 @@ private:
+     DisplayManager_() = default;
+ 
+ public:
++    enum CustomAppInstallResult { CUSTOM_APP_INSTALL_OK, CUSTOM_APP_INSTALL_DUPLICATE, CUSTOM_APP_INSTALL_INVALID_JSON, CUSTOM_APP_INSTALL_SAVE_FAILED };
+     static DisplayManager_ &getInstance();
+     bool appIsSwitching;
+     bool showGif;
+@@ -76,6 +77,7 @@ public:
+     String getAppsWithIcon();
+     void startArtnet();
+     bool parseCustomPage(const String &name, const char *json, bool preventSave);
++    CustomAppInstallResult installCustomAppFromJson(const String &name, const char *json);
+     bool moodlight(const char *json);
+     int *getLedColors();
+     CRGB getPixelColor(int16_t x, int16_t y);
+diff --git a/src/DisplayManager.cpp b/src/DisplayManager.cpp
+index 9eaefb0..932bc5d 100644
+--- a/src/DisplayManager.cpp
++++ b/src/DisplayManager.cpp
+@@ -460,6 +460,48 @@ bool DisplayManager_::parseCustomPage(const String &name, const char *json, bool
+   return true;
+ }
+ 
++DisplayManager_::CustomAppInstallResult DisplayManager_::installCustomAppFromJson(const String &name, const char *json)
++{
++  if (LittleFS.exists("/CUSTOMAPPS/" + name + ".json"))
++  {
++    return CUSTOM_APP_INSTALL_DUPLICATE;
++  }
++
++  for (const auto &app : Apps)
++  {
++    if (app.first == name || ((name == "demo-clock" || name == "Demo Clock") && (app.first == "demo-clock" || app.first == "Demo Clock")))
++    {
++      return CUSTOM_APP_INSTALL_DUPLICATE;
++    }
++  }
++
++  bool installed = parseCustomPage(name, json, false);
++
++  if (!installed)
++  {
++    return CUSTOM_APP_INSTALL_SAVE_FAILED;
++  }
++
++  ui->setApps(Apps);
++  ui->forceResetState();
++
++  return CUSTOM_APP_INSTALL_OK;
++}
++
+ // Function to subscribe to MQTT topics based on placeholders in text
+ void subscribeToPlaceholders(String text)
+ {
