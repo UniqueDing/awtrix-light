@@ -2,7 +2,6 @@
 #include "Globals.h"
 #include <WebServer.h>
 #include <esp-fs-webserver.h>
-#include "htmls.h"
 #include <Update.h>
 #include <ESPmDNS.h>
 #include <LittleFS.h>
@@ -220,9 +219,6 @@ void addHandler()
     mws.addHandler("/api/r2d2", HTTP_POST, []()
                    { PeripheryManager.r2d2(mws.webserver->arg("plain").c_str()); mws.webserver->send(200,F("text/plain"),F("OK")); });
     setupAwtrixLightWebRoutes(mws);
-    mws.publicShell.push_back("/www/");
-    mws.publicShell.push_back("/api/auth/status");
-    mws.publicShell.push_back("/api/auth/check");
 }
 
 void ServerManager_::setup()
@@ -262,9 +258,6 @@ void ServerManager_::setup()
         mws.addOption("Timezone", NTP_TZ);
         mws.addHTML("<p>Find your timezone at <a href='https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv' target='_blank' rel='noopener noreferrer'>posix_tz_db</a>.</p>", "tz_link");
         mws.addOptionBox("Icons");
-        mws.addHTML(custom_html, "icon_html");
-        mws.addCSS(custom_css);
-        mws.addJavascript(custom_script);
         mws.addOptionBox("Auth");
         mws.addOption("Auth Username", AUTH_USER);
         mws.addOption("Auth Password", AUTH_PASS);
