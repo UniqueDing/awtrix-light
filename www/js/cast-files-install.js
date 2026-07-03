@@ -1,0 +1,255 @@
+let castStoreCatalog=[],castModuleCache= {
+
+},castModuleV=0,castInstalledCache=null;
+const CAST_APPS_DIR='/Apps/cast';
+function localCastInstalledMap() {
+  try {
+    return JSON.parse(localStorage.awtrixCastAppManifests||' {
+
+    }')
+  }catch(e) {
+    return {
+
+    }
+  }
+}function castInstalledMap() {
+  return castInstalledCache||localCastInstalledMap()
+}function castAppIds() {
+  return Object.keys(castInstalledMap())
+}function castLocalPath(id,ext) {
+  return CAST_APPS_DIR+'/'+id+ext
+}function normalizeCastManifest(app,id) {
+  app=Object.assign( {
+
+  },
+  app|| {
+
+  });
+  app.id=app.id||id;
+  if(!app.id)return null;
+  let localJs=castLocalPath(app.id,
+  '.js');
+  app.entryLocal=app.entryLocal||app.entryUrl||app.entry||localJs;
+  if(app.entryLocal!==localJs)app.entryLocal=localJs;
+  app.entry=app.entryLocal;
+  app.entryUrl=app.entryLocal;
+  return app
+}async function listCastManifestFiles() {
+  let r=await fetch('/list?dir='+encodeURIComponent(CAST_APPS_DIR),
+   {
+    cache:'no-store'
+  });
+  if(!r.ok)throw Error(await r.text()||'cast list failed');
+  let list=await r.json();
+  return (Array.isArray(list)?list:[]).filter(f=>f&&f.type!=='dir'&&/\.json$/i.test(f.name||'')&&String(f.name).toLowerCase()!=='apps.json').map(f=>String(f.name))
+}async function readCastManifest(name) {
+  let id=String(name).replace(/\.json$/i,
+  ''),
+  path=castLocalPath(id,
+  '.json'),
+  r=await fetch('/api/files/view?path='+encodeURIComponent(path),
+   {
+    cache:'no-store'
+  });
+  if(!r.ok)return null;
+  let j=await r.json();
+  if(j.binary)return null;
+  return normalizeCastManifest(JSON.parse(j.content||' {
+
+  }'),
+  id)
+}async function loadCastInstalledMap(force) {
+  if(castInstalledCache&&!force)return castInstalledCache;
+  let map= {
+
+  };
+  try {
+    let files=await listCastManifestFiles();
+    let manifests=await Promise.all(files.map(readCastManifest));
+    manifests.filter(Boolean).forEach(app=> {
+      map[app.id]=app
+    })
+  }catch(e) {
+    map=localCastInstalledMap()
+  }castInstalledCache=map;
+  localStorage.awtrixCastAppManifests=JSON.stringify(castInstalledCache);
+  localStorage.awtrixCastApps=JSON.stringify(Object.keys(castInstalledCache));
+  return castInstalledCache
+}async function saveCastInstalledMap(map) {
+  castInstalledCache=map|| {
+
+  };
+  localStorage.awtrixCastAppManifests=JSON.stringify(castInstalledCache);
+  localStorage.awtrixCastApps=JSON.stringify(Object.keys(castInstalledCache))
+}function installedCastApps() {
+  let map=castInstalledMap();
+  return Object.keys(map).map(id=>map[id]).filter(Boolean)
+}async function writeCastFile(path,text,type) {
+  let blob=new Blob([text],
+   {
+    type:type||'text/plain'
+  }),
+  form=new FormData();
+  form.append('file',
+  blob,
+  path.replace(/^\//,
+  ''));
+  let r=await fetch('/edit',
+   {
+    method:'POST',
+    body:form
+  });
+  if(!r.ok)throw Error(await r.text()||'cast file save failed')
+}async function loadExternalCastModule(app) {
+  let url=(app&&app.entryLocal)||castLocalPath(app.id,
+  '.js');
+  if(!url)throw Error('missing entry');
+  let sep=url.includes('?')?'&':'?';
+  if(!castModuleCache[url])castModuleCache[url]=import(url+sep+'v='+castModuleV);
+  return castModuleCache[url]
+}async function openCastApp(id) {
+  let map=await loadCastInstalledMap(),
+  app=map[id]||castStoreCatalog.find(a=>a.id===id);
+  if(!app)return;
+  app=normalizeCastManifest(app,
+  id);
+  castModuleV++;
+  castModuleCache= {
+
+  };
+  try {
+    let mod=await loadExternalCastModule(app),
+    api=createCastAppApi(app);
+    if(mod.main)await mod.main(api,
+    app);
+    else throw Error("module missing main()")
+  }catch(e) {
+    setStatus(E.libraryStatus||E.storeStatus,
+    e.message,
+    true)
+  }
+}async function installCastApp(id,btn) {
+  let app=castStoreCatalog.find(a=>a.id===id);
+  if(!app)return;
+  let originalText=btn?btn.textContent:'';
+  if(btn) {
+    btn.disabled=true;
+    btn.textContent=t.installing||originalText
+  }try {
+    let map=Object.assign( {
+
+    },
+    await loadCastInstalledMap()),
+    base=storeBase(selectedStoreSource().url),
+    entryOriginal=app.entryUrl||app.entry;
+    if(!entryOriginal)throw Error('missing entry');
+    let entryResolved=resolveStoreUrl(entryOriginal,
+    base),
+    entryRes=await rawFetch(entryResolved,
+     {
+      cache:'no-store'
+    });
+    if(!entryRes.ok)throw Error('cast download failed');
+    let entryText=await entryRes.text(),
+    jsPath=castLocalPath(app.id,
+    '.js'),
+    manifestPath=castLocalPath(app.id,
+    '.json');
+    await writeCastFile(jsPath,
+    entryText,
+    'text/javascript');
+    await installIconForApp(app,
+    app,
+    base);
+    let installed=normalizeCastManifest(Object.assign( {
+
+    },
+    app,
+     {
+      entry:jsPath,
+      entryLocal:jsPath,
+      entryUrl:jsPath,
+      entryOriginal:entryResolved
+    }),
+    app.id);
+    await writeCastFile(manifestPath,
+    JSON.stringify(installed,
+    null,
+    2),
+    'application/json');
+    map[id]=installed;
+    await saveCastInstalledMap(map);
+    castModuleCache= {
+
+    };
+    castModuleV++;
+    if(btn) {
+      btn.textContent=t.installed;
+      btn.onclick=null;
+      btn.classList.remove('primary');
+      btn.classList.add('tonal');
+      let row=btn.closest('.store-row');
+      if(row)row.classList.add('installed')
+    }renderCastAppStore();
+    if(activeLibraryKind==='cast')renderLibrary();
+    setStatus(E.storeStatus,
+    castAppName(app)+' '+t.installed,
+    false)
+  }catch(e) {
+    setStatus(E.storeStatus,
+    e.message,
+    true);
+    if(btn) {
+      btn.disabled=false;
+      btn.textContent=originalText
+    }
+  }
+}function uninstallCastApp(id) {
+  let map=castInstalledMap(),
+  app=map[id],
+  name=castAppName(app)||id;
+  hideFooterExport();
+  currentApp='__cast_uninstall__';
+  E.sheetTitle.textContent=castUi('uninstallTitle');
+  E.sheetStatus.textContent='';
+  E.fields.innerHTML='<section class="settings-card"><h3>'+name+'</h3><p class="hint">'+castUi('uninstallHint')+'</p></section>';
+  E.secondaryAction.style.display='';
+  E.secondaryAction.textContent='取消';
+  E.secondaryAction.onclick=()=>E.sheet.classList.remove('show');
+  E.saveSettings.style.display='';
+  E.saveSettings.textContent='卸载';
+  E.saveSettings.onclick=async()=> {
+    try {
+      let next=Object.assign( {
+
+      },
+      await loadCastInstalledMap());
+      delete next[id];
+      await Promise.all([fetch('/edit?path='+encodeURIComponent(castLocalPath(id,
+      '.js')),
+       {
+        method:'DELETE'
+      }).catch(()=> {
+
+      }),
+      fetch('/edit?path='+encodeURIComponent(castLocalPath(id,
+      '.json')),
+       {
+        method:'DELETE'
+      }).catch(()=> {
+
+      })]);
+      await saveCastInstalledMap(next);
+      E.saveSettings.onclick=saveAppSettings;
+      E.sheet.classList.remove('show');
+      renderLibrary();
+      storeLoaded=false;
+      if(activeStoreKind==='cast')loadStore()
+    }catch(e) {
+      setStatus(E.sheetStatus,
+      e.message,
+      true)
+    }
+  };
+  E.sheet.classList.add('show')
+}

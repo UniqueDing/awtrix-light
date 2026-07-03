@@ -1,16 +1,2565 @@
-function dbg(label){}const $=id=>document.getElementById(id),E={startupGate:$('startupGate'),startupStatus:$('startupStatus'),startupSpinner:$('startupSpinner'),startupHint:$('startupHint'),startupLoginForm:$('startupLoginForm'),settingsTab:$('settingsTab'),storeTab:$('storeTab'),libraryTab:$('libraryTab'),wifiTab:$('wifiTab'),filesTab:$('filesTab'),settingsPanel:$('settingsPanel'),storePanel:$('storePanel'),libraryPanel:$('libraryPanel'),wifiPanel:$('wifiPanel'),filesPanel:$('filesPanel'),filesSettingsTabs:$('filesSettingsTabs'),fileUploadBtn:$('fileUploadBtn'),fileUploadInput:$('fileUploadInput'),fileNewFolderBtn:$('fileNewFolderBtn'),fileNewBtn:$('fileNewBtn'),fileBackBtn:$('fileBackBtn'),fileRefreshBtn:$('fileRefreshBtn'),fileDeleteBtn:$('fileDeleteBtn'),fileSaveBtn:$('fileSaveBtn'),fileSelected:$('fileSelected'),fileUsage:$('fileUsage'),fileEditor:$('fileEditor'),settingsGrid:$('settingsGrid'),settingsEmpty:$('settingsEmpty'),settingsStatus:$('settingsStatus'),wifiGrid:$('wifiGrid'),wifiEmpty:$('wifiEmpty'),saveDeviceSettings:$('saveDeviceSettings'),storeGrid:$('storeGrid'),storeStatus:$('storeStatus'),libraryList:$('libraryList'),libraryStatus:$('libraryStatus'),sheet:$('sheetBackdrop'),fields:$('fields'),sheetTitle:$('sheetTitle'),sheetStatus:$('sheetStatus'),globalDisplay:$('globalDisplay'),createApp:$('createApp'),themeBtn:$('themeBtn'),langBtn:$('langBtn'),closeSheet:$('closeSheet'),secondaryAction:$('secondaryAction'),saveSettings:$('saveSettings'),interactiveRun:$('interactiveRun'),interactiveStop:$('interactiveStop'),interactiveStatus:$('interactiveStatus'),storeKindTabs:$('storeKindTabs'),storeSourceSlot:$('storeSourceSlot'),libraryKindTabs:$('libraryKindTabs'),liveAppsPanel:$('liveAppsPanel'),stopwatchOpen:$('stopwatchOpen'),countdownOpen:$('countdownOpen')};const I={zh:{title:'awtrix-light',subtitle:'',settings:'设置',settingsHint:'管理设备显示、时间、传感器和 App 默认显示。',loadingSettings:'正在读取设置...',matrixDisplay:'屏幕显示',timeDate:'时间日期',sensorApps:'传感器和状态',appDefaults:'App 默认显示',soundOther:'声音和其他',advancedSetup:'其他设置',openOldSetup:'打开设置',deviceSettings:'设备设置',homeAssistant:'Home Assistant',haEnabled:'启用 Home Assistant',haBaseUrl:'Home Assistant 地址',haToken:'Long-lived access token',haTimeout:'请求超时(ms)',haVerifyTls:'校验证书',integrations:'集成',startupChecking:'检查认证...',startupVerifying:'验证会话...',startupReady:'初始化界面...',startupLogin:'需要登录',autoBrightness:'自动亮度',brightness:'亮度',autoTransition:'自动切换',transitionEffect:'切换效果',transitionSpeed:'切换速度(ms)',appTime:'应用停留(秒)',timeMode:'时间模式',calendarHeader:'日历标题颜色',calendarText:'日历文字颜色',calendarBody:'日历背景颜色',timeFormat:'时间格式',dateFormat:'日期格式',startMonday:'周一开始',blockNav:'禁用按键切换',matrixLayout:'矩阵方向',sound:'声音',gamma:'Gamma',uppercase:'大写字母',colorCorrection:'颜色校正',colorTemperature:'色温',weekday:'显示星期',weekdayActive:'星期激活颜色',weekdayInactive:'星期未激活颜色',timeColor:'时间颜色',dateColor:'日期颜色',humidityColor:'湿度颜色',temperatureColor:'温度颜色',batteryColor:'电池颜色',globalScrollSpeed:'全局滚动速度',showTime:'显示时间',showDate:'显示日期',showHumidity:'显示湿度',showTemperature:'显示温度',showBattery:'显示电池',volume:'音量',overlay:'覆盖效果',store:'应用商店',mine:'我的应用',files:'文件',filesHint:'管理 LittleFS 文件。',loadingFiles:'正在加载文件...',upload:'上传',newFile:'新建文件',newFolder:'新建文件夹',refresh:'刷新',saveFile:'保存',deleteFile:'删除',noFileSelected:'未选择文件',filename:'文件名',folderName:'文件夹名',confirmDelete:'删除 ',sourceName:'源名称',sourceUrl:'源地址',addSource:'添加源',removeSource:'删除源',confirmRemoveSource:'删除这个应用商店源？',update:'更新',incompatible:'固件版本过低',requiresVersion:'需要版本',cancel:'取消',ok:'确定',fileLoadFailed:'文件读取失败',fileBinary:'二进制文件，无法预览文本。',storeHint:'安装设备内置的本地 App。',mineHint:'',loadingStore:'正在加载 App 列表...',loadingApps:'正在读取 App 列表...',appSettings:'App 设置',saveSettings:'保存设置',install:'安装',installing:'安装中...',installed:'已安装',localJson:'本地 JSON 应用',jsonApp:'JSON 应用',nativeApp:'内置应用',tapSettings:'点击设置',global:'全局',on:'开启',off:'关闭',left:'左对齐',center:'居中',right:'右对齐',globalAlign:'全局对齐',globalIcon:'全局显示 icon',globalUnder:'全局文字下划线',globalDur:'全局显示时长(秒)',align:'对齐',showIcon:'显示 icon',underline:'文字下划线',duration:'显示时长(秒，0=全局)',textColor:'文字颜色',uid:'Bilibili UID',uidRequired:'请先填写 Bilibili UID',savingOrder:'正在同步顺序...',orderSaved:'排序已实时保存',updating:'正在更新...',updated:'状态已更新',saving:'正在保存...',saved:'已保存',uninstall:'移除',confirmUninstall:'卸载 ',uninstalled:'已卸载 ',count:'共 ',countEnd:' 个应用',noFields:'这个应用当前没有可编辑的内置设置。',createApp:'创建 App',create:'创建',guided:'自定义表单',httpJson:'HTTP 请求',rawJson:'导入 JSON',importJson:'导入 JSON',importPaste:'粘贴 JSON',importPreview:'预览',importApply:'应用到表单',importNext:'下一步',importBack:'上一步',importToForm:'填入表单',importReady:'JSON 已解析，确认后会填入左侧表单，不会直接保存。',importApplied:'已填入表单，请检查后点击创建。',appJson:'应用 JSON',basicInfo:'创建表单',useImport:'导入 JSON',manualCreate:'手动创建',description:'应用介绍',inputDescription:'输入说明',appIcon:'应用图标',createIcon:'创建图标',editApp:'编辑应用',exportJson:'导出应用',exportFailed:'导出失败',version:'版本',author:'作者',tags:'标签(逗号分隔)',matrixPower:'屏幕电源',celsius:'摄氏度',appListLoadFailed:'应用列表加载失败',authorDefault:'Node-RED Conversion',sourceId:'数据源 ID',sourceType:'数据源类型',sourceMethod:'请求方法',sourceUrl:'请求 URL',responseType:'响应类型',interval:'刷新间隔(秒)',timeout:'超时(ms)',headers:'请求头 JSON',body:'请求体 JSON',inputsSection:'输入项',inputs:'输入项',add:'添加',remove:'删除',displaySection:'显示内容',sourceSection:'数据源',jsonPlaceholder:'留空或填写 JSON',appNameLabel:'应用名称',displayText:'显示文字',iconName:'图标名称',jsonContent:'JSON 内容',httpEndpoint:'请求地址',httpBody:'请求 JSON',invalidJson:'JSON 格式错误',nameRequired:'请填写应用名称',background:'背景颜色',payloadDuration:'页面停留时长(秒)',progress:'进度(-1=关闭)',progressColor:'进度颜色',progressBg:'进度背景色',noScroll:'不滚动文字',textCase:'文字大小写(0=默认)',scrollSpeed:'滚动速度(-1=默认)',textOffset:'文字偏移',iconOffset:'图标偏移',topText:'文字置顶',centerText:'居中',rainbow:'彩虹文字',bounce:'弹跳文字',pushIcon:'推开图标',repeat:'重复次数(-1=默认)',fadeText:'淡入淡出',blinkText:'闪烁',lifetime:'过期时间(秒，0=关闭)',lifetimeMode:'生命周期模式',integration:'集成',none:'无',bilibili:'Bilibili',advanced:'高级自定义'},en:{title:'awtrix-light',subtitle:'',settings:'Settings',wifiSetup:'WiFi Setup',wifiSetupHint:'Scan nearby WiFi and connect the device from AP mode.',settingsHint:'Manage display, time, sensors, and app defaults.',loadingSettings:'Loading settings...',matrixDisplay:'Matrix display',timeDate:'Time and date',sensorApps:'Sensors and status',appDefaults:'App defaults',soundOther:'Sound and other',advancedSetup:'Other settings',openOldSetup:'Open setup',deviceSettings:'Device Settings',homeAssistant:'Home Assistant',haEnabled:'Enable Home Assistant',haBaseUrl:'Home Assistant URL',haToken:'Long-lived access token',haTimeout:'Request timeout (ms)',haVerifyTls:'Verify TLS certificate',integrations:'Integrations',startupChecking:'Checking authentication...',startupVerifying:'Verifying session...',startupReady:'Starting interface...',startupLogin:'Login required',autoBrightness:'Auto brightness',brightness:'Brightness',autoTransition:'Auto transition',transitionEffect:'Transition effect',transitionSpeed:'Transition speed (ms)',appTime:'App duration (seconds)',timeMode:'Time mode',calendarHeader:'Calendar header color',calendarText:'Calendar text color',calendarBody:'Calendar body color',timeFormat:'Time format',dateFormat:'Date format',startMonday:'Start on Monday',blockNav:'Block button navigation',matrixLayout:'Matrix layout',sound:'Sound',gamma:'Gamma',uppercase:'Uppercase letters',colorCorrection:'Color correction',colorTemperature:'Color temperature',weekday:'Show weekday',weekdayActive:'Weekday active color',weekdayInactive:'Weekday inactive color',timeColor:'Time color',dateColor:'Date color',humidityColor:'Humidity color',temperatureColor:'Temperature color',batteryColor:'Battery color',globalScrollSpeed:'Global scroll speed',showTime:'Show time',showDate:'Show date',showHumidity:'Show humidity',showTemperature:'Show temperature',showBattery:'Show battery',volume:'Volume',overlay:'Overlay',store:'App Store',mine:'My Apps',files:'Files',filesHint:'Manage LittleFS files.',loadingFiles:'Loading files...',upload:'Upload',newFile:'New file',newFolder:'New folder',refresh:'Refresh',saveFile:'Save',deleteFile:'Delete',noFileSelected:'No file selected',filename:'File name',folderName:'Folder name',confirmDelete:'Delete ',sourceName:'Source name',sourceUrl:'Source URL',addSource:'Add source',removeSource:'Remove source',confirmRemoveSource:'Remove this app store source?',update:'Update',incompatible:'Firmware too old',requiresVersion:'Requires version',cancel:'Cancel',ok:'OK',fileLoadFailed:'Failed to load file',fileBinary:'Binary file; text preview is unavailable.',storeHint:'Install local JSON apps bundled on the device.',mineHint:'',loadingStore:'Loading apps...',loadingApps:'Loading installed apps...',appSettings:'Flow Settings',saveSettings:'Save Settings',install:'Install',installing:'Installing...',installed:'Installed',localJson:'Local JSON app',jsonApp:'JSON app',nativeApp:'Built-in app',tapSettings:'tap to configure',global:'Global',on:'On',off:'Off',left:'Left',center:'Center',right:'Right',globalAlign:'Global alignment',globalIcon:'Global show icon',globalUnder:'Global underline text',globalDur:'Global duration (seconds)',align:'Alignment',showIcon:'Show icon',underline:'Underline text',duration:'Duration (seconds, 0=global)',textColor:'Text color',uid:'Bilibili UID',uidRequired:'Fill in Bilibili UID before enabling',savingOrder:'Syncing order...',orderSaved:'Order saved',updating:'Updating...',updated:'Updated',saving:'Saving...',saved:'Saved',uninstall:'Remove',confirmUninstall:'Uninstall Flow ',uninstalled:'Uninstalled ',count:'',countEnd:' apps',noFields:'This app has no editable built-in settings.',createApp:'Create App',create:'Create',guided:'Custom Form',httpJson:'HTTP Request',rawJson:'Import JSON',importJson:'Import JSON',importPaste:'Paste JSON',importPreview:'Preview',importApply:'Apply to Form',importNext:'Next',importBack:'Back',importToForm:'Fill Form',importReady:'JSON parsed. Confirm to fill the form; it will not save directly.',importApplied:'Filled the form. Review it, then click Create.',appJson:'App JSON',basicInfo:'Create Form',useImport:'Import JSON',manualCreate:'Manual Create',description:'Description',inputDescription:'Input description',appIcon:'App icon',createIcon:'Create icon',editApp:'Edit app',exportJson:'Export App',exportFailed:'Export failed',version:'Version',author:'Author',tags:'Tags (comma separated)',matrixPower:'Matrix power',celsius:'Celsius',appListLoadFailed:'App list failed to load',authorDefault:'Node-RED Conversion',sourceId:'Source ID',sourceType:'Source type',sourceMethod:'Method',sourceUrl:'Request URL',responseType:'Response type',interval:'Refresh interval (sec)',timeout:'Timeout (ms)',headers:'Headers JSON',body:'Body JSON',inputsSection:'Inputs',inputs:'Inputs',add:'Add',remove:'Remove',displaySection:'Display content',sourceSection:'Source',jsonPlaceholder:'Leave empty or enter JSON',appNameLabel:'App name',displayText:'Display text',iconName:'Icon name',jsonContent:'JSON content',httpEndpoint:'Endpoint',httpBody:'Request JSON',invalidJson:'Invalid JSON',nameRequired:'Enter an app name',background:'Background color',payloadDuration:'Payload duration (seconds)',progress:'Progress (-1=off)',progressColor:'Progress color',progressBg:'Progress background',noScroll:'No text scroll',textCase:'Text case (0=default)',scrollSpeed:'Scroll speed (-1=default)',textOffset:'Text offset',iconOffset:'Icon offset',topText:'Top text',centerText:'Center',rainbow:'Rainbow text',bounce:'Bounce text',pushIcon:'Push icon',repeat:'Repeat count (-1=default)',fadeText:'Fade text',blinkText:'Blink text',lifetime:'Expire after (seconds, 0=off)',lifetimeMode:'Lifetime mode',integration:'Integration',none:'None',bilibili:'Bilibili',advanced:'Advanced custom'}};let lang=localStorage.awtrixLang||'zh',t=I[lang],storeLoaded=false,libraryLoaded=false,filesLoaded=false,apps=[],settings={},currentApp=null,formMode='create';let authHeader=sessionStorage.awtrixAuth||'',frameVersion='0';const rawFetch=window.fetch.bind(window);window.fetch=(input,init)=>{let url=typeof input==='string'?input:(input&&input.url)||'',next=Object.assign({},init||{}),headers=new Headers(next.headers||{});if(authHeader&&!url.includes('/api/auth/status'))headers.set('Authorization','Basic '+authHeader);next.headers=headers;return rawFetch(input,next).then(r=>{if(r.status===401&&authHeader){authHeader='';sessionStorage.removeItem('awtrixAuth');setTimeout(()=>{if(typeof initAuth==='function')initAuth()},0)}return r})};const UI_DEBUG_BUILD='DBG-20260701-2052';function showDebugBuildBadge(){let el=document.getElementById('debugBuildBadge');if(!el){el=document.createElement('div');el.id='debugBuildBadge';document.body.appendChild(el)}el.textContent=UI_DEBUG_BUILD}function startup(msg){if(E.startupStatus)E.startupStatus.textContent=msg||''}function hideStartup(){if(E.startupGate)E.startupGate.style.display='none'}function showStartup(msg){if(E.startupGate)E.startupGate.style.display='grid';startup(msg)}function startApp(){dbg('startApp');startup(t.startupReady);applyTheme();applyLang();showDebugBuildBadge();activate(location.pathname==='/settings'?'settings':location.pathname==='/my-apps'?'library':location.pathname==='/files'?'files':'store',true);hideStartup();dbg('startup:hidden');setTimeout(initPreviewView,0)}async function initAuth(){dbg('initAuth');if(authHeader){dbg('auth:sessionStorage');startApp();return}let showLogin=()=>{let sp=$('startupSpinner'),hint=$('startupHint'),form=$('startupLoginForm');if(sp)sp.style.display='none';if(hint)hint.style.display='none';if(form)form.style.display='';startup(t.startupLogin);let user=$('startupUser'),pass=$('startupPass'),btn=$('startupLoginBtn');let doLogin=()=>{let u=(user&&user.value||'').trim(),p=pass&&pass.value||'';if(!u){startup(lang==='zh'?'请输入用户名':'Enter username');return}authHeader=btoa(u+':'+p);sessionStorage.awtrixAuth=authHeader;startApp()};if(btn)btn.onclick=doLogin;if(pass)pass.onkeydown=e=>{if(e.key==='Enter')doLogin()};if(user)user.focus()};fetch('/api/auth/status',{cache:'no-store'}).then(r=>r.json()).then(j=>{dbg('auth:status enabled='+j.enabled);if(!j.enabled){startApp();return}showLogin()}).catch(e=>{dbg('auth:status failed '+e.message);showLogin()})}const DEFAULT_STORE_SOURCE={name:'awtrix-light',url:'https://github.com/awtrix-light/awtrix-light-app'},STORE_SOURCES_KEY='awtrixStoreSourcesV2',STORE_SELECTED_KEY='awtrixStoreUrlV2',LEGACY_STORE_SOURCES_KEY='awtrixStoreSources',LEGACY_STORE_SELECTED_KEY='awtrixStoreUrl',STORE_MIGRATED_KEY='awtrixStoreSourcesMigratedV2';function isStaleStoreSource(url){return url==='/list.json'||url==='/api/app-store'||String(url||'').includes('localhost:8091')}function normalizeStoreSourceUrl(url){return String(url||'').trim().replace(/\/+$/,'')}function storeSourceKey(url){return normalizeStoreSourceUrl(url)}function cleanStoreSource(source){let url=normalizeStoreSourceUrl(source&&source.url);if(!url||isStaleStoreSource(url))return null;return {name:String(source.name||url).trim()||url,url}}function readJsonArrayStorage(key){try{let list=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(list)?list:[]}catch(e){return []}}function uniqueCustomStoreSources(list){let seen=new Set([storeSourceKey(DEFAULT_STORE_SOURCE.url)]),out=[];(Array.isArray(list)?list:[]).forEach(source=>{let s=cleanStoreSource(source);if(!s)return;let key=storeSourceKey(s.url);if(seen.has(key))return;seen.add(key);out.push(s)});return out}function readCustomStoreSources(){let current=uniqueCustomStoreSources(readJsonArrayStorage(STORE_SOURCES_KEY));if(current.length||localStorage.getItem(STORE_MIGRATED_KEY)==='1')return current;let legacy=uniqueCustomStoreSources(readJsonArrayStorage(LEGACY_STORE_SOURCES_KEY));localStorage.setItem(STORE_MIGRATED_KEY,'1');if(legacy.length){localStorage.setItem(STORE_SOURCES_KEY,JSON.stringify(legacy));console.info('store sources migrated to v2 once',legacy.length,legacy.map(s=>s.url))}return legacy}function removeLegacyStoreSourceKey(key){let legacy=uniqueCustomStoreSources(readJsonArrayStorage(LEGACY_STORE_SOURCES_KEY)).filter(s=>storeSourceKey(s.url)!==key);localStorage.setItem(LEGACY_STORE_SOURCES_KEY,JSON.stringify(legacy));if(storeSourceKey(localStorage.getItem(LEGACY_STORE_SELECTED_KEY)||'')===key)localStorage.removeItem(LEGACY_STORE_SELECTED_KEY)}function writeCustomStoreSources(custom,selectedUrl){let clean=uniqueCustomStoreSources(custom);localStorage.setItem(STORE_SOURCES_KEY,JSON.stringify(clean));localStorage.setItem(STORE_SELECTED_KEY,normalizeStoreSourceUrl(selectedUrl||DEFAULT_STORE_SOURCE.url)||DEFAULT_STORE_SOURCE.url);console.info('store sources v2 saved',clean.length,clean.map(s=>s.url));return clean}function storeSources(){let sources=[DEFAULT_STORE_SOURCE];readCustomStoreSources().forEach(s=>sources.push(s));return sources}function selectedStoreSource(){let sources=storeSources(),url=normalizeStoreSourceUrl(localStorage.getItem(STORE_SELECTED_KEY)||localStorage.getItem(LEGACY_STORE_SELECTED_KEY)||'');if(isStaleStoreSource(url)){localStorage.removeItem(STORE_SELECTED_KEY);localStorage.removeItem(LEGACY_STORE_SELECTED_KEY);url=''}let key=storeSourceKey(url);return sources.find(s=>storeSourceKey(s.url)===key)||sources[0]}function saveStoreSources(sources,url){return writeCustomStoreSources(sources,url)}function addStoreSource(source){let s=cleanStoreSource(source);if(!s)return;let key=storeSourceKey(s.url),custom=readCustomStoreSources().filter(x=>storeSourceKey(x.url)!==key);custom.push(s);writeCustomStoreSources(custom,s.url);console.info('store sources v2 after add',storeSources().length,storeSources().map(x=>x.url))}function storeManifestUrl(url){let u=String(url||'');let m=u.match(/^https:\/\/github\.com\/([^\/]+)\/([^\/#?]+)\/?$/);return m?'https://raw.githubusercontent.com/'+m[1]+'/'+m[2]+'/main/list.json':u}function storeLoadFailedMessage(){return lang==='zh'?'加载失败':'Load failed'}async function readStoreJson(res){if(!res||!res.ok)throw Error(storeLoadFailedMessage());try{return await res.json()}catch(e){console.warn('store json parse failed',e);throw Error(storeLoadFailedMessage())}}function storeBase(url){let u=storeManifestUrl(url);return u.startsWith('http')?new URL('.',u).href:location.origin+'/'}function resolveStoreUrl(path,base){let p=String(path||'');if(p.startsWith('http'))return p;let b=String(base||'');if(!b.startsWith('http'))b=location.origin+'/';return new URL(p,b).href}function normalizeLiveStoreList(data,base){let grouped=data&&data.apps&&!Array.isArray(data.apps)?data.apps:null;let list=data&&Array.isArray(data.castApps)?data.castApps:(Array.isArray(data.liveApps)?data.liveApps:(grouped&&Array.isArray(grouped.cast)?grouped.cast:[]));return list.map(app=>{let next=Object.assign({},app);if(next.entry&&!String(next.entry).startsWith('builtin:'))next.entryUrl=resolveStoreUrl(next.entry,base);return next})}function normalizeStoreList(data){let grouped=data&&data.apps&&!Array.isArray(data.apps)?data.apps:null;if(grouped)return{flow:grouped.flow||[],animation:grouped.animation||[]};let list=Array.isArray(data)?data:(data&&Array.isArray(data.apps)?data.apps:[]);return Array.isArray(list)?list.filter(x=>x&&x.type!=='cast'):[]}function renderStoreSourceBar(){let sources=storeSources(),selected=selectedStoreSource(),selectedKey=storeSourceKey(selected.url),bar=document.createElement('section');bar.className='store-source-bar';bar.innerHTML='<div class="store-source-picker" id="storeSourcePicker"><button id="storeSourceToggle" class="store-source-toggle" type="button" aria-haspopup="listbox" aria-expanded="false"><span class="store-source-current"></span><span class="store-source-caret" aria-hidden="true">⌄</span></button><div class="store-source-list" role="listbox" hidden></div></div><button id="storeAddSource" class="tonal" type="button">'+t.addSource+'</button>';let picker=bar.querySelector('#storeSourcePicker'),toggle=bar.querySelector('#storeSourceToggle'),current=bar.querySelector('.store-source-current'),list=bar.querySelector('.store-source-list'),docClick,close=()=>{list.hidden=true;toggle.setAttribute('aria-expanded','false');document.removeEventListener('click',docClick)},open=()=>{list.hidden=false;toggle.setAttribute('aria-expanded','true');document.removeEventListener('click',docClick);document.addEventListener('click',docClick)},selectSource=src=>{localStorage.setItem(STORE_SELECTED_KEY,src.url);close();storeLoaded=false;loadStore()};docClick=e=>{if(!picker.contains(e.target))close()};current.textContent=selected.name||selected.url;sources.forEach((src,idx)=>{let srcKey=storeSourceKey(src.url),custom=srcKey!==storeSourceKey(DEFAULT_STORE_SOURCE.url),row=document.createElement('button');row.type='button';row.className='store-source-row'+(srcKey===selectedKey?' active':'')+(custom?'':' no-delete');row.setAttribute('role','option');row.setAttribute('aria-selected',srcKey===selectedKey?'true':'false');row.dataset.url=src.url;let text=document.createElement('span');text.className='store-source-text';text.textContent=(idx+1)+'. '+(src.name||src.url);row.appendChild(text);if(custom){let del=document.createElement('span');del.className='store-source-delete';del.setAttribute('aria-label',t.removeSource);del.title=t.removeSource;del.textContent='×';del.onclick=e=>{e.preventDefault();e.stopPropagation();close();removeStoreSource(src.url)};row.appendChild(del)}row.onclick=()=>selectSource(src);list.appendChild(row)});console.info('store source v2 dropdown rendered',sources.length,sources.map(s=>s.url));toggle.onclick=e=>{e.preventDefault();e.stopPropagation();list.hidden?open():close()};picker.onclick=e=>e.stopPropagation();bar.querySelector('#storeAddSource').onclick=openStoreSourceDialog;if(E.storeSourceSlot._storeSourceClose)E.storeSourceSlot._storeSourceClose();E.storeSourceSlot._storeSourceClose=close;E.storeSourceSlot.innerHTML='';E.storeSourceSlot.appendChild(bar)}function removeStoreSource(url){let key=storeSourceKey(url);if(!key||key===storeSourceKey(DEFAULT_STORE_SOURCE.url))return;if(!confirm(t.confirmRemoveSource))return;removeLegacyStoreSourceKey(key);let custom=readCustomStoreSources().filter(s=>storeSourceKey(s.url)!==key),selected=selectedStoreSource();let nextSelected=storeSourceKey(selected.url)===key?DEFAULT_STORE_SOURCE.url:selected.url;writeCustomStoreSources(custom,nextSelected);renderStoreSourceBar();storeLoaded=false;loadStore()}function openStoreSourceDialog(){hideFooterExport();E.secondaryAction.style.display='';E.secondaryAction.textContent=t.cancel;E.secondaryAction.onclick=()=>E.sheet.classList.remove('show');E.saveSettings.style.display='';E.saveSettings.textContent=t.addSource;currentApp='__store_source__';E.sheetTitle.textContent=t.addSource;E.sheetStatus.textContent='';E.fields.innerHTML='<div class="field"><label>'+t.sourceName+'</label><input id="storeSourceName" type="text" value=""></div><div class="field"><label>'+t.sourceUrl+'</label><input id="storeSourceUrl" type="url" value=""></div>';E.sheet.classList.add('show')}function saveStoreSourceDialog(){let name=($('storeSourceName').value||'').trim(),url=($('storeSourceUrl').value||'').trim();if(!url){setStatus(E.sheetStatus,t.sourceUrl,true);return}try{new URL(url)}catch(e){setStatus(E.sheetStatus,t.invalidJson,true);return}addStoreSource({name:name||url,url});E.sheet.classList.remove('show');renderStoreSourceBar();setStatus(E.storeStatus,(lang==='zh'?'已添加源':'Source added')+' - '+url,false);storeLoaded=false;loadStore()}function timeModeOptions(){let z=lang==='zh';return [[0,z?'数字':'Digital'],[1,z?'数字 + 秒条':'Digital + seconds bar'],[2,z?'大数字':'Big digits'],[3,z?'二进制':'Binary'],[4,z?'大数字 + 秒条':'Big digits + seconds bar'],[5,z?'大时间背景':'Big time background'],[6,z?'文字时间':'Word clock']]}const nativeKeys={Time:'TIM',Date:'DAT',Temperature:'TEMP',Humidity:'HUM',Battery:'BAT'};function appSettingFields(){let z=lang==='zh';return {Time:[['TFORMAT',t.timeFormat,'text'],['TIME_COL',t.timeColor,'color'],['TMODE',t.timeMode,'select',timeModeOptions()],['NTP Server',z?'NTP 服务器':'NTP Server','text'],['Timezone',z?'时区':'Timezone','text']],Date:[['DFORMAT',t.dateFormat,'text'],['DATE_COL',t.dateColor,'color'],['CHCOL',t.calendarHeader,'color'],['CTCOL',t.calendarText,'color'],['CBCOL',t.calendarBody,'color'],['SOM',t.startMonday,'checkbox'],['WD',t.weekday,'checkbox'],['WDCA',t.weekdayActive,'color'],['WDCI',t.weekdayInactive,'color']],Temperature:[['TEMP_COL',t.textColor,'color'],['CEL',t.celsius,'checkbox']],Humidity:[['HUM_COL',t.textColor,'color']],Battery:[['BAT_COL',t.textColor,'color']]}};function applyLang(){t=I[lang];document.documentElement.lang=lang==='zh'?'zh-CN':'en';document.querySelectorAll('[data-i]').forEach(e=>e.textContent=t[e.dataset.i]);if(E.createApp)E.createApp.textContent=lang==='zh'?'创建 Flow':'Create Flow';E.settingsTab.setAttribute('aria-label',t.settings);E.settingsTab.title=t.settings;E.langBtn.textContent=lang==='zh'?'EN':'中';if(E.settingsPanel&&E.settingsPanel.classList.contains('active'))renderDeviceSettings();if(E.filesPanel&&E.filesPanel.classList.contains('active')&&E.filesSettingsTabs){E.filesSettingsTabs.innerHTML='';renderSettingsTabs(E.filesSettingsTabs)}refreshCastLabels();if(apps.length)renderLibrary();if(castStoreCatalog.length&&activeStoreKind==='cast')renderCastAppStore();if(currentApp==='__app_form__')E.saveSettings.textContent=formMode==='edit'?t.saveSettings:t.create;else E.saveSettings.textContent=t.saveSettings}function applyTheme(){document.body.classList.toggle('dark',localStorage.awtrixTheme==='dark');E.themeBtn.textContent=document.body.classList.contains('dark')?'☀':'🌙'}function hex(v){if(typeof v==='string'&&v[0]==='#')return v;let n=Number(v||0).toString(16);return '#'+('000000'+n).slice(-6)}function numberFromHex(v){return parseInt(String(v).replace('#',''),16)||0}function appName(i,n){return typeof i==='string'?i:(i&&i.name)||'App '+(n+1)}function setStatus(el,msg,err){el.textContent=msg||'';el.className=err?'status error':'status'}function versionParts(v){return String(v||'0').split(/[^0-9]+/).filter(Boolean).map(Number)}function compareVersions(a,b){let x=versionParts(a),y=versionParts(b),n=Math.max(x.length,y.length);for(let i=0;i<n;i++){let d=(x[i]||0)-(y[i]||0);if(d)return d>0?1:-1}return 0}function minRequiredVersion(item){return item&&(item.minFrameVersion||item.minFirmwareVersion||item.minimumFrameVersion||item.minimumFirmwareVersion||'')}function isCompatibleVersion(item){let min=minRequiredVersion(item);return !min||compareVersions(frameVersion||settings.version||settings.VERSION||'0',min)>=0}async function loadInstalledStoreVersions(list){let map={};await Promise.all((Array.isArray(list)?list:[]).filter(a=>a&&a.name&&(a.type==='custom'||a.type==='animation')).map(async a=>{try{let r=await fetch('/api/custom?name='+encodeURIComponent(a.name),{cache:'no-store'});if(!r.ok)return;let j=await r.json();if(j&&j.version!==undefined)map[a.name]=String(j.version)}catch(e){}}));return map}function installedAppVersion(map,id,name){let app=(map&&((id&&map[id])||(name&&map[name])))||null;return app&&app.version?String(app.version):''}function iconText(icon){let map={time:'T',date:'D',temperature:'℃',humidity:'%',battery:'B',bilibili:'B'};return map[icon]||String(icon||'A').slice(0,1).toUpperCase()}const nativeIconNames=new Set(['time','date','temperature','humidity','battery']);const missingIconUrls=new Set();function setIcon(el,icon,base){icon=String(icon||'');el.className='app-icon';el.textContent=iconText(icon);if(!icon||nativeIconNames.has(icon))return;let urls=['/ICONS/'+encodeURIComponent(icon)+'.jpg','/ICONS/'+encodeURIComponent(icon)+'.gif'];if(base)urls=urls.concat(iconUrlCandidates(icon,base));urls=urls.filter(u=>!missingIconUrls.has(u));if(!urls.length)return;let img=new Image,i=0;img.onload=()=>{el.textContent='';el.appendChild(img)};img.onerror=()=>{missingIconUrls.add(urls[i]);if(++i<urls.length)img.src=urls[i]};img.src=urls[i]}function isMissingRequired(item){return item&&item.integration==='bilibili'&&String(item.bilibiliUid||'').trim()===''}function triOptions(){return [['default',t.global],['on',t.on],['off',t.off]]}function boolOptions(){return [['on',t.on],['off',t.off]]}function alignOptions(){return [['default',t.global],['left',t.left],['center',t.center],['right',t.right]]}const triBoolKeys=new Set(['noScroll','topText','rainbow','bounce']),triNumberKeys=new Set(['pushIcon']);function contentFields(){return [['text',t.displayText,'text'],['icon',t.iconName,'text'],['color',t.textColor,'color'],['background',t.background,'color'],['progress',t.progress,'number'],['progressC',t.progressColor,'color'],['progressBC',t.progressBg,'color']]}function displayFields(){return [['align',t.align,'segmented',alignOptions()],['showIcon',t.showIcon,'segmented',triOptions()],['underline',t.underline,'segmented',triOptions()],['displayDuration',t.duration,'number'],['noScroll',t.noScroll,'segmented',triOptions()],['scrollSpeed',t.scrollSpeed,'number'],['textOffset',t.textOffset,'number'],['iconOffset',t.iconOffset,'number'],['topText',t.topText,'segmented',triOptions()],['rainbow',t.rainbow,'segmented',triOptions()],['bounce',t.bounce,'segmented',triOptions()],['pushIcon',t.pushIcon,'segmented',triOptions()],['repeat',t.repeat,'number'],['fadeText',t.fadeText,'number'],['blinkText',t.blinkText,'number'],]}function settingsDisplayFields(){return displayFields().concat([['color',t.textColor,'color'],['background',t.background,'color']])}function globalDisplayFields(){return [['ATRANS',t.autoTransition,'checkbox'],['TEFF',t.transitionEffect,'select',[['0','Random'],['1','Slide'],['2','Dim'],['3','Zoom'],['4','Rotate'],['5','Pixelate'],['6','Curtain'],['7','Ripple'],['8','Blink'],['9','Reload'],['10','Fade']]],['TSPEED',t.transitionSpeed,'number'],['ATIME',t.appTime,'number'],['TCOL',t.textColor,'color'],['UPPERCASE',t.uppercase,'checkbox'],['SSPEED',t.globalScrollSpeed,'number'],['APP_ALIGN',t.globalAlign,'segmented',[['left',t.left],['center',t.center],['right',t.right]]],['APP_ICON',t.globalIcon,'checkbox'],['APP_UNDER',t.globalUnder,'checkbox'],['APP_DUR',t.globalDur,'number'],['TCOL',t.textColor,'color'],['APP_NOSCROLL',t.noScroll,'checkbox'],['APP_SSPEED',t.scrollSpeed,'number'],['APP_TOFF',t.textOffset,'number'],['APP_IOFF',t.iconOffset,'number'],['APP_TOP',t.topText,'checkbox'],['APP_RAINBOW',t.rainbow,'checkbox'],['APP_BOUNCE',t.bounce,'checkbox'],['APP_PUSHICON',t.pushIcon,'checkbox'],['APP_REPEAT',t.repeat,'number'],['APP_FADE',t.fadeText,'number'],['APP_BLINK',t.blinkText,'number'],]}function customFields(){return contentFields().concat(displayFields())}function footerExportAction(){if(!E.exportAction){let b=document.createElement('button');b.className='tonal footer-export';b.type='button';E.exportAction=b;E.secondaryAction.after(b)}return E.exportAction}function hideFooterExport(){if(E.exportAction)E.exportAction.style.display='none'}function activate(tab, replace) { dbg('activate:'+tab); let active = tab === 'settings' ? 'settings' : tab === 'library' ? 'library' : tab === 'files' ? 'files' : 'store'; E.settingsTab.classList.toggle('active', active === 'settings' || active === 'files'); if (E.wifiTab) E.wifiTab.classList.remove('active'); E.storeTab.classList.toggle('active', active === 'store'); E.libraryTab.classList.toggle('active', active === 'library'); if (E.filesTab) E.filesTab.classList.toggle('active', active === 'files'); E.settingsPanel.classList.toggle('active', active === 'settings'); if (E.wifiPanel) E.wifiPanel.classList.remove('active'); E.storePanel.classList.toggle('active', active === 'store'); E.libraryPanel.classList.toggle('active', active === 'library'); E.filesPanel.classList.toggle('active', active === 'files'); let path = active === 'settings' ? '/settings' : active === 'library' ? '/my-apps' : active === 'files' ? '/files' : '/app-store'; if (location.pathname !== path) (replace ? history.replaceState : history.pushState).call(history, { tab: active }, '', path); renderAppKindTabs(); if (active === 'settings') { if(settings&&Object.keys(settings).length)renderDeviceSettings(); loadDeviceSettings(); } if (active === 'store') { let sf=$('storeFilter');if(sf)sf.classList.toggle('show',activeStoreKind!=='cast'); if (!storeLoaded) { E.storeGrid.innerHTML=''; for(let i=0;i<6;i++){let s=document.createElement('div');s.className='store-row';s.innerHTML='<div class="app-icon" style="background:var(--chip);animation:pulse 1.2s ease-in-out infinite"></div><div style="width:60%;height:14px;background:var(--chip);border-radius:7px;animation:pulse 1.2s ease-in-out infinite;animation-delay:'+(i*.1)+'s"></div><div style="width:80%;height:12px;background:var(--chip);border-radius:6px;animation:pulse 1.2s ease-in-out infinite;animation-delay:'+(i*.1)+'s"></div>'; E.storeGrid.appendChild(s)} loadStore() } } if (active === 'library' && !libraryLoaded) { if(apps&&apps.length)renderLibrary();else{E.libraryList.innerHTML=''; for(let i=0;i<5;i++){let s=document.createElement('div');s.className='row';s.style.cssText='opacity:.5';s.innerHTML='<div style="width:38px;height:38px;border-radius:12px;background:var(--chip);animation:pulse 1.2s ease-in-out infinite;animation-delay:'+(i*.1)+'s"></div><div style="grid-column:3"><div style="width:60%;height:14px;background:var(--chip);border-radius:7px;animation:pulse 1.2s ease-in-out infinite;animation-delay:'+(i*.1)+'s;margin-bottom:4px"></div><div style="width:40%;height:12px;background:var(--chip);border-radius:6px;animation:pulse 1.2s ease-in-out infinite;animation-delay:'+(i*.1)+'s"></div></div>'; E.libraryList.appendChild(s)}} loadLibrary() } if (active === 'files') { if (E.filesSettingsTabs) { E.filesSettingsTabs.innerHTML = ''; renderSettingsTabs(E.filesSettingsTabs) } if (!filesLoaded) loadFiles('/') } }function safeIconName(name){name=String(name||'').trim();return /^[A-Za-z0-9_-]{1,64}$/.test(name)?name:''}function iconUrlCandidates(icon,base){icon=String(icon||'').trim();if(!icon)return[];if(/^https?:\/\//.test(icon)||icon.includes('/'))return[resolveStoreUrl(icon,base)];let safe=safeIconName(icon);if(!safe)return[];return['https://developer.lametric.com/content/apps/icon_thumbs/'+safe+'.png','https://developer.lametric.com/content/apps/icon_thumbs/'+safe+'.gif']}async function uploadIconBlob(icon,blob,type){let ext=type&&type.includes('gif')?'gif':'jpg',form=new FormData();form.append('file',blob,'ICONS/'+icon+'.'+ext);let r=await fetch('/edit',{method:'POST',body:form});if(!r.ok)throw Error('icon upload failed')}async function installIconForApp(payload,item,base){let icon=safeIconName((payload&&payload.icon)||item.icon);if(!icon)return;for(let url of iconUrlCandidates((payload&&payload.icon)||item.icon,base)){try{let r=await rawFetch(url,{cache:'no-store'});if(!r.ok)continue;let type=(r.headers.get('content-type')||'').toLowerCase();let blob=await r.blob();if(type.includes('gif')){await uploadIconBlob(icon,blob,type);return}let img=await createImageBitmap(blob),canvas=document.createElement('canvas');canvas.width=8;canvas.height=8;let ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,8,8);let jpg=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',0.9));if(jpg){await uploadIconBlob(icon,jpg,'image/jpeg');return}}catch(e){}}}let currentFileDir='/',selectedFilePath='',selectedFileBinary=false,fileDirty=false;function joinFilePath(dir,name){return (dir.endsWith('/')?dir:dir+'/')+name}function parentFileDir(path){if(path==='/'||!path)return'/';let p=path.replace(/\/$/,'').replace(/\/[^/]+$/,'/');return p||'/'}function resetFileEditor(){selectedFilePath='';selectedFileBinary=false;fileDirty=false;E.fileSelected.textContent=t.noFileSelected;E.fileEditor.value='';E.fileEditor.style.display='none';$('filePreview').textContent='';$('filePreview').style.display='block';$('fileImage').style.display='none';E.fileSaveBtn.disabled=true;E.fileDeleteBtn.disabled=true}function fileUsageText(used,total){let pct=total>0?Math.round(used/total*100):0,fmt=n=>n>=1048576?(n/1048576).toFixed(1)+' MB':n>=1024?(n/1024).toFixed(1)+' KB':n+' B';return fmt(used)+' / '+fmt(total)+' ('+pct+'%)'}function setFileUsageLoading(){if(E.fileUsage)E.fileUsage.innerHTML='<div class="file-usage-loading"><span class="spinner" aria-hidden="true"></span><span>'+t.loadingFiles+'</span></div>'}function setFileListLoading(){let listEl=$('fileList');if(listEl)listEl.innerHTML='<div class="file-loading"><span class="spinner" aria-hidden="true"></span><span>'+t.loadingFiles+'</span></div>'}async function loadFileUsage(){if(!E.fileUsage)return;setFileUsageLoading();try{let r=await fetch('/status',{cache:'no-store'});if(!r.ok)throw Error('status failed');let j=await r.json(),total=Number(j.totalBytes),used=Number(j.usedBytes);if(!Number.isFinite(total)||!Number.isFinite(used))throw Error('invalid usage');let pct=total>0?Math.max(0,Math.min(100,used/total*100)):0;E.fileUsage.innerHTML='<div><b>LittleFS</b><span>'+fileUsageText(Math.max(0,used),Math.max(0,total))+'</span></div><i><em style="width:'+pct+'%"></em></i>'}catch(e){E.fileUsage.textContent='LittleFS: '+e.message}}async function loadFiles(path){filesLoaded=true;currentFileDir=path||'/';let listEl=$('fileList'),status=$('filesStatus'),pathEl=$('filePath');pathEl.textContent=currentFileDir;setFileListLoading();setStatus(status,'',false);resetFileEditor();loadFileUsage();try{let r=await fetch('/list?dir='+encodeURIComponent(currentFileDir),{cache:'no-store'});if(!r.ok)throw Error(await r.text()||'list failed');let list=await r.json();listEl.innerHTML='';(Array.isArray(list)?list:[]).forEach(f=>{let full=joinFilePath(currentFileDir,f.name),btn=document.createElement('button');btn.className='file-item '+f.type;btn.type='button';btn.innerHTML='<span>'+(f.type==='dir'?'[D] ':'[F] ')+esc(f.name)+'</span><em>'+(f.type==='file'?esc(f.size+' B'):'')+'</em>';btn.onclick=()=>f.type==='dir'?loadFiles(full+'/'):viewFile(full,btn);listEl.appendChild(btn)})}catch(e){listEl.innerHTML='';setStatus(status,e.message,true)}}async function viewFile(path,btn){let preview=$('filePreview'),image=$('fileImage'),status=$('filesStatus');setStatus(status,'',false);preview.textContent='';image.style.display='none';E.fileEditor.style.display='none';document.querySelectorAll('.file-item.active').forEach(x=>x.classList.remove('active'));if(btn)btn.classList.add('active');try{let r=await fetch('/api/files/view?path='+encodeURIComponent(path),{cache:'no-store'}),j=await r.json();if(!r.ok)throw Error(j.error||t.fileLoadFailed);selectedFilePath=path;selectedFileBinary=!!j.binary;fileDirty=false;E.fileSelected.textContent=path;E.fileDeleteBtn.disabled=false;if(j.binary){E.fileSaveBtn.disabled=true;if((j.contentType||'').startsWith('image/')){preview.style.display='none';preview.textContent='';image.src=path+'?v='+Date.now();image.style.display='block'}else{preview.style.display='block';preview.textContent=t.fileBinary}return}preview.style.display='none';E.fileEditor.style.display='block';E.fileEditor.value=j.content||'';E.fileSaveBtn.disabled=true}catch(e){setStatus(status,e.message,true)}}async function saveSelectedFile(){if(!selectedFilePath)return;let blob=new Blob([E.fileEditor.value],{type:'text/plain'}),form=new FormData();form.append('file',blob,selectedFilePath.replace(/^\//,''));let r=await fetch('/edit',{method:'POST',body:form});if(!r.ok)throw Error(await r.text()||'save failed');fileDirty=false;E.fileSaveBtn.disabled=true;setStatus($('filesStatus'),t.saved,false);loadFiles(currentFileDir)}async function uploadFileToCurrentDir(file){let form=new FormData();form.append('file',file,joinFilePath(currentFileDir,file.name).replace(/^\//,''));let r=await fetch('/edit',{method:'POST',body:form});if(!r.ok)throw Error(await r.text()||'upload failed');setStatus($('filesStatus'),t.saved,false);loadFiles(currentFileDir)}function openCreateFileDialog(folder){hideFooterExport();E.secondaryAction.style.display='';E.secondaryAction.textContent=t.cancel;E.secondaryAction.onclick=()=>E.sheet.classList.remove('show');E.saveSettings.style.display='';E.saveSettings.textContent=folder?t.newFolder:t.newFile;currentApp=folder?'__new_folder__':'__new_file__';E.sheetTitle.textContent=folder?t.newFolder:t.newFile;E.sheetStatus.textContent='';E.fields.innerHTML='<div class="field"><label>'+(folder?t.folderName:t.filename)+'</label><input id="newFileName" type="text" autocomplete="off"></div>';E.sheet.classList.add('show');setTimeout(()=>$('newFileName').focus(),0)}async function createFileItem(folder){let name=($('newFileName').value||'').trim();if(!name){setStatus(E.sheetStatus,folder?t.folderName:t.filename,true);return}let path=joinFilePath(currentFileDir,name)+(folder&&!name.endsWith('/')?'/':'');let r=await fetch('/edit?path='+encodeURIComponent(path),{method:'PUT'});if(!r.ok)throw Error(await r.text()||'create failed');E.sheet.classList.remove('show');setStatus($('filesStatus'),t.saved,false);loadFiles(currentFileDir)}async function deleteSelectedFile(){if(!selectedFilePath)return;if(!confirm(t.confirmDelete+selectedFilePath+'?'))return;let r=await fetch('/edit?path='+encodeURIComponent(selectedFilePath),{method:'DELETE'});if(!r.ok)throw Error(await r.text()||'delete failed');setStatus($('filesStatus'),t.saved,false);loadFiles(currentFileDir)}async function loadStore(){storeLoaded=true;let source=selectedStoreSource(),storeUrl=storeManifestUrl(source.url);if(activeStoreKind==='cast'){castModuleV++;castModuleCache={};try{let res=await fetch(storeUrl,{cache:'no-store'}),data=await readStoreJson(res),base=storeBase(storeUrl);castStoreCatalog=normalizeLiveStoreList(data,base);await loadCastInstalledMap();renderCastAppStore();setStatus(E.storeStatus,(source.name||storeUrl)+' - '+storeUrl,false)}catch(e){console.warn('store load failed',e);castStoreCatalog=[];renderCastAppStore();setStatus(E.storeStatus,storeLoadFailedMessage(),true)}return}try{let [storeRes,appsRes,versionRes]=await Promise.all([fetch(storeUrl,{cache:'no-store'}),fetch('/api/apps'),fetch('/version',{cache:'no-store'}).catch(()=>null)]),data=await readStoreJson(storeRes),installed=await appsRes.json(),list=normalizeStoreList(data),base=storeBase(storeUrl);frameVersion=versionRes&&versionRes.ok?await versionRes.text():frameVersion;if(!list||(!Array.isArray(list)&&!list.flow))throw Error('invalid app store response');let installedList=Array.isArray(installed)?installed:[],installedVersions=await loadInstalledStoreVersions(installedList),installedNames=new Set(installedList.map(a=>a&&a.name)),installedMap={};installedList.forEach(a=>{if(a&&a.name)installedMap[a.name]=Object.assign({},a,{version:installedVersions[a.name]||a.version})});E.storeGrid.innerHTML='';E.storeGrid.className='store-table';renderStoreSourceBar();let sf=$('storeFilter');if(sf)sf.classList.add('show');let doStoreRender=()=>{E.storeGrid.innerHTML='';let filter=$('storeSearchInput').value.toLowerCase();let tag=$('storeTags').querySelector('.active')?.dataset?.tag||'all';let compact=filter||tag!=='all';E.storeGrid.classList.toggle('store-grid-compact',false);let items=Array.isArray(list)?list.filter(item=>item&&(item.type==='flow'||item.type==='animation'||!item.type)):[];if(!items.length){let f=(list.flow||[]),a=(list.animation||[]);let ff=filter?(f.filter(i=>matchStoreFilter(i,filter))):f;let aa=filter?(a.filter(i=>matchStoreFilter(i,filter))):a;if(tag!=='all'){ff=ff.filter(i=>(i.tags||[]).includes(tag));aa=aa.filter(i=>(i.tags||[]).includes(tag))}renderStoreSection(lang==='zh'?'Flow App':'Flow Apps',ff,compact);renderStoreSection(lang==='zh'?'动画 App':'Animation Apps',aa,compact)}else{if(filter)items=items.filter(i=>matchStoreFilter(i,filter));if(tag!=='all')items=items.filter(i=>(i.tags||[]).includes(tag));E.storeGrid.classList.toggle('store-grid-compact',compact&&items.length>0);if(items.length)appendItems(E.storeGrid,items)}};let matchStoreFilter=(item,q)=>(appName(item,0).toLowerCase().includes(q)||(item.description||'').toLowerCase().includes(q)||(item.tags||[]).join(' ').toLowerCase().includes(q));let renderStoreTags=()=>{let box=$('storeTags');if(!box)return;let expanded=false,limit=8,items=Array.isArray(list)?list:[...((list.flow||[])),...((list.animation||[]))],counts={};items.forEach(i=>(i.tags||[]).forEach(t=>counts[t]=(counts[t]||0)+1));let sorted=Object.keys(counts).sort((a,b)=>counts[b]-counts[a]||a.localeCompare(b));let make=(l,v)=>{let b=document.createElement('button');b.type='button';b.className='tonal store-tag'+(v==='all'?' active':'');b.textContent=l;b.dataset.tag=v;b.onclick=()=>{box.querySelectorAll('.store-tag').forEach(x=>x.classList.remove('active'));b.classList.add('active');doStoreRender();render()};return b};let render=()=>{let active=box.querySelector('.store-tag.active'),activeTag=active&&active.dataset?active.dataset.tag:'all',shown=expanded?sorted:sorted.slice(0,limit);if(!expanded&&activeTag!=='all'&&sorted.includes(activeTag)&&!shown.includes(activeTag))shown=shown.concat(activeTag);box.innerHTML='';box.appendChild(make(lang==='zh'?'全部':'All','all'));shown.forEach(t=>box.appendChild(make(t,t)));let next=[...box.querySelectorAll('.store-tag')].find(x=>x.dataset&&x.dataset.tag===activeTag);if(next){box.querySelectorAll('.store-tag').forEach(x=>x.classList.remove('active'));next.classList.add('active')}if(sorted.length>limit){let more=document.createElement('button');more.type='button';more.className='tonal store-tag store-tag-more';more.textContent=expanded?(lang==='zh'?'收起':'Less'):(lang==='zh'?'展开':'More');more.onclick=()=>{expanded=!expanded;render()};box.appendChild(more)}};render()};let inp=$('storeSearchInput');if(inp)inp.oninput=doStoreRender;let appendItems=(target,items)=>{items.forEach(item=>{let row=document.createElement('article');let name=appName(item,0),id=item.id||name,manifest=item.manifest||item.url||('apps/'+encodeURIComponent(id)+'.json'),isInstalled=installedNames.has(id)||installedNames.has(name);row.className='store-row'+(isInstalled?' installed':'');row.innerHTML='<div class="app-icon"></div><div class="name"></div><div class="meta"></div><button class="primary" type="button"></button>';setIcon(row.querySelector('.app-icon'),item.icon||name,base);row.querySelector('.name').textContent=name;row.querySelector('.meta').textContent=item.description||t.localJson;let btn=row.querySelector('button'),compatible=isCompatibleVersion(item),installedVersion=installedAppVersion(installedMap,id,name),hasUpdate=isInstalled&&item.version&&compareVersions(item.version,installedVersion)>0;if(!compatible){btn.textContent=t.incompatible;btn.disabled=true;btn.classList.add('incompatible');btn.onclick=null;row.querySelector('.meta').textContent=(item.description||t.localJson)+' · '+t.requiresVersion+' '+minRequiredVersion(item)}else{btn.classList.remove('incompatible');btn.textContent=hasUpdate?t.update:(isInstalled?t.installed:t.install);btn.disabled=isInstalled&&!hasUpdate;btn.classList.toggle('primary',!isInstalled||hasUpdate);btn.classList.toggle('tonal',isInstalled&&!hasUpdate);if(!isInstalled||hasUpdate)btn.onclick=()=>installApp(Object.assign({},item,{id,manifestUrl:resolveStoreUrl(manifest,base)}),btn,name)}target.appendChild(row)})};let renderStoreSection=(title,items,compact)=>{if(!items.length)return;let s=document.createElement('section');s.className='store-section';s.innerHTML='<div class="store-section-head"><div class="store-section-title"><h3>'+title+'</h3></div></div><div class="store-section-grid"></div>';let grid=s.querySelector('.store-section-grid');grid.classList.toggle('store-grid-compact',!!compact&&items.length);appendItems(grid,items);E.storeGrid.appendChild(s)};renderStoreTags();doStoreRender();setStatus(E.storeStatus,(source.name||storeUrl)+' - '+storeUrl,false)}catch(e){E.storeGrid.innerHTML='';renderStoreSourceBar();setStatus(E.storeStatus,e.message,true)}}async function installApp(item, btn, name, quiet) { let originalText = btn ? btn.textContent : '', done = false; if (btn) { btn.disabled = true; btn.textContent = t.installing || originalText } if (!quiet) setStatus(E.storeStatus, '...', false); try { let manifestUrl = item.manifestUrl || item.manifest || item.url; if (!manifestUrl) throw Error('missing app manifest'); let appRes = await rawFetch(manifestUrl, { cache: 'no-store' }); if (!appRes.ok) throw Error('download failed'); let payload = await appRes.json(), installName = payload.name || item.name || item.id || name;if(payload.version===undefined&&item.version!==undefined)payload.version=item.version; if (!installName) throw Error('missing app name'); await installIconForApp(payload, item, storeBase(manifestUrl)); payload.save = true; let r = await fetch('/api/custom?name=' + encodeURIComponent(installName) + '&save=1', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); if (!r.ok) throw Error(await r.text() || 'install failed'); done = true; if (btn) { btn.textContent = t.installed; btn.onclick = null; btn.classList.remove('primary'); btn.classList.add('tonal'); let row = btn.closest('.store-row'); if (row) row.classList.add('installed') } if (!quiet) setStatus(E.storeStatus, name + ' ' + t.installed, false); libraryLoaded = false; return true } catch (e) { setStatus(E.storeStatus, e.message, true); return false } finally { if (btn && !done) { btn.disabled = false; btn.textContent = originalText } } }async function loadLibrary(){libraryLoaded=true;if(apps&&apps.length)renderLibrary();try{let appRes=await fetch('/api/apps',{cache:'no-store'});apps=await appRes.json();let setRes=await fetch('/api/settings',{cache:'no-store'});settings=await setRes.json();renderLibrary()}catch(e){setStatus(E.libraryStatus,e.message,true)}}function renderLibrary() { renderAppKindTabs(); if (E.liveAppsPanel) E.liveAppsPanel.style.display = 'grid'; E.libraryList.style.display = 'grid'; E.libraryList.className = activeLibraryKind === 'cast' ? 'list' : 'list'; if (activeLibraryKind === 'cast') { E.libraryList.innerHTML = ''; let list = installedCastApps(); setStatus(E.libraryStatus,lang==='zh'?('共 '+list.length+' 个 Cast'):(list.length+' Cast apps'),false); if (!list.length) { E.libraryList.innerHTML = '<section class="settings-card"><p class="hint">'+castUi('empty')+'</p></section>'; return } list.forEach(app => { let row = document.createElement('article'); row.className = 'row cast-row'; row.innerHTML = '<div class="app-icon"></div><div><div class="name"></div><div class="meta"></div></div><button class="trash" type="button" title="卸载"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15M10 10v7M14 10v7"/></svg></button><button class="settings-btn" type="button" title="打开"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7-11-7Z"/></svg></button>'; setIcon(row.querySelector('.app-icon'), app.icon); row.querySelector('.name').textContent = castAppName(app); row.querySelector('.meta').textContent = castAppDescription(app); row.querySelector('.trash').onclick = e => { e.stopPropagation(); uninstallCastApp(app.id) }; row.querySelector('.settings-btn').onclick = e => { e.stopPropagation(); openCastApp(app.id) };; row.onclick = () => openCastApp(app.id); E.libraryList.appendChild(row) }); return } E.libraryList.innerHTML = ''; let flowApps = (Array.isArray(apps) ? apps : []).filter(a => a && a); if (!flowApps.length) { setStatus(E.libraryStatus,t.count+0+t.countEnd,false); return } flowApps.forEach((item, index) => { let name = appName(item, index), enabled = item.enabled !== false, row = document.createElement('article'); row.className = 'row' + (enabled ? '' : ' disabled'); row.innerHTML = '<div class="handle"><button class="icon-btn up" type="button">▲</button><button class="icon-btn down" type="button">▼</button></div><div class="app-icon"></div><div><div class="name"></div><div class="meta"></div></div><button class="trash" type="button" title="' + t.uninstall + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15M10 10v7M14 10v7"/></svg></button><button class="settings-btn" type="button" title="' + t.appSettings + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l11-11-4-4L4 16v4ZM13.5 6.5l4 4"/></svg></button><label class="switch"><input type="checkbox"><span class="slider"></span></label>'; setIcon(row.querySelector('.app-icon'), item.icon || name); let suffix=item.type==='animation'?'Animation':item.type==='flow'?'Flow':'';let displayName=suffix?name+' · '+suffix:name;row.querySelector('.name').textContent=displayName; let meta = row.querySelector('.meta'); meta.textContent = item.description || ''; meta.style.display = meta.textContent ? 'block' : 'none'; let settingsBtn = row.querySelector('.settings-btn'); settingsBtn.onclick = e => { e.stopPropagation(); openSettings(name) }; let trash = row.querySelector('.trash'); trash.classList.toggle('hidden', item.type !== 'custom' && item.type !== 'animation'); trash.onclick = e => { e.stopPropagation(); if (item.type === 'custom') uninstallApp(name) }; let sw = row.querySelector('.switch'), input = row.querySelector('input'); input.checked = enabled; sw.onclick = e => e.stopPropagation(); input.onclick = e => e.stopPropagation(); input.onchange = e => { e.stopPropagation(); toggleApp(name, e.target.checked, index) }; row.querySelector('.up').onclick = e => { e.stopPropagation(); moveApp(index, -1) }; row.querySelector('.down').onclick = e => { e.stopPropagation(); moveApp(index, 1) }; row.onclick = () => openSettings(name); E.libraryList.appendChild(row) }); setStatus(E.libraryStatus, t.count + apps.length + t.countEnd, false) }function moveApp(i,d){let j=i+d;if(j<0||j>=apps.length)return;[apps[i],apps[j]]=[apps[j],apps[i]];renderLibrary();saveOrder()}async function saveOrder(){let names=apps.filter(a=>a.enabled!==false).map((a,i)=>appName(a,i));setStatus(E.libraryStatus,t.savingOrder,false);try{let r=await fetch('/api/reorder',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(names)});if(!r.ok)throw Error('reorder failed');setStatus(E.libraryStatus,t.orderSaved,false);libraryLoaded=false;await loadLibrary()}catch(e){setStatus(E.libraryStatus,e.message,true)}}async function toggleApp(name,show,pos){let item=(apps||[]).find(a=>appName(a,0)===name)||{};if(show&&isMissingRequired(item)){openSettings(name);setStatus(E.sheetStatus,t.uidRequired,true);loadLibrary();return}setStatus(E.libraryStatus,t.updating,false);try{let key=nativeKeys[name];if(key){let body={};body[key]=show;let r=await fetch('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw Error('settings failed')}let r2=await fetch('/api/apps',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify([{name:name,show:show,pos:show?pos:0}])});if(!r2.ok)throw Error('app update failed');libraryLoaded=false;await loadLibrary();setStatus(E.libraryStatus,t.updated,false)}catch(e){setStatus(E.libraryStatus,e.message,true);libraryLoaded=false;loadLibrary()}}function addField(f,item,parent){parent=parent||E.fields;let wrap=document.createElement('div');wrap.className='field';let src=f[3]==='legacy'?'legacy':'api',val=src==='legacy'?legacySettings[f[0]]:(item&&item[f[0]]!==undefined?item[f[0]]:settings[f[0]]),input;if(item&&f[0].startsWith('input_')&&Array.isArray(item.inputs)){let inputItem=item.inputs.find(x=>'input_'+x.id===f[0]);if(inputItem&&inputItem.value!==undefined)val=inputItem.value;}if(item&&item.display&&item.display[f[0]]!==undefined)val=item.display[f[0]];if(item&&item.animation&&f[0]==='animation_fps')val=item.animation.fps;if(item&&item.animation&&f[0]==='animation_repeat')val=item.animation.repeat;if(item&&f[0].startsWith('source_')&&f[0].endsWith('_interval')&&Array.isArray(item.sources)){let id=f[0].slice(7,-9),srcItem=item.sources.find(x=>String(x.id||'')===id);if(srcItem&&srcItem.interval!==undefined)val=srcItem.interval}if(val===undefined||val===null)val='';if(f[2]==='checkbox'){input=document.createElement('input');input.type='hidden';input.value=val?'on':'off';let group=document.createElement('div');group.className='segmented';boolOptions().forEach(o=>{let b=document.createElement('button');b.type='button';b.textContent=o[1];b.dataset.value=o[0];b.className=o[0]===input.value?'active':'';b.onclick=()=>{input.value=o[0];group.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b))};group.appendChild(b)});input._segment=group}else if(f[2]==='select'){if(triBoolKeys.has(f[0]))val=val===true?'on':val===false?'off':(val||'default');input=document.createElement('select');(f[3]||[]).forEach(o=>{let opt=document.createElement('option');opt.value=o[0];opt.textContent=o[1];input.appendChild(opt)});input.value=val||((f[3]&&f[3][0]&&f[3][0][0])||'')}else if(f[2]==='segmented'){if(triBoolKeys.has(f[0]))val=val===true?'on':val===false?'off':(val||'default');if(triNumberKeys.has(f[0]))val=val===''?'default':(Number(val)>0?'on':'off');input=document.createElement('input');input.type='hidden';input.value=val||((f[3]&&f[3][0]&&f[3][0][0])||'');let group=document.createElement('div');group.className='segmented';(f[3]||[]).forEach(o=>{let b=document.createElement('button');b.type='button';b.textContent=o[1];b.dataset.value=o[0];b.className=o[0]==input.value?'active':'';b.onclick=()=>{input.value=o[0];group.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b))};group.appendChild(b)});input._segment=group}else{input=document.createElement('input');input.type=f[2];input.value=f[2]==='color'||f[2]==='colorString'?hex(val):val}input.dataset.key=f[0];input.dataset.type=f[2];input.dataset.source=src;let label=document.createElement('label');label.textContent=f[1];if(f[4]){let labelRow=document.createElement('div');labelRow.className='field-label';labelRow.appendChild(label);let help=document.createElement('button');help.type='button';help.className='help-btn';help.textContent='?';help.title=f[4];help.setAttribute('aria-label',f[1]+': '+f[4]);help.onclick=()=>openInputHelpDialog(f[1],f[4]);labelRow.appendChild(help);wrap.appendChild(labelRow)}else wrap.appendChild(label);if(f[2]==='checkbox'){wrap.appendChild(input);wrap.appendChild(input._segment)}else{wrap.appendChild(input);if(input._segment)wrap.appendChild(input._segment)}parent.appendChild(wrap)}function openInputHelpDialog(label,description){hideFooterExport();E.secondaryAction.style.display='none';E.saveSettings.style.display='';E.saveSettings.textContent=t.ok;E.saveSettings.onclick=()=>{E.saveSettings.onclick=saveAppSettings;E.sheet.classList.remove('show')};E.sheetTitle.textContent=label;E.sheetStatus.textContent='';E.fields.innerHTML='<p class="hint input-help-text"></p>';E.fields.querySelector('p').textContent=description;E.sheet.classList.add('show')}function openGlobalDisplaySettings(){E.secondaryAction.style.display='none';hideFooterExport();E.saveSettings.style.display='';E.saveSettings.textContent=t.saveSettings;currentApp='__global__';E.sheetTitle.textContent=t.appSettings;E.sheetStatus.textContent='';E.fields.innerHTML='';globalDisplayFields().forEach(f=>addField(f,{}));E.sheet.classList.add('show')}function sel(id,opts,val){return '<select id="'+id+'">'+opts.map(o=>'<option value="'+o[0]+'" '+(o[0]===val?'selected':'')+'>'+o[1]+'</option>').join('')+'</select>'}function cf(id,label,type,val){return '<div class="field"><label>'+label+'</label><input id="'+id+'" type="'+type+'" value="'+(val||'')+'"></div>'}function createFieldHtml(f,item){let val=item&&item[f[0]]!==undefined?item[f[0]]:'';if(f[2]==='checkbox')return '<div class="field switch-field"><label>'+f[1]+'</label><label class="switch"><input data-create="1" data-key="'+f[0]+'" data-type="checkbox" type="checkbox" '+(val?'checked':'')+'><span class="slider"></span></label></div>';if(f[2]==='select')return '<div class="field"><label>'+f[1]+'</label>'+sel('c_'+f[0],f[3],val)+'</div>';let v=f[2]==='color'?hex(val||0):val;return '<div class="field"><label>'+f[1]+'</label><input id="c_'+f[0]+'" data-create="1" data-key="'+f[0]+'" data-type="'+f[2]+'" type="'+f[2]+'" value="'+(v||'')+'"></div>'}function createDefaults(){return {description:'',appIcon:'app',author:'',tagsText:'',version:1,inputs:[{id:'uid',label:'Bilibili UID',type:'text'}],sources:[{id:'relation',type:'http',method:'GET',url:'https://api.bilibili.com/x/relation/stat?vmid={{uid}}&jsonp=jsonp',responseType:'json',interval:300,timeout:5000,headers:{}}],displayText:'',displayIcon:'app',displayColor:16777215,displayBackground:0,displayProgress:-1,displayProgressC:65280,displayProgressBC:16777215}}function appJsonSample(){return '{\n  &quot;name&quot;: &quot;bilibili-followers&quot;,\n  &quot;description&quot;: &quot;Bilibili 粉丝数&quot;,\n  &quot;icon&quot;: &quot;bilibili&quot;,\n  &quot;version&quot;: 1,\n  &quot;inputs&quot;: [\n    {\n      &quot;id&quot;: &quot;uid&quot;,\n      &quot;label&quot;: &quot;Bilibili UID&quot;,\n      &quot;type&quot;: &quot;text&quot;\n    }\n  ],\n  &quot;sources&quot;: [\n    {\n      &quot;id&quot;: &quot;relation&quot;,\n      &quot;type&quot;: &quot;http&quot;,\n      &quot;method&quot;: &quot;GET&quot;,\n      &quot;url&quot;: &quot;https://api.bilibili.com/x/relation/stat?vmid={{uid}}&amp;jsonp=jsonp&quot;,\n      &quot;responseType&quot;: &quot;json&quot;,\n      &quot;interval&quot;: 300,\n      &quot;timeout&quot;: 5000,\n      &quot;headers&quot;: {}\n    }\n  ],\n  &quot;display&quot;: {\n    &quot;text&quot;: &quot;粉丝 {{relation.data.follower}}&quot;,\n    &quot;icon&quot;: &quot;bilibili&quot;,\n    &quot;color&quot;: &quot;#ffffff&quot;,\n    &quot;background&quot;: &quot;#000000&quot;\n  }\n}'}function sourceFields(){return [['sourceId',t.sourceId,'text'],['sourceType',t.sourceType,'select',[['http','HTTP']]],['sourceMethod',t.sourceMethod,'select',[['GET','GET'],['POST','POST']]],['sourceUrl',t.sourceUrl,'text'],['responseType',t.responseType,'select',[['json','JSON'],['text','Text'],['number','Number'],['xml','XML']]],['interval',t.interval,'number'],['timeout',t.timeout,'number'],['headers',t.headers,'text'],['body',t.body,'text']]}function formDisplayFields(){let iconLabel=t.iconName+' <a class="icon-create-link" href="https://developer.lametric.com/icons" target="_blank" rel="noopener noreferrer">'+t.createIcon+'</a>';return [['displayText',t.displayText,'text'],['displayIcon',iconLabel,'text'],['displayColor',t.textColor,'color'],['displayBackground',t.background,'color'],['displayProgress',t.progress,'number'],['displayProgressC',t.progressColor,'color'],['displayProgressBC',t.progressBg,'color']]}function esc(v){return String(v===undefined||v===null?'':v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}function normalizeImportedApp(raw){let display=raw.display&&typeof raw.display==='object'?raw.display:{};return {name:raw.name||'',description:raw.description||'',appIcon:raw.icon||'',author:raw.author||'',tagsText:Array.isArray(raw.tags)?raw.tags.join(', '):(raw.tags||''),version:raw.version||1,inputs:Array.isArray(raw.inputs)?raw.inputs:[],sources:Array.isArray(raw.sources)&&raw.sources.length?raw.sources:createDefaults().sources,displayText:display.text||'',displayIcon:display.icon||'',displayColor:display.color===undefined?'#ffffff':display.color,displayBackground:display.background===undefined?'#000000':display.background,displayProgress:display.progress===undefined?-1:display.progress,displayProgressC:display.progressC===undefined?'#00ff00':display.progressC,displayProgressBC:display.progressBC===undefined?'#ffffff':display.progressBC}}function setCreateForm(data){if(data.name!==undefined)$('cName').value=data.name;if(data.description!==undefined)$('c_description').value=data.description;if(data.appIcon!==undefined)$('c_appIcon').value=data.appIcon;if(data.author!==undefined)$('c_author').value=data.author;if(data.tagsText!==undefined)$('c_tagsText').value=data.tagsText;if(data.version!==undefined)$('c_version').value=data.version;renderInputs(data.inputs||[]);renderSources(data.sources||[]);formDisplayFields().forEach(f=>{let el=$('c_'+f[0]);if(!el||data[f[0]]===undefined)return;if(f[2]==='color')el.value=hex(data[f[0]]);else el.value=data[f[0]]})}function createFieldHtml(f,item){let val=item&&item[f[0]]!==undefined?item[f[0]]:'';if(f[2]==='select')return '<div class="field"><label>'+f[1]+'</label>'+sel('c_'+f[0],f[3],val)+'</div>';let v=f[2]==='color'?hex(val||0):val;return '<div class="field"><label>'+f[1]+'</label><input id="c_'+f[0]+'" data-create="1" data-key="'+f[0]+'" data-type="'+f[2]+'" type="'+f[2]+'" value="'+esc(v)+'"></div>'}function inputRow(item){item=item||{};let type=item.type||'text',value=item.value===undefined?'':'<input data-k="value" type="hidden" value="'+esc(item.value)+'">';return '<div class="array-card input-row"><div class="array-head"><strong>'+t.inputs+'</strong><button class="icon-btn remove" type="button">-</button></div><div class="field"><label>ID</label><input data-k="id" value="'+esc(item.id)+'"></div><div class="field"><label>Label</label><input data-k="label" value="'+esc(item.label)+'"></div><div class="field"><label>Type</label><select data-k="type"><option value="text" '+(type==='text'?'selected':'')+'>text</option><option value="number" '+(type==='number'?'selected':'')+'>number</option></select></div><div class="field"><label>'+t.inputDescription+'</label><input data-k="description" value="'+esc(item.description)+'"></div>'+value+'</div>'}function renderInputs(list){let box=$('inputsBox');if(!box)return;let rows=Array.isArray(list)&&list.length?list:createDefaults().inputs;box.innerHTML=rows.map(inputRow).join('')+'<button id="addInput" class="tonal" type="button">+ '+t.add+'</button>';box.querySelectorAll('.input-row .remove').forEach(b=>b.onclick=()=>b.closest('.input-row').remove());$('addInput').onclick=()=>{let div=document.createElement('div');div.innerHTML=inputRow({});let row=div.firstChild;row.querySelector('.remove').onclick=()=>row.remove();$('addInput').before(row)}}function sourceRow(src){src=Object.assign({id:'main',type:'http',method:'GET',url:'',responseType:'json',interval:300,timeout:5000,headers:{},entity:'',value:'',skipState:''},src||{});let headers=typeof src.headers==='string'?src.headers:JSON.stringify(src.headers||{}),body=src.body===undefined?'':(typeof src.body==='string'?src.body:JSON.stringify(src.body));return '<div class="array-card source-row"><div class="array-head"><strong>'+t.sourceSection+'</strong><button class="icon-btn remove" type="button">-</button></div><div class="field"><label>'+t.sourceId+'</label><input data-k="id" value="'+esc(src.id)+'"></div><div class="field"><label>'+t.sourceType+'</label><select data-k="type"><option value="http" '+(src.type==='http'?'selected':'')+'>HTTP</option><option value="ha" '+(src.type==='ha'?'selected':'')+'>Home Assistant</option></select></div><div class="field"><label>HA Entity</label><input data-k="entity" value="'+esc(src.entity)+'"></div><div class="field"><label>HA Value Path</label><input data-k="value" value="'+esc(src.value)+'" placeholder="state"></div><div class="field"><label>Skip State</label><input data-k="skipState" value="'+esc(src.skipState)+'" placeholder="idle"></div><div class="field"><label>'+t.sourceMethod+'</label><select data-k="method"><option value="GET" '+(src.method==='GET'?'selected':'')+'>GET</option><option value="POST" '+(src.method==='POST'?'selected':'')+'>POST</option></select></div><div class="field"><label>'+t.sourceUrl+'</label><input data-k="url" value="'+esc(src.url)+'"></div><div class="field"><label>'+t.responseType+'</label><select data-k="responseType"><option value="json" '+(src.responseType==='json'?'selected':'')+'>JSON</option><option value="text" '+(src.responseType==='text'?'selected':'')+'>Text</option><option value="number" '+(src.responseType==='number'?'selected':'')+'>Number</option><option value="xml" '+(src.responseType==='xml'?'selected':'')+'>XML</option></select></div><div class="field"><label>'+t.interval+'</label><input data-k="interval" type="number" value="'+esc(src.interval)+'"></div><div class="field"><label>'+t.timeout+'</label><input data-k="timeout" type="number" value="'+esc(src.timeout)+'"></div><div class="field"><label>'+t.headers+'</label><input data-k="headers" value="'+esc(headers)+'"></div><div class="field"><label>'+t.body+'</label><input data-k="body" value="'+esc(body)+'"></div></div>'}function syncSourceBody(row){let method=row.querySelector('[data-k=method]').value,body=row.querySelector('[data-k=body]'),type=row.querySelector('[data-k=type]').value,isHa=type==='ha',show=(k,on)=>{let el=row.querySelector('[data-k='+k+']');if(!el)return;el.disabled=!on;let field=el.closest('.field');if(field)field.style.display=on?'':'none'};show('body',!isHa&&method!=='GET');if(method==='GET'||isHa)body.value='';['method','url','headers'].forEach(k=>show(k,!isHa));['entity','value','skipState'].forEach(k=>show(k,isHa))}function wireSource(row){row.querySelector('.remove').onclick=()=>row.remove();row.querySelector('[data-k=method]').onchange=()=>syncSourceBody(row);row.querySelector('[data-k=type]').onchange=()=>syncSourceBody(row);syncSourceBody(row)}function renderSources(list){let box=$('sourcesBox');if(!box)return;let rows=Array.isArray(list)&&list.length?list:createDefaults().sources;box.innerHTML=rows.map(sourceRow).join('')+'<button id="addSource" class="tonal" type="button">+ '+t.add+'</button>';box.querySelectorAll('.source-row').forEach(wireSource);$('addSource').onclick=()=>{let div=document.createElement('div');div.innerHTML=sourceRow({});let row=div.firstChild;wireSource(row);$('addSource').before(row)}}function renderImportStep(step,data){E.secondaryAction.style.display='none';hideFooterExport();E.saveSettings.style.display='none';if(step===1){E.sheetTitle.textContent=t.importPaste;E.fields.innerHTML='<div class="import-screen"><div class="stepper"><b>1</b><span>'+t.importPaste+'</span><em>2</em><em>3</em></div><div class="field"><label>'+t.appJson+'</label><textarea id="importJsonText">'+appJsonSample()+'</textarea></div><div class="actions-inline"><button id="importCancel" class="tonal" type="button">'+t.manualCreate+'</button><button id="importNext" class="primary" type="button">'+t.importNext+'</button></div></div>';$('importCancel').onclick=()=>openCreateApp(null,'create');$('importNext').onclick=()=>{try{let parsed=normalizeImportedApp(JSON.parse($('importJsonText').value));renderImportStep(2,parsed);setStatus(E.sheetStatus,'',false)}catch(e){setStatus(E.sheetStatus,t.invalidJson,true)}};return}if(step===2){E.sheetTitle.textContent=t.importPreview;E.fields.innerHTML='<div class="import-screen"><div class="stepper"><em>1</em><b>2</b><span>'+t.importPreview+'</span><em>3</em></div><p class="hint">'+t.importReady+'</p><pre class="json-preview">'+JSON.stringify(data,null,2)+'</pre><div class="actions-inline"><button id="importBack" class="tonal" type="button">'+t.importBack+'</button><button id="importApply" class="primary" type="button">'+t.importToForm+'</button></div></div>';$('importBack').onclick=()=>renderImportStep(1);$('importApply').onclick=()=>renderImportStep(3,data);return}E.sheetTitle.textContent=t.importApply;E.fields.innerHTML='<div class="import-screen"><div class="stepper"><em>1</em><em>2</em><b>3</b><span>'+t.importApply+'</span></div><p class="hint">'+t.importApplied+'</p><pre class="json-preview">'+JSON.stringify(data,null,2)+'</pre><div class="actions-inline"><button id="importDone" class="primary" type="button">'+t.importApply+'</button></div></div>';$('importDone').onclick=()=>{openCreateApp(data,'create');setStatus(E.sheetStatus,t.importApplied,false)}}function openCreateApp(data,mode){hideFooterExport();formMode=mode||'create';E.secondaryAction.style.display=formMode==='edit'?'none':'';E.secondaryAction.textContent=t.useImport;E.secondaryAction.onclick=()=>renderImportStep(1);E.saveSettings.style.display='';E.saveSettings.textContent=formMode==='edit'?t.saveSettings:t.create;currentApp='__app_form__';E.sheetTitle.textContent=formMode==='edit'?t.editApp:t.createApp;E.sheetStatus.textContent='';let defaults=Object.assign(createDefaults(),data||{});E.fields.innerHTML=cf('cName',t.appNameLabel,'text','')+createFieldHtml(['description',t.description,'text'],defaults)+createFieldHtml(['appIcon',t.appIcon+' <a class="icon-create-link" href="https://developer.lametric.com/icons" target="_blank" rel="noopener noreferrer">'+t.createIcon+'</a>','text'],defaults)+createFieldHtml(['author',t.author,'text'],defaults)+createFieldHtml(['tagsText',t.tags,'text'],defaults)+createFieldHtml(['version',t.version,'number'],defaults)+'<h4 class="form-section">'+t.inputsSection+'</h4><div id="inputsBox" class="array-list"></div><h4 class="form-section">'+t.sourceSection+'</h4><div id="sourcesBox" class="array-list"></div><h4 class="form-section">'+t.displaySection+'</h4>'+formDisplayFields().map(f=>createFieldHtml(f,defaults)).join('');E.fields.querySelectorAll('select[id^="c_"]').forEach(i=>{i.dataset.create='1';i.dataset.key=i.id.slice(2);i.dataset.type='select'});renderInputs(defaults.inputs);renderSources(defaults.sources);if(data)setCreateForm(data);E.sheet.classList.add('show')}function parseMaybeJson(v,fallback){if(!String(v||'').trim())return fallback;return JSON.parse(v)}function collectInputs(){return Array.from(document.querySelectorAll('#inputsBox .input-row')).map(r=>{let input={id:r.querySelector('[data-k=id]').value,label:r.querySelector('[data-k=label]').value,type:r.querySelector('[data-k=type]').value},description=r.querySelector('[data-k=description]'),value=r.querySelector('[data-k=value]');if(description&&description.value)input.description=description.value;if(value)input.value=value.value;return input}).filter(i=>i.id)}function collectSources(){return Array.from(document.querySelectorAll('#sourcesBox .source-row')).map(r=>{let method=r.querySelector('[data-k=method]').value,type=r.querySelector('[data-k=type]').value||'http',source={id:r.querySelector('[data-k=id]').value||'main',type:type,method:method,url:r.querySelector('[data-k=url]').value||'',responseType:r.querySelector('[data-k=responseType]').value||'json',interval:Number(r.querySelector('[data-k=interval]').value||0),timeout:Number(r.querySelector('[data-k=timeout]').value||0),headers:parseMaybeJson(r.querySelector('[data-k=headers]').value,{})},body=r.querySelector('[data-k=body]').value,entity=r.querySelector('[data-k=entity]').value,value=r.querySelector('[data-k=value]').value,skipState=r.querySelector('[data-k=skipState]').value;if(type==='ha'){source.method='GET';source.url='';source.headers={};if(entity)source.entity=entity;if(value)source.value=value;if(skipState)source.skipState=skipState}else if(method!=='GET'&&body.trim())source.body=parseMaybeJson(body,body);return source}).filter(s=>s.id)}function collectCreatePayload(){let display={text:$('c_displayText').value||'',icon:$('c_displayIcon').value||'',color:$('c_displayColor').value,background:$('c_displayBackground').value};let progress=Number($('c_displayProgress').value);if(progress>=0){display.progress=progress;display.progressC=$('c_displayProgressC').value;display.progressBC=$('c_displayProgressBC').value}return {name:$('cName').value.trim(),description:$('c_description').value||'',icon:$('c_appIcon').value||'',author:$('c_author').value||'',tags:($('c_tagsText').value||'').split(',').map(x=>x.trim()).filter(Boolean),version:Number($('c_version').value||1),inputs:collectInputs(),sources:collectSources(),display:display}}function placeholderValue(template,resolved,id){let token='{{'+id+'}}',a=String(template||''),b=String(resolved||'');if(!a.includes(token)||!b)return undefined;let parts=a.split(token).map(x=>x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')),m=new RegExp('^'+parts.join('(.+?)')+'$').exec(b);return m?decodeURIComponent(m[1]):undefined}function mergeStoreManifestPayload(item,saved,manifest){let merged=Object.assign({},item,manifest||{},saved||{});if(manifest&&Array.isArray(manifest.inputs)){merged.inputs=manifest.inputs.map(x=>Object.assign({},x));if(saved&&Array.isArray(saved.sources)&&Array.isArray(manifest.sources)){merged.inputs=merged.inputs.map(input=>{let next=Object.assign({},input);for(let ms of manifest.sources){let ss=saved.sources.find(x=>String(x.id||'')===String(ms.id||''));let v=ss&&placeholderValue(ms.url,ss.url,input.id);if(v!==undefined){next.value=v;break}}return next})}}if(manifest&&Array.isArray(manifest.sources)){merged.sources=manifest.sources.map(ms=>{let ss=saved&&Array.isArray(saved.sources)?saved.sources.find(x=>String(x.id||'')===String(ms.id||'')):null,next=Object.assign({},ms);if(ss&&ss.interval!==undefined)next.interval=ss.interval;if(ss&&ss.timeout!==undefined)next.timeout=ss.timeout;return next})}return merged}async function loadStoreManifestForApp(name){return null}async function loadSavedCustomPayload(name,item){if(!item||(item.type!=='custom'&&item.type!=='animation'))return item;try{let savedRes=await fetch('/api/custom?name='+encodeURIComponent(name),{cache:'no-store'}).catch(()=>null),saved=null;if(savedRes&&savedRes.ok)saved=await savedRes.json();return Object.assign({},item,saved||{})}catch(e){return item}}function exportFallbackPayload(item){let payload=Object.assign({},item||{});delete payload.enabled;delete payload.type;return payload}function downloadJson(name,payload){let blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=(name||'custom-app')+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}async function exportCustomAppJson(name,item){try{let payload=null,r=await fetch('/api/custom?name='+encodeURIComponent(name));if(r.ok)payload=await r.json();else payload=exportFallbackPayload(item);downloadJson(name,payload);setStatus(E.sheetStatus,t.saved,false)}catch(e){downloadJson(name,exportFallbackPayload(item));setStatus(E.sheetStatus,t.exportFailed,true)}}async function saveCreateApp(){let name=$('cName').value.trim(),payload;if(!name){setStatus(E.sheetStatus,t.nameRequired,true);return}try{payload=collectCreatePayload();setStatus(E.sheetStatus,t.saving,false);let r=await fetch('/api/custom?name='+encodeURIComponent(name)+'&save=1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});if(!r.ok)throw Error('save failed');libraryLoaded=false;await loadLibrary();storeLoaded=false;loadStore();setStatus(E.sheetStatus,t.saved,false);E.sheet.classList.remove('show')}catch(e){setStatus(E.sheetStatus,e.message,true)}}async function openSettings(name){E.secondaryAction.style.display='none';hideFooterExport();E.saveSettings.style.display='';E.saveSettings.textContent=t.saveSettings;currentApp=name;E.sheetTitle.textContent=name+' '+t.appSettings;E.sheetStatus.textContent='';E.fields.innerHTML='<p class="hint">'+(t.loadingSettings||'Loading...')+'</p>';E.sheet.classList.add('show');let item=(apps||[]).find(a=>appName(a,0)===name)||{};item=await loadSavedCustomPayload(name,item);if(name==='Time')await loadLegacySettings();E.fields.innerHTML='';let fields=appSettingFields()[name]||[],commonFields=[];if(item.type==='custom'||item.type==='animation'){let exportBtn=footerExportAction();if(item.type==='custom'){let editPayload=normalizeImportedApp(item);E.secondaryAction.style.display='';E.secondaryAction.textContent=t.editApp;E.secondaryAction.onclick=()=>openCreateApp(editPayload,'edit')}exportBtn.style.display='';exportBtn.textContent=t.exportJson;exportBtn.onclick=()=>exportCustomAppJson(name,item);let inputFields=Array.isArray(item.inputs)?item.inputs.map(x=>['input_'+x.id,x.label||x.id,x.type==='number'?'number':'text',undefined,x.description||'']):(item.bilibiliUid!==undefined?[['bilibiliUid',t.uid,'text']]:[]),sourceFields=Array.isArray(item.sources)?item.sources.map(x=>['source_'+x.id+'_interval',(x.id||'source')+' '+t.interval,'number']):[],animationFields=item.type==='animation'&&item.animation?[['animation_fps','FPS','number'],['animation_repeat',lang==='zh'?'循环次数':'Repeat','number']]:[];commonFields=settingsDisplayFields();fields=item.type==='animation'?animationFields.concat([['displayDuration',t.duration,'number']]):inputFields.concat(sourceFields,animationFields)}if(!fields.length&&!commonFields.length){E.fields.innerHTML+='<p class="hint">'+t.noFields+'</p>';E.sheet.classList.add('show');return}fields.forEach(f=>addField(f,item));if(commonFields.length){let details=document.createElement('details');details.className='settings-card advanced-settings';let summary=document.createElement('summary');summary.textContent=lang==='zh'?'通用设置':'Common settings';details.appendChild(summary);let body=document.createElement('div');body.className='advanced-fields';details.appendChild(body);commonFields.forEach(f=>addField(f,item,body));E.fields.appendChild(details)}E.sheet.classList.add('show')}async function saveAppSettings(){if(currentApp==='__app_form__')return saveCreateApp();if(currentApp==='__store_source__')return saveStoreSourceDialog();if(currentApp==='__new_file__')return createFileItem(false);if(currentApp==='__new_folder__')return createFileItem(true);let body={},legacyBody={};E.fields.querySelectorAll('input,select').forEach(i=>{let v=i.dataset.type==='checkbox'?i.value==='on':i.dataset.type==='color'?numberFromHex(i.value):i.dataset.type==='colorString'?i.value:i.dataset.type==='number'?Number(i.value):i.value;if(i.dataset.key==='TEFF'||i.dataset.key==='TMODE')v=Number(i.value);if(triBoolKeys.has(i.dataset.key)){if(v==='default')return;v=v==='on'}if(triNumberKeys.has(i.dataset.key)){if(v==='default')return;v=v==='on'?1:0}if(i.dataset.source==='legacy')legacyBody[i.dataset.key]=v;else body[i.dataset.key]=v});setStatus(E.sheetStatus,t.saving,false);try{let item=(apps||[]).find(a=>appName(a,0)===currentApp)||{};if(currentApp==='__global__'){let r=await fetch('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw Error('save failed');settings=Object.assign(settings,body)}else if(item.type==='custom'){let payload=await loadSavedCustomPayload(currentApp,item);let hasSchema=payload.display&&typeof payload.display==='object';if(hasSchema){payload.display=Object.assign({},payload.display);triBoolKeys.forEach(k=>delete payload.display[k]);triNumberKeys.forEach(k=>delete payload.display[k]);Object.keys(body).forEach(k=>{if(k.startsWith('input_')||k.startsWith('source_'))return;payload.display[k]=body[k]})}else{payload=Object.assign({},payload);triBoolKeys.forEach(k=>delete payload[k]);triNumberKeys.forEach(k=>delete payload[k]);Object.keys(body).forEach(k=>{if(k.startsWith('input_')||k.startsWith('source_'))return;payload[k]=body[k]})}if(Array.isArray(payload.inputs))payload.inputs=payload.inputs.map(x=>Object.assign({},x,{value:body['input_'+x.id]!==undefined?body['input_'+x.id]:x.value}));if(Array.isArray(payload.sources))payload.sources=payload.sources.map(x=>Object.assign({},x,{interval:body['source_'+x.id+'_interval']!==undefined?body['source_'+x.id+'_interval']:x.interval}));if(payload.animation){payload.animation=Object.assign({},payload.animation);if(body.animation_fps!==undefined)payload.animation.fps=body.animation_fps;if(body.animation_repeat!==undefined)payload.animation.repeat=body.animation_repeat}delete payload.enabled;let r=await fetch('/api/custom?name='+encodeURIComponent(currentApp)+'&save=1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});if(!r.ok)throw Error('save failed');libraryLoaded=false;await loadLibrary()}else{if(Object.keys(body).length){let r=await fetch('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw Error('save failed');settings=Object.assign(settings,body)}if(Object.keys(legacyBody).length)await saveLegacySettings(legacyBody)}setStatus(E.sheetStatus,t.saved,false);E.sheet.classList.remove('show')}catch(e){setStatus(E.sheetStatus,e.message,true)}}
-async function uninstallApp(name){hideFooterExport();currentApp='__app_uninstall__';let item=(apps||[]).find(a=>appName(a,0)===name)||{};E.sheetTitle.textContent=t.uninstallTitle||(lang==='zh'?'卸载应用':'Uninstall App');E.sheetStatus.textContent='';E.fields.innerHTML='<section class="settings-card"><h3>'+name+'</h3><p class="hint">'+(lang==='zh'?'确定要删除吗？可以之后从应用商店重新安装。':'Remove this app? You can reinstall it from the app store.')+'</p></section>';E.secondaryAction.style.display='';E.secondaryAction.textContent=lang==='zh'?'取消':'Cancel';E.secondaryAction.onclick=()=>E.sheet.classList.remove('show');E.saveSettings.style.display='';E.saveSettings.textContent=lang==='zh'?'卸载':'Uninstall';E.saveSettings.onclick=async()=>{try{setStatus(E.libraryStatus,'...',false);let r=await fetch('/api/apps/uninstall',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});let j=await r.json().catch(()=>({}));if(!r.ok||!j.success)throw Error(j.error||'uninstall failed');E.saveSettings.onclick=saveAppSettings;E.sheet.classList.remove('show');libraryLoaded=false;await loadLibrary();storeLoaded=false;loadStore();setStatus(E.libraryStatus,t.uninstalled+name,false)}catch(e){setStatus(E.sheetStatus,e.message,true)}};E.sheet.classList.add('show')}
-let activeStoreKind='app',activeLibraryKind='app';function localLabel(v,f){let d=v&&typeof v==='object'?v:null;return d?(d[lang]||d.en||d.zh||f||''):(v||f||'')}function castAppName(app){return localLabel(app&&app.name,((app&&app.id)||''))}function castAppDescription(app){return localLabel(app&&app.description,'')}function castUi(k){let m={zh:{cast:'Cast',animation:'Animation',castHint:'Cast 由浏览器 JS 控制，需要保持页面打开',legacy:'此 Cast 是旧内置项，请卸载后从应用商店重新安装外置版本。',uninstallTitle:'卸载 Cast',uninstallHint:'确定要从我的应用中卸载这个 Cast 吗？可以之后从应用商店重新安装。',empty:'还没有安装 Cast，请到应用商店 > Cast 安装。'},en:{cast:'Cast',animation:'Animation',castHint:'Cast entries are controlled by browser JavaScript. Keep this page open.',legacy:'This Cast entry is a legacy built-in item. Uninstall it, then reinstall the external version from the app store.',uninstallTitle:'Uninstall Cast',uninstallHint:'Remove this Cast from My Apps? You can reinstall it from the app store later.',empty:'No Cast installed yet. Install one from App Store > Cast.'}};return(m[lang]||m.zh)[k]}function refreshCastLabels(){document.querySelectorAll('[data-kind="cast"]').forEach(b=>b.textContent=castUi('cast'));document.querySelectorAll('[data-kind="app"]').forEach(b=>b.textContent='App')}
-let castStoreCatalog=[],castModuleCache={},castModuleV=0,castInstalledCache=null;const CAST_APPS_DIR='/Apps/cast';function localCastInstalledMap(){try{return JSON.parse(localStorage.awtrixCastAppManifests||'{}')}catch(e){return{}}}function castInstalledMap(){return castInstalledCache||localCastInstalledMap()}function castAppIds(){return Object.keys(castInstalledMap())}function castLocalPath(id,ext){return CAST_APPS_DIR+'/'+id+ext}function normalizeCastManifest(app,id){app=Object.assign({},app||{});app.id=app.id||id;if(!app.id)return null;let localJs=castLocalPath(app.id,'.js');app.entryLocal=app.entryLocal||app.entryUrl||app.entry||localJs;if(app.entryLocal!==localJs)app.entryLocal=localJs;app.entry=app.entryLocal;app.entryUrl=app.entryLocal;return app}async function listCastManifestFiles(){let r=await fetch('/list?dir='+encodeURIComponent(CAST_APPS_DIR),{cache:'no-store'});if(!r.ok)throw Error(await r.text()||'cast list failed');let list=await r.json();return (Array.isArray(list)?list:[]).filter(f=>f&&f.type!=='dir'&&/\.json$/i.test(f.name||'')&&String(f.name).toLowerCase()!=='apps.json').map(f=>String(f.name))}async function readCastManifest(name){let id=String(name).replace(/\.json$/i,''),path=castLocalPath(id,'.json'),r=await fetch('/api/files/view?path='+encodeURIComponent(path),{cache:'no-store'});if(!r.ok)return null;let j=await r.json();if(j.binary)return null;return normalizeCastManifest(JSON.parse(j.content||'{}'),id)}async function loadCastInstalledMap(force){if(castInstalledCache&&!force)return castInstalledCache;let map={};try{let files=await listCastManifestFiles();let manifests=await Promise.all(files.map(readCastManifest));manifests.filter(Boolean).forEach(app=>{map[app.id]=app})}catch(e){map=localCastInstalledMap()}castInstalledCache=map;localStorage.awtrixCastAppManifests=JSON.stringify(castInstalledCache);localStorage.awtrixCastApps=JSON.stringify(Object.keys(castInstalledCache));return castInstalledCache}async function saveCastInstalledMap(map){castInstalledCache=map||{};localStorage.awtrixCastAppManifests=JSON.stringify(castInstalledCache);localStorage.awtrixCastApps=JSON.stringify(Object.keys(castInstalledCache))}function installedCastApps(){let map=castInstalledMap();return Object.keys(map).map(id=>map[id]).filter(Boolean)}async function writeCastFile(path,text,type){let blob=new Blob([text],{type:type||'text/plain'}),form=new FormData();form.append('file',blob,path.replace(/^\//,''));let r=await fetch('/edit',{method:'POST',body:form});if(!r.ok)throw Error(await r.text()||'cast file save failed')}async function loadExternalCastModule(app){let url=(app&&app.entryLocal)||castLocalPath(app.id,'.js');if(!url)throw Error('missing entry');let sep=url.includes('?')?'&':'?';if(!castModuleCache[url])castModuleCache[url]=import(url+sep+'v='+castModuleV);return castModuleCache[url]}async function openCastApp(id){let map=await loadCastInstalledMap(),app=map[id]||castStoreCatalog.find(a=>a.id===id);if(!app)return;app=normalizeCastManifest(app,id);castModuleV++;castModuleCache={};try{let mod=await loadExternalCastModule(app),api=createCastAppApi(app);if(mod.main)await mod.main(api,app);else throw Error("module missing main()")}catch(e){setStatus(E.libraryStatus||E.storeStatus,e.message,true)}}async function installCastApp(id,btn){let app=castStoreCatalog.find(a=>a.id===id);if(!app)return;let originalText=btn?btn.textContent:'';if(btn){btn.disabled=true;btn.textContent=t.installing||originalText}try{let map=Object.assign({},await loadCastInstalledMap()),base=storeBase(selectedStoreSource().url),entryOriginal=app.entryUrl||app.entry;if(!entryOriginal)throw Error('missing entry');let entryResolved=resolveStoreUrl(entryOriginal,base),entryRes=await rawFetch(entryResolved,{cache:'no-store'});if(!entryRes.ok)throw Error('cast download failed');let entryText=await entryRes.text(),jsPath=castLocalPath(app.id,'.js'),manifestPath=castLocalPath(app.id,'.json');await writeCastFile(jsPath,entryText,'text/javascript');await installIconForApp(app,app,base);let installed=normalizeCastManifest(Object.assign({},app,{entry:jsPath,entryLocal:jsPath,entryUrl:jsPath,entryOriginal:entryResolved}),app.id);await writeCastFile(manifestPath,JSON.stringify(installed,null,2),'application/json');map[id]=installed;await saveCastInstalledMap(map);castModuleCache={};castModuleV++;if(btn){btn.textContent=t.installed;btn.onclick=null;btn.classList.remove('primary');btn.classList.add('tonal');let row=btn.closest('.store-row');if(row)row.classList.add('installed')}renderCastAppStore();if(activeLibraryKind==='cast')renderLibrary();setStatus(E.storeStatus,castAppName(app)+' '+t.installed,false)}catch(e){setStatus(E.storeStatus,e.message,true);if(btn){btn.disabled=false;btn.textContent=originalText}}}function uninstallCastApp(id){let map=castInstalledMap(),app=map[id],name=castAppName(app)||id;hideFooterExport();currentApp='__cast_uninstall__';E.sheetTitle.textContent=castUi('uninstallTitle');E.sheetStatus.textContent='';E.fields.innerHTML='<section class="settings-card"><h3>'+name+'</h3><p class="hint">'+castUi('uninstallHint')+'</p></section>';E.secondaryAction.style.display='';E.secondaryAction.textContent='取消';E.secondaryAction.onclick=()=>E.sheet.classList.remove('show');E.saveSettings.style.display='';E.saveSettings.textContent='卸载';E.saveSettings.onclick=async()=>{try{let next=Object.assign({},await loadCastInstalledMap());delete next[id];await Promise.all([fetch('/edit?path='+encodeURIComponent(castLocalPath(id,'.js')),{method:'DELETE'}).catch(()=>{}),fetch('/edit?path='+encodeURIComponent(castLocalPath(id,'.json')),{method:'DELETE'}).catch(()=>{})]);await saveCastInstalledMap(next);E.saveSettings.onclick=saveAppSettings;E.sheet.classList.remove('show');renderLibrary();storeLoaded=false;if(activeStoreKind==='cast')loadStore()}catch(e){setStatus(E.sheetStatus,e.message,true)}};E.sheet.classList.add('show')}
-let settingsSection='device',legacySettings={};
-function settingTabLabels() { return lang === 'zh' ? { device: '设备', network: '网络', time: '时间', integrations: '集成', auth: '账号', files: '文件' } : { device: 'Device', network: 'Network', time: 'Time', integrations: 'Integrations', auth: 'Auth', files: 'Files' } }
-function deviceSettingGroups(){return {device:{display:[{title:t.matrixDisplay,fields:[['MATP',t.matrixPower,'checkbox'],['ABRI',t.autoBrightness,'checkbox'],['BRI',t.brightness,'number'],['GAMMA',t.gamma,'number'],['CCORRECTION',t.colorCorrection,'colorString'],['CTEMP',t.colorTemperature,'colorString'],['OVERLAY',t.overlay,'select',[['clear','clear'],['snow','snow'],['rain','rain'],['drizzle','drizzle'],['storm','storm'],['thunder','thunder'],['frost','frost']]]]}],sound:[{title:t.soundOther,fields:[['SOUND',t.sound,'checkbox'],['VOL',t.volume,'number'],['BLOCKN',t.blockNav,'checkbox'],['MAT',t.matrixLayout,'number']]}]},integrations:{homeAssistant:[{title:'Home Assistant',fields:[['HA_ENABLED','Home Assistant','checkbox'],['HA_BASE_URL','HA URL','text'],['HA_TOKEN','HA Token','password'],['HA_PREFIX','HA Prefix','text']]}]}}}
-function legacySettingGroups(){let z=lang==='zh';return {network:[{title:z?'网络':'Network',fields:[['Static IP',z?'静态 IP':'Static IP','checkbox'],['Local IP',z?'本机 IP':'Local IP','text'],['Gateway',z?'网关':'Gateway','text'],['Subnet',z?'子网掩码':'Subnet','text'],['Primary DNS',z?'首选 DNS':'Primary DNS','text'],['Secondary DNS',z?'备用 DNS':'Secondary DNS','text']]}],time:[],integrations:[{title:'MQTT',fields:[['Broker',z?'服务器':'Broker','text'],['Port',z?'端口':'Port','number'],['Username',z?'用户名':'Username','text'],['Password',z?'密码':'Password','password'],['Prefix',z?'主题前缀':'Prefix','text'],['Homeassistant Discovery','Homeassistant Discovery','checkbox']]}],auth:[{title:z?'账号':'Auth',fields:[['Auth Username',z?'账号':'Auth Username','text'],['Auth Password',z?'密码':'Auth Password','password']]}]}}
-function renderSettingsTabs(target){let labels=settingTabLabels(),order=['device','network','integrations','auth','files'],tabs=document.createElement('div'),active=E.filesPanel.classList.contains('active')?'files':settingsSection;tabs.className='settings-tabs';order.forEach(k=>{let b=document.createElement('button');b.type='button';b.className='tonal settings-tab'+(active===k?' active':'');b.textContent=labels[k];b.onclick=()=>{if(k==='files'){activate('files',false);return}settingsSection=k;if(E.filesPanel.classList.contains('active'))activate('settings',false);else renderDeviceSettings()};tabs.appendChild(b)});(target||E.settingsGrid).appendChild(tabs)}
-function addSettingsField(card,f,source){let data=source==='legacy'?legacySettings:settings;if(data[f[0]]===undefined&&source==='api')return;let wrap=document.createElement('div');wrap.className='field';let val=data[f[0]],input;if(val===undefined||val===null)val='';if(f[2]==='checkbox'){input=document.createElement('input');input.type='hidden';input.value=val?'on':'off';let group=document.createElement('div');group.className='segmented';boolOptions().forEach(o=>{let b=document.createElement('button');b.type='button';b.textContent=o[1];b.dataset.value=o[0];b.className=o[0]===input.value?'active':'';b.onclick=()=>{input.value=o[0];group.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b))};group.appendChild(b)});input._segment=group}else if(f[2]==='select'){input=document.createElement('select');(f[3]||[]).forEach(o=>{let opt=document.createElement('option');opt.value=o[0];opt.textContent=o[1];input.appendChild(opt)});input.value=val}else{input=document.createElement('input');input.type=f[2]==='password'?'password':f[2];if(f[2]==='number')input.step=Number.isInteger(Number(val))?'1':'0.1';input.value=f[2]==='color'||f[2]==='colorString'?hex(val):val}input.dataset.key=f[0];input.dataset.type=f[2];input.dataset.source=source;let label=document.createElement('label');label.textContent=f[1];wrap.appendChild(label);if(f[2]==='checkbox'){wrap.appendChild(input);wrap.appendChild(input._segment)}else wrap.appendChild(input);card.appendChild(wrap)}
-function renderGroupCards(groups, source) { groups.forEach(g => { let card = document.createElement('section'); card.className = 'settings-card'; let h = document.createElement('h3'); h.textContent = g.title; card.appendChild(h); g.fields.forEach(f => addSettingsField(card, f, source)); if (card.querySelector('.field')) E.settingsGrid.appendChild(card) }) } function renderDeviceSettings(){let apiGroups=deviceSettingGroups(),legacyGroups=legacySettingGroups(),apiSection=apiGroups[settingsSection]||[],legacySection=legacyGroups[settingsSection]||[];if(apiSection&&!Array.isArray(apiSection))apiSection=Object.values(apiSection).flat();if(legacySection&&!Array.isArray(legacySection))legacySection=Object.values(legacySection).flat();E.settingsGrid.innerHTML='';renderSettingsTabs();E.settingsEmpty.style.display='none';if(settingsSection==='network')renderWifiSetupCard(E.settingsGrid,'settings');renderGroupCards(apiSection||[],'api');renderGroupCards(legacySection||[],'legacy');if(!E.settingsGrid.querySelector('.settings-card'))E.settingsEmpty.style.display='block'}function wifiIds(prefix){let p=prefix||'settings';return{ssid:p+'WifiSsid',list:p+'WifiSsidList',password:p+'WifiPassword',status:p+'WifiStatus',scan:p+'WifiScan',connect:p+'WifiConnect'}}function renderWifiSetupCard(target,prefix){let z=lang==='zh',box=target||E.settingsGrid,ids=wifiIds(prefix),card=document.createElement('section');card.className='settings-card wifi-card';card.innerHTML='<h3>'+(z?'WiFi 设置':'WiFi Setup')+'</h3><p class="hint">'+(z?'扫描附近 WiFi，也可以直接输入 SSID。连接成功后设备会重启。':'Scan nearby WiFi, or type an SSID directly. The device restarts after a successful connection.')+'</p><div class="field wifi-ssid-field"><label>SSID</label><div class="wifi-ssid-row"><div class="wifi-ssid-input"><input id="'+ids.ssid+'" type="text" list="'+ids.list+'" placeholder="SSID" autocomplete="off"><span class="wifi-dropdown" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg></span></div><button id="'+ids.scan+'" class="icon-btn wifi-scan" type="button" aria-label="'+(z?'扫描 WiFi':'Scan WiFi')+'" title="'+(z?'扫描 WiFi':'Scan WiFi')+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6v5h-5M4 18v-5h5M18.5 9A7 7 0 0 0 6.3 6.8L4 11M20 13l-2.3 4.2A7 7 0 0 1 5.5 15"/></svg></button><datalist id="'+ids.list+'"></datalist></div><div class="field"><label>'+(z?'WiFi 密码':'WiFi Password')+'</label><input id="'+ids.password+'" type="password" autocomplete="new-password"></div><button id="'+ids.connect+'" class="primary wifi-connect" type="button">'+(z?'连接 WiFi':'Connect WiFi')+'</button><div id="'+ids.status+'" class="status"></div>';box.appendChild(card);$(ids.scan).onclick=()=>scanWifiNetworks(prefix);$(ids.connect).onclick=()=>connectWifiNetwork(prefix)}function renderWifiSetupPage(){E.wifiGrid.innerHTML='';renderWifiSetupCard(E.wifiGrid,'wifi');E.wifiEmpty.style.display='none'}async function scanWifiNetworks(prefix){let ids=wifiIds(prefix),status=$(ids.status),listEl=$(ids.list),input=$(ids.ssid),z=lang==='zh';status.textContent=z?'正在扫描...':'Scanning...';status.className='status';try{let r=await fetch('/scan',{cache:'no-store'});if(!r.ok)throw Error('scan failed');let list=await r.json();listEl.innerHTML='';(Array.isArray(list)?list:[]).forEach(n=>{let opt=document.createElement('option');opt.value=n.ssid||'';opt.label=(n.selected?'✓ ':'')+(n.ssid||'')+' '+(n.strength?('('+n.strength+' dBm)'):'');if(n.selected&&!input.value)input.value=n.ssid||'';listEl.appendChild(opt)});status.textContent=(z?'找到 ':'Found ')+(Array.isArray(list)?list.length:0)+(z?' 个网络':' networks')}catch(e){status.textContent=e.message;status.className='status error'}}async function connectWifiNetwork(prefix){let ids=wifiIds(prefix),status=$(ids.status),z=lang==='zh',ssid=($(ids.ssid).value||'').trim(),password=$(ids.password).value;if(!ssid){status.textContent=z?'请先选择或输入 SSID':'Select or enter an SSID first';status.className='status error';return}status.textContent=z?'正在连接，成功后设备会重启...':'Connecting. The device will restart on success...';status.className='status';try{let body=new URLSearchParams({ssid:ssid,password:password,persistent:'true'}),r=await fetch('/connect',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});let text=await r.text();if(!r.ok)throw Error(text||'wifi failed');status.textContent=text||t.saved}catch(e){status.textContent=e.message;status.className='status error'}}async function loadLegacySettings(){try{let r=await fetch('/DoNotTouch.json',{cache:'no-store'});legacySettings=r.ok?await r.json():{}}catch(e){legacySettings={}}}
-async function loadDeviceSettings(){setStatus(E.settingsStatus,'',false);if(settings&&Object.keys(settings).length)renderDeviceSettings();try{let r=await fetch('/api/settings',{cache:'no-store'});if(!r.ok)throw Error('settings failed');settings=await r.json();renderDeviceSettings();loadLegacySettings().then(()=>{if(E.settingsPanel.classList.contains('active'))renderDeviceSettings()}).catch(e=>dbg('legacySettings:err '+e.message))}catch(e){if(!settings||!Object.keys(settings).length){E.settingsEmpty.style.display='block';E.settingsEmpty.textContent=e.message}setStatus(E.settingsStatus,e.message,true)}}
-function collectSettingsBody(source){let body={};E.settingsGrid.querySelectorAll('input,select').forEach(i=>{if(i.dataset.source!==source)return;body[i.dataset.key]=i.dataset.type==='checkbox'?i.value==='on':i.dataset.type==='color'?numberFromHex(i.value):i.dataset.type==='colorString'?i.value:i.dataset.type==='number'||i.dataset.key==='TMODE'?Number(i.value):i.value});return body}
-async function saveLegacySettings(body){let next=Object.assign({},legacySettings,body),blob=new Blob([JSON.stringify(next,null,2)],{type:'application/json'}),form=new FormData();form.append('file',blob,'DoNotTouch.json');let upload=await fetch('/edit',{method:'POST',body:form});if(!upload.ok)throw Error('legacy upload failed');let reload=await fetch('/save',{method:'POST'});if(!reload.ok)throw Error('legacy reload failed');legacySettings=next}
-async function saveDeviceSettings(){let apiBody=collectSettingsBody('api'),legacyBody=collectSettingsBody('legacy'),hasApi=Object.keys(apiBody).length>0,hasLegacy=Object.keys(legacyBody).length>0;setStatus(E.settingsStatus,t.saving,false);try{if(hasApi){let r=await fetch('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(apiBody)});if(!r.ok)throw Error('save failed');settings=Object.assign(settings,apiBody)}if(hasLegacy)await saveLegacySettings(legacyBody);setStatus(E.settingsStatus,hasLegacy?(lang==='zh'?'已保存，网络或账号改动可能需要重启生效':'Saved. Network or auth changes may require reboot.'):t.saved,false)}catch(e){setStatus(E.settingsStatus,e.message,true)}}
-function createCastAppApi(app){let api={app,get lang(){return lang},label(v){return localLabel(v)},t(v){return localLabel(v)},renderDialog(desc){this._desc=desc;hideFooterExport();currentApp='__cast_external__'+app.id;E.sheetTitle.textContent=this.label(desc.title)||castAppName(app)||'';E.sheetStatus.textContent='';E.secondaryAction.style.display='none';E.saveSettings.style.display='none';this.close=async()=>{if(this._btnTimer){clearInterval(this._btnTimer);this._btnTimer=null}if(this.onClose)await this.onClose();await this.release();E.sheet.classList.remove('show')};window.currentCastAppApi=this;let html='<section class="settings-card">';if(desc.hint)html+='<p class="hint">'+this.label(desc.hint)+'</p>';if(desc.display&&desc.display.type==='text'){let init=desc.display.initial||'';let id='__cast_disp_'+((desc.display.id)||'v');html+='<h3 id="'+id+'" class="cast-display">'+init+'</h3>'}if(desc.controls&&desc.controls.length){html+='<div class="live-actions">';desc.controls.forEach(c=>{let cls=c.style==='danger'?'danger':c.style==='tonal'?'tonal':'primary';html+='<button id="__cast_ctrl_'+c.id+'" class="'+cls+'" type="button">'+this.label(c.label)+'</button>'});html+='</div>'}html+='</section>';E.fields.innerHTML=html;this.rootEl=E.fields;desc.controls.forEach(c=>{if(c.action){let btn=this.rootEl.querySelector('#__cast_ctrl_'+c.id);if(btn)btn.onclick=(e=>c.action(api,e))}});if(desc.config&&desc.config.length){html+='<section class="settings-card"><h4>'+(lang==='zh'?'设置':'Settings')+'</h4>';desc.config.forEach(c=>{let v=c.value!==undefined?c.value:'';html+='<div class="field"><label>'+this.label(c.label)+'</label>';if(c.type==='checkbox'||c.type==='bool'){html+='<label class="switch"><input id="__cast_cfg_'+c.id+'" type="checkbox" '+(v?'checked':'')+'><span class="slider"></span></label>'}else{html+='<input id="__cast_cfg_'+c.id+'" type="'+(c.type||'text')+'" value="'+esc(v)+'">'}html+='</div>'});html+='</section>'}E.fields.innerHTML=html;this.rootEl=E.fields;desc.controls.forEach(c=>{if(c.action){let btn=this.rootEl.querySelector('#__cast_ctrl_'+c.id);if(btn)btn.onclick=(e=>c.action(api,e))}});E.sheet.classList.add('show');return E.fields},getConfig(){let cfg={};if(this._desc&&this._desc.config){this._desc.config.forEach(c=>{let el=document.getElementById('__cast_cfg_'+c.id);if(!el)return;if(c.type==='checkbox'||c.type==='bool')cfg[c.id]=el.checked;else if(c.type==='number')cfg[c.id]=Number(el.value);else cfg[c.id]=el.value})}return cfg},updateDisplay(id,val){let el=document.getElementById('__cast_disp_'+id);if(el)el.textContent=val},status(msg,err){setStatus(E.sheetStatus,msg,err)},$(id){return document.getElementById(id)},async claim(){return runtimePost('/api/runtime/claim',{owner:app.id})},async frame(body){return runtimePost('/api/runtime/frame',body)},async release(){return runtimePost('/api/runtime/release',{})},commands:{clear(){return{df:[0,0,32,8,'#000000']}},text(x,y,text,color){return{dt:[x,y,text,color||'#ffffff']}},fill(x,y,w,h,color){return{df:[x,y,w,h,color||'#ffffff']}},pixel(x,y,color){return{dp:[x,y,color||'#ffffff']}},line(x0,y0,x1,y1,color){return{dl:[x0,y0,x1,y1,color||'#ffffff']}}},_desc:null,_btnTimer:null,enableButtons(){if(this._btnTimer)clearInterval(this._btnTimer);const self=this;const desc=this._desc;let keyMap={};if(desc&&desc.controls)desc.controls.forEach(c=>{if(c.key)keyMap[c.key]='__cast_ctrl_'+c.id});this._btnTimer=setInterval(async()=>{try{let r=await fetch('/api/runtime/buttons');if(!r.ok)return;let j=await r.json();['left','middle','right'].forEach(k=>{if(j[k]){let id=keyMap[k];if(id&&self.rootEl){let btn=self.rootEl.querySelector('#'+id);if(btn)btn.click()}}})}catch(e){}},200)}};return api}function wireKindTabs(box,active,onChange){if(!box)return;box.querySelectorAll('button').forEach(b=>{b.classList.toggle('active',b.dataset.kind===active);b.onclick=()=>{onChange(b.dataset.kind);wireKindTabs(box,b.dataset.kind,onChange)}})}function renderAppKindTabs(){wireKindTabs(E.storeKindTabs,activeStoreKind,k=>{activeStoreKind=k;let sf=$('storeFilter');if(sf)sf.classList.toggle('show',k!=='cast');E.storeGrid.innerHTML='';for(let i=0;i<6;i++){let s=document.createElement('div');s.className='store-row';s.innerHTML='<div class="app-icon" style="background:var(--chip);animation:pulse 1.2s ease-in-out infinite"></div><div style="width:60%;height:14px;background:var(--chip);border-radius:7px;animation:pulse 1.2s ease-in-out infinite;animation-delay:'+(i*.1)+'s"></div><div style="width:80%;height:12px;background:var(--chip);border-radius:6px;animation:pulse 1.2s ease-in-out infinite;animation-delay:'+(i*.1)+'s"></div>';E.storeGrid.appendChild(s)};storeLoaded=false;loadStore()});wireKindTabs(E.libraryKindTabs,activeLibraryKind,k=>{activeLibraryKind=k;E.libraryList.innerHTML='';for(let i=0;i<5;i++){let s=document.createElement('div');s.className='row';s.style.cssText='opacity:.5';s.innerHTML='<div style="width:38px;height:38px;border-radius:12px;background:var(--chip);animation:pulse 1.2s ease-in-out infinite;animation-delay:'+(i*.1)+'s"></div><div style="grid-column:3"><div style="width:60%;height:14px;background:var(--chip);border-radius:7px;animation:pulse 1.2s ease-in-out infinite;animation-delay:'+(i*.1)+'s;margin-bottom:4px"></div><div style="width:40%;height:12px;background:var(--chip);border-radius:6px;animation:pulse 1.2s ease-in-out infinite;animation-delay:'+(i*.1)+'s"></div></div>';E.libraryList.appendChild(s)};if(k==='cast')loadCastInstalledMap().then(()=>{dbg('castInstalled:loaded');renderLibrary()}).catch(e=>{dbg('castInstalled:err '+e.message);renderLibrary()});else renderLibrary()});if(E.libraryKindTabs){let actionRow=E.libraryKindTabs.nextElementSibling;if(actionRow&&actionRow.classList.contains('library-actions')){actionRow.innerHTML='';actionRow.appendChild(E.createApp);actionRow.appendChild(E.globalDisplay)}}}function renderCastAppStore(){let sf=$('storeFilter');if(sf)sf.classList.add('show');E.storeGrid.innerHTML='';renderAppKindTabs();renderStoreSourceBar();E.storeGrid.className='store-table';let installedMap=castInstalledMap(),installed=new Set(Object.keys(installedMap));let renderCastGrid=()=>{let input=$('storeSearchInput'),filter=input?input.value.toLowerCase():'',active=$('storeTags')&&$('storeTags').querySelector('.active'),tag=active&&active.dataset?active.dataset.tag:'all';E.storeGrid.innerHTML='';let visible=castStoreCatalog.filter(app=>{let appTags=app.tags||[];if(tag!=='all'&&!appTags.includes(tag))return false;if(filter){let name=castAppName(app).toLowerCase(),desc=castAppDescription(app).toLowerCase(),tags=appTags.join(' ').toLowerCase();if(!name.includes(filter)&&!desc.includes(filter)&&!tags.includes(filter))return false}return true});E.storeGrid.classList.toggle('store-grid-compact',(filter||tag!=='all')&&visible.length>0);visible.forEach(app=>{let installedApp=installedMap[app.id],isInstalled=installed.has(app.id),compatible=isCompatibleVersion(app),hasUpdate=isInstalled&&app.version&&installedApp&&installedApp.version&&compareVersions(app.version,installedApp.version)>0,row=document.createElement('article');row.className='store-row'+(isInstalled?' installed':'');row.innerHTML='<div class="app-icon"></div><div class="name"></div><div class="meta"></div><button class="tonal" type="button"></button>';setIcon(row.querySelector('.app-icon'),app.icon||'JS',storeBase(selectedStoreSource().url));row.querySelector('.name').textContent=castAppName(app);row.querySelector('.meta').textContent=compatible?castAppDescription(app):(castAppDescription(app)+' · '+t.requiresVersion+' '+minRequiredVersion(app));let btn=row.querySelector('button');btn.textContent=!compatible?t.incompatible:(hasUpdate?t.update:(isInstalled?(lang==='zh'?'已安装':'Installed'):(lang==='zh'?'安装':'Install')));btn.disabled=!compatible||(isInstalled&&!hasUpdate);btn.classList.toggle('incompatible',!compatible);btn.classList.toggle('primary',compatible&&(!isInstalled||hasUpdate));btn.classList.toggle('tonal',!compatible||(isInstalled&&!hasUpdate));if(compatible&&(!isInstalled||hasUpdate))btn.onclick=()=>installCastApp(app.id,btn);else btn.onclick=null;E.storeGrid.appendChild(row)})};let makeTag=(box,l,v)=>{let b=document.createElement('button');b.type='button';b.className='tonal store-tag'+(v==='all'?' active':'');b.textContent=l;b.dataset.tag=v;b.onclick=()=>{box.querySelectorAll('.store-tag').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderCastGrid();renderCastTags()};return b};let inp=$('storeSearchInput');if(inp)inp.oninput=renderCastGrid;let tags=$('storeTags'),castTagsExpanded=false,renderCastTags=()=>{if(!tags)return;let limit=8,counts={};castStoreCatalog.forEach(app=>(app.tags||[]).forEach(t=>counts[t]=(counts[t]||0)+1));let sorted=Object.keys(counts).sort((a,b)=>counts[b]-counts[a]||a.localeCompare(b)),active=tags.querySelector('.store-tag.active'),activeTag=active&&active.dataset?active.dataset.tag:'all',shown=castTagsExpanded?sorted:sorted.slice(0,limit);if(!castTagsExpanded&&activeTag!=='all'&&sorted.includes(activeTag)&&!shown.includes(activeTag))shown=shown.concat(activeTag);tags.innerHTML='';tags.appendChild(makeTag(tags,lang==='zh'?'全部':'All','all'));shown.forEach(t=>tags.appendChild(makeTag(tags,t,t)));let next=[...tags.querySelectorAll('.store-tag')].find(x=>x.dataset&&x.dataset.tag===activeTag);if(next){tags.querySelectorAll('.store-tag').forEach(x=>x.classList.remove('active'));next.classList.add('active')}if(sorted.length>limit){let more=document.createElement('button');more.type='button';more.className='tonal store-tag store-tag-more';more.textContent=castTagsExpanded?(lang==='zh'?'收起':'Less'):(lang==='zh'?'展开':'More');more.onclick=()=>{castTagsExpanded=!castTagsExpanded;renderCastTags()};tags.appendChild(more)}};renderCastTags();renderCastGrid();setStatus(E.storeStatus,castUi('castHint'),false)}let stopwatch={running:false,start:0,elapsed:0,timer:null,lap:0};function fmtStopwatch(ms){let total=Math.floor(ms/10),cs=total%100,s=Math.floor(total/100)%60,m=Math.floor(total/6000);return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+'.'+String(cs).padStart(2,'0')}function stopwatchElapsed(){return stopwatch.elapsed+(stopwatch.running?Date.now()-stopwatch.start:0)}function stopwatchCommands(){let txt=fmtStopwatch(stopwatchElapsed()),accent=stopwatch.running?'#00e5ff':'#ffcc00';return [{df:[0,0,32,8,'#000000']},{dt:[0,0,txt,accent]},{df:[0,7,Math.min(32,Math.floor((stopwatchElapsed()%60000)/1875)),1,accent]}]}async function drawStopwatch(){try{await runtimePost('/api/runtime/frame',{clear:true,commands:stopwatchCommands()});if(stopwatch.running)stopwatch.timer=setTimeout(drawStopwatch,80)}catch(e){setStatus(E.sheetStatus,e.message,true)}}async function stopwatchClaim(){await runtimePost('/api/runtime/claim',{owner:'stopwatch'});drawStopwatch()}async function stopwatchStart(){if(!stopwatch.running){stopwatch.running=true;stopwatch.start=Date.now();await stopwatchClaim()}}async function stopwatchPause(){if(stopwatch.running){stopwatch.elapsed=stopwatchElapsed();stopwatch.running=false;if(stopwatch.timer)clearTimeout(stopwatch.timer);await drawStopwatch()}}async function stopwatchReset(){stopwatch.running=false;stopwatch.elapsed=0;stopwatch.lap=0;if(stopwatch.timer)clearTimeout(stopwatch.timer);await stopwatchClaim();setStatus(E.sheetStatus,'已重置',false)}async function stopwatchStop(){stopwatch.running=false;if(stopwatch.timer)clearTimeout(stopwatch.timer);await runtimePost('/api/runtime/release',{});E.sheet.classList.remove('show')}function openStopwatchDialog(){hideFooterExport();currentApp='__stopwatch__';E.sheetTitle.textContent='秒表 Cast';E.sheetStatus.textContent='';E.secondaryAction.style.display='';E.secondaryAction.textContent='关闭';E.secondaryAction.onclick=stopwatchStop;E.saveSettings.style.display='none';E.fields.innerHTML='<section class="settings-card stopwatch-dialog"><h3 id="stopwatchValue">00:00.00</h3><p class="hint">此 App 由浏览器 JS 控制屏幕，关闭页面会自动释放。</p><div class="live-actions"><button id="stopwatchStart" class="primary" type="button">开始</button><button id="stopwatchPause" class="tonal" type="button">暂停</button><button id="stopwatchReset" class="tonal" type="button">重置</button></div></section>';E.sheet.classList.add('show');let update=()=>{let v=$('stopwatchValue');if(v)v.textContent=fmtStopwatch(stopwatchElapsed());if(E.sheet.classList.contains('show')&&currentApp==='__stopwatch__')requestAnimationFrame(update)};$('stopwatchStart').onclick=()=>stopwatchStart().catch(e=>setStatus(E.sheetStatus,e.message,true));$('stopwatchPause').onclick=()=>stopwatchPause().catch(e=>setStatus(E.sheetStatus,e.message,true));$('stopwatchReset').onclick=()=>stopwatchReset().catch(e=>setStatus(E.sheetStatus,e.message,true));update()}let countdown={running:false,total:300000,remaining:300000,end:0,timer:null};function fmtCountdown(ms){ms=Math.max(0,ms);let total=Math.ceil(ms/1000),s=total%60,m=Math.floor(total/60)%60,h=Math.floor(total/3600);return h>0?String(h)+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'):String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')}function countdownRemaining(){return countdown.running?Math.max(0,countdown.end-Date.now()):countdown.remaining}function countdownCommands(){let rem=countdownRemaining(),done=rem<=0,txt=done?'DONE':fmtCountdown(rem),color=done?'#ff4444':'#00ff99',width=countdown.total>0?Math.max(0,Math.min(32,Math.ceil(rem/countdown.total*32))):0;return [{df:[0,0,32,8,'#000000']},{dt:[done?3:0,0,txt,color]},{df:[0,7,width,1,color]}]}async function drawCountdown(){try{await runtimePost('/api/runtime/frame',{clear:true,commands:countdownCommands()});if(countdown.running&&countdownRemaining()>0)countdown.timer=setTimeout(drawCountdown,120);else if(countdown.running){countdown.running=false;countdown.remaining=0;setStatus(E.sheetStatus,'倒计时结束',false)}}catch(e){setStatus(E.sheetStatus,e.message,true)}}function readCountdownInput(){let min=Number(($('countdownMinutes')&&$('countdownMinutes').value)||0),sec=Number(($('countdownSeconds')&&$('countdownSeconds').value)||0);let total=Math.max(1,Math.floor(min*60+sec))*1000;countdown.total=total;countdown.remaining=total}async function countdownClaim(){await runtimePost('/api/runtime/claim',{owner:'countdown'});drawCountdown()}async function countdownStart(){readCountdownInput();countdown.running=true;countdown.end=Date.now()+countdown.remaining;await countdownClaim()}async function countdownPause(){if(countdown.running){countdown.remaining=countdownRemaining();countdown.running=false;if(countdown.timer)clearTimeout(countdown.timer);await drawCountdown()}}async function countdownReset(){countdown.running=false;if(countdown.timer)clearTimeout(countdown.timer);readCountdownInput();await countdownClaim();setStatus(E.sheetStatus,'已重置',false)}async function countdownStop(){countdown.running=false;if(countdown.timer)clearTimeout(countdown.timer);await runtimePost('/api/runtime/release',{});E.sheet.classList.remove('show')}function openCountdownDialog(){hideFooterExport();currentApp='__countdown__';E.sheetTitle.textContent='倒计时 Cast';E.sheetStatus.textContent='';E.secondaryAction.style.display='';E.secondaryAction.textContent='关闭';E.secondaryAction.onclick=countdownStop;E.saveSettings.style.display='none';let minutes=Math.floor(countdown.total/60000),seconds=Math.floor(countdown.total/1000)%60;E.fields.innerHTML='<section class="settings-card stopwatch-dialog"><h3 id="countdownValue">'+fmtCountdown(countdownRemaining())+'</h3><p class="hint">设置时间后点击开始，浏览器 JS 会控制屏幕显示倒计时。</p><div class="field"><label>分钟</label><input id="countdownMinutes" type="number" min="0" max="999" value="'+minutes+'"></div><div class="field"><label>秒</label><input id="countdownSeconds" type="number" min="0" max="59" value="'+seconds+'"></div><div class="live-actions"><button id="countdownStart" class="primary" type="button">开始</button><button id="countdownPause" class="tonal" type="button">暂停</button><button id="countdownReset" class="tonal" type="button">重置</button></div></section>';E.sheet.classList.add('show');let update=()=>{let v=$('countdownValue');if(v)v.textContent=fmtCountdown(countdownRemaining());if(E.sheet.classList.contains('show')&&currentApp==='__countdown__')requestAnimationFrame(update)};$('countdownStart').onclick=()=>countdownStart().catch(e=>setStatus(E.sheetStatus,e.message,true));$('countdownPause').onclick=()=>countdownPause().catch(e=>setStatus(E.sheetStatus,e.message,true));$('countdownReset').onclick=()=>countdownReset().catch(e=>setStatus(E.sheetStatus,e.message,true));update()}let interactiveTimer=null,interactiveFrame=0,interactiveRunning=false;function setInteractiveStatus(msg,err){if(!E.interactiveStatus)return;E.interactiveStatus.textContent=msg||'';E.interactiveStatus.className='status'+(err?' error':'')}async function runtimePost(path,body){let r=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})});let j=await r.json().catch(()=>({}));if(!r.ok||j.ok===false)throw Error(j.error||('runtime '+r.status));return j}function interactiveCommands(frame){let x=frame%29,tail=Math.max(0,x-4),color=frame%2?'#00e5ff':'#ffcc00';return [{df:[0,0,32,8,'#000000']},{df:[tail,3,5,2,'#14344a']},{df:[x,2,4,4,color]},{dt:[1,0,'WEB','#ffffff']}]}async function drawInteractiveFrame(){if(!interactiveRunning)return;try{await runtimePost('/api/runtime/frame',{clear:true,commands:interactiveCommands(interactiveFrame++)});interactiveTimer=setTimeout(drawInteractiveFrame,120)}catch(e){interactiveRunning=false;setInteractiveStatus(e.message,true)}}async function startInteractiveDemo(){if(interactiveRunning)return;setInteractiveStatus('正在占用屏幕...',false);try{await runtimePost('/api/runtime/claim',{owner:'web-demo'});interactiveRunning=true;interactiveFrame=0;setInteractiveStatus('App 运行中：保持此页面打开',false);drawInteractiveFrame()}catch(e){setInteractiveStatus(e.message,true)}}async function stopInteractiveDemo(){interactiveRunning=false;if(interactiveTimer){clearTimeout(interactiveTimer);interactiveTimer=null}try{await runtimePost('/api/runtime/release',{});setInteractiveStatus('已停止，恢复 Flow 轮播',false)}catch(e){setInteractiveStatus(e.message,true)}}window.addEventListener('beforeunload',()=>{if(interactiveRunning||countdown.running||stopwatch.running)navigator.sendBeacon&&navigator.sendBeacon('/api/runtime/release',new Blob(['{}'],{type:'application/json'}))});function gifWord(a,v){a.push(v&255,(v>>8)&255)}function gifText(a,s){for(let i=0;i<s.length;i++)a.push(s.charCodeAt(i)&255)}function gifPalette(){let p=[];for(let r=0;r<8;r++)for(let g=0;g<8;g++)for(let b=0;b<4;b++){p.push(Math.round(r*255/7),Math.round(g*255/7),Math.round(b*255/3))}return p}function gifIndex(v){return (((v>>16)&255)>>5)<<5|(((v>>8)&255)>>5)<<2|((v&255)>>6)}function gifLzw(pixels){let min=8,clear=256,end=257,size=9,dict=258,bits=0,cur=0,out=[];let put=c=>{cur|=c<<bits;bits+=size;while(bits>=8){out.push(cur&255);cur>>=8;bits-=8}if(c===clear){size=9;dict=258}else{dict++;if(dict===(1<<size)&&size<12)size++}};put(clear);for(let i=0;i<pixels.length;i++){put(pixels[i]);if(dict>=4094&&i<pixels.length-1)put(clear)}put(end);if(bits>0)out.push(cur&255);let blocks=[];for(let i=0;i<out.length;i+=255)blocks.push(out.slice(i,i+255));return {min,blocks}}function buildPreviewGif(frames,w,h){let bytes=[];gifText(bytes,'GIF89a');gifWord(bytes,w);gifWord(bytes,h);bytes.push(247,0,0);bytes.push(...gifPalette());for(let f of frames){let delay=Math.max(2,Math.min(65535,Math.round((f.delay||120)/10)));bytes.push(33,249,4,4);gifWord(bytes,delay);bytes.push(0,0);bytes.push(44);gifWord(bytes,0);gifWord(bytes,0);gifWord(bytes,w);gifWord(bytes,h);bytes.push(0);let pix=f.frame.map(gifIndex),lzw=gifLzw(pix);bytes.push(lzw.min);lzw.blocks.forEach(b=>bytes.push(b.length,...b));bytes.push(0)}bytes.push(59);return new Blob([new Uint8Array(bytes)],{type:'image/gif'})}let previewTimer=null,previewStarted=false;function initPreviewView(){if(previewStarted)return;let c=$('liveCanvas');if(!c)return;previewStarted=true;let ctx=c.getContext('2d'),last='',busy=false,baseDelay=200,delay=baseDelay,pw=32,ph=8,paintPending=false,nextFrame=null,gifRecording=false,gifFrames=[],gifLast=0;let paint=a=>{nextFrame=a;if(paintPending)return;paintPending=true;requestAnimationFrame(()=>{paintPending=false;let frame=nextFrame;nextFrame=null;if(!frame)return;if(gifRecording){let now=Date.now();gifFrames.push({frame:frame.slice(0,pw*ph),delay:gifLast?now-gifLast:baseDelay});gifLast=now;if(gifFrames.length>=120){let b=$('liveGif');if(b)b.click()}}ctx.fillStyle='#000';ctx.fillRect(0,0,c.width,c.height);for(let y=0;y<ph;y++)for(let x=0;x<pw;x++){let v=frame[y*pw+x]||0;ctx.fillStyle='rgb('+((v>>16)&255)+','+((v>>8)&255)+','+(v&255)+')';ctx.fillRect(x*Math.floor(c.width/pw)+1,y*Math.floor(c.height/ph)+1,Math.max(1,Math.floor(c.width/pw)-2),Math.max(1,Math.floor(c.height/ph)-2))}})};let schedule=ms=>{if(previewTimer)clearTimeout(previewTimer);previewTimer=setTimeout(draw,ms)};let draw=async()=>{if(!document.body.contains(c)){previewStarted=false;if(previewTimer){clearTimeout(previewTimer);previewTimer=null}return}if(document.hidden||!E.libraryPanel.classList.contains('active')){schedule(1000);return}if(busy){schedule(delay);return}busy=true;try{let r=await fetch('/api/screen',{cache:'no-store'});if(r.status===401){authHeader='';sessionStorage.removeItem('awtrixAuth');previewStarted=false;busy=false;if(previewTimer){clearTimeout(previewTimer);previewTimer=null}initAuth();return}if(!r.ok)throw Error('screen '+r.status);let text=await r.text();if(text!==last){last=text;paint(JSON.parse(text))}delay=baseDelay}catch(e){delay=Math.min(Math.max(delay*2,1000),2000)}busy=false;schedule(delay)};$('livePrev').onclick=()=>fetch('/api/previousapp',{method:'POST'});$('liveNext').onclick=()=>fetch('/api/nextapp',{method:'POST'});$('liveDownload').onclick=()=>{let a=document.createElement('a');a.href=c.toDataURL();a.download='awtrix.png';a.click()};let gifBtn=$('liveGif');if(gifBtn)gifBtn.onclick=()=>{if(!gifRecording){gifFrames=[];gifLast=0;gifRecording=true;gifBtn.textContent=lang==='zh'?'停止':'Stop';gifBtn.classList.add('primary');return}gifRecording=false;gifBtn.textContent='GIF';gifBtn.classList.remove('primary');if(!gifFrames.length)return;let a=document.createElement('a');a.href=URL.createObjectURL(buildPreviewGif(gifFrames,pw,ph));a.download='awtrix.gif';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};if(E.interactiveRun)E.interactiveRun.onclick=startInteractiveDemo;if(E.interactiveStop)E.interactiveStop.onclick=stopInteractiveDemo;if(E.stopwatchOpen)E.stopwatchOpen.onclick=openStopwatchDialog;if(E.countdownOpen)E.countdownOpen.onclick=openCountdownDialog;renderAppKindTabs();draw();if(location.pathname==='/wifi')activate('settings',true)}E.createApp.onclick=()=>openCreateApp(null,'create');E.globalDisplay.onclick=openGlobalDisplaySettings;E.themeBtn.onclick=()=>{localStorage.awtrixTheme=document.body.classList.contains('dark')?'light':'dark';applyTheme()};E.langBtn.onclick=()=>{lang=lang==='zh'?'en':'zh';localStorage.awtrixLang=lang;applyLang();storeLoaded=false;loadStore()};E.closeSheet.onclick=()=>{if(String(currentApp||'').startsWith('__cast_external__')&&window.currentCastAppApi){window.currentCastAppApi.close().catch(e=>setStatus(E.sheetStatus,e.message,true));window.currentCastAppApi=null;return}if(currentApp==='__stopwatch__')stopwatchStop().catch(()=>{});if(currentApp==='__countdown__')countdownStop().catch(()=>{});E.saveSettings.onclick=saveAppSettings;E.sheet.classList.remove('show')};E.saveSettings.onclick=saveAppSettings;E.fileRefreshBtn.onclick=()=>loadFiles(currentFileDir);E.fileBackBtn.onclick=()=>loadFiles(parentFileDir(currentFileDir));E.fileUploadBtn.onclick=()=>E.fileUploadInput.click();E.fileUploadInput.onchange=e=>{let file=e.target.files&&e.target.files[0];if(file)uploadFileToCurrentDir(file).catch(err=>setStatus($('filesStatus'),err.message,true));e.target.value=''};E.fileNewBtn.onclick=()=>openCreateFileDialog(false);E.fileNewFolderBtn.onclick=()=>openCreateFileDialog(true);E.fileSaveBtn.onclick=()=>saveSelectedFile().catch(err=>setStatus($('filesStatus'),err.message,true));E.fileDeleteBtn.onclick=()=>deleteSelectedFile().catch(err=>setStatus($('filesStatus'),err.message,true));E.fileEditor.oninput=()=>{fileDirty=true;E.fileSaveBtn.disabled=selectedFileBinary||!selectedFilePath};resetFileEditor();E.settingsTab.onclick=()=>activate('settings',false);if(E.wifiTab)E.wifiTab.style.display='none';E.storeTab.onclick=()=>activate('store',false);E.libraryTab.onclick=()=>activate('library',false);if(E.filesTab)E.filesTab.onclick=()=>activate('files',false);E.saveDeviceSettings.onclick=saveDeviceSettings;window.onpopstate = () => activate(location.pathname === '/settings' || location.pathname === '/wifi' ? 'settings' : location.pathname === '/my-apps' ? 'library' : location.pathname === '/files' ? 'files' : 'store', true);initAuth();
+const I= {
+  zh: {
+    title:'awtrix-light',
+    subtitle:'',
+    settings:'设置',
+    settingsHint:'管理设备显示、时间、传感器和 App 默认显示。',
+    loadingSettings:'正在读取设置...',
+    matrixDisplay:'屏幕显示',
+    timeDate:'时间日期',
+    sensorApps:'传感器和状态',
+    appDefaults:'App 默认显示',
+    soundOther:'声音和其他',
+    advancedSetup:'其他设置',
+    openOldSetup:'打开设置',
+    deviceSettings:'设备设置',
+    homeAssistant:'Home Assistant',
+    haEnabled:'启用 Home Assistant',
+    haBaseUrl:'Home Assistant 地址',
+    haToken:'Long-lived access token',
+    haTimeout:'请求超时(ms)',
+    haVerifyTls:'校验证书',
+    integrations:'集成',
+    startupChecking:'检查认证...',
+    startupVerifying:'验证会话...',
+    startupReady:'初始化界面...',
+    startupLogin:'需要登录',
+    autoBrightness:'自动亮度',
+    brightness:'亮度',
+    autoTransition:'自动切换',
+    transitionEffect:'切换效果',
+    transitionSpeed:'切换速度(ms)',
+    appTime:'应用停留(秒)',
+    timeMode:'时间模式',
+    calendarHeader:'日历标题颜色',
+    calendarText:'日历文字颜色',
+    calendarBody:'日历背景颜色',
+    timeFormat:'时间格式',
+    dateFormat:'日期格式',
+    startMonday:'周一开始',
+    blockNav:'禁用按键切换',
+    matrixLayout:'矩阵方向',
+    sound:'声音',
+    gamma:'Gamma',
+    uppercase:'大写字母',
+    colorCorrection:'颜色校正',
+    colorTemperature:'色温',
+    weekday:'显示星期',
+    weekdayActive:'星期激活颜色',
+    weekdayInactive:'星期未激活颜色',
+    timeColor:'时间颜色',
+    dateColor:'日期颜色',
+    humidityColor:'湿度颜色',
+    temperatureColor:'温度颜色',
+    batteryColor:'电池颜色',
+    globalScrollSpeed:'全局滚动速度',
+    showTime:'显示时间',
+    showDate:'显示日期',
+    showHumidity:'显示湿度',
+    showTemperature:'显示温度',
+    showBattery:'显示电池',
+    volume:'音量',
+    overlay:'覆盖效果',
+    store:'应用商店',
+    mine:'我的应用',
+    files:'文件',
+    filesHint:'管理 LittleFS 文件。',
+    loadingFiles:'正在加载文件...',
+    upload:'上传',
+    newFile:'新建文件',
+    newFolder:'新建文件夹',
+    refresh:'刷新',
+    saveFile:'保存',
+    deleteFile:'删除',
+    noFileSelected:'未选择文件',
+    filename:'文件名',
+    folderName:'文件夹名',
+    confirmDelete:'删除 ',
+    sourceName:'源名称',
+    sourceUrl:'源地址',
+    addSource:'添加源',
+    removeSource:'删除源',
+    confirmRemoveSource:'删除这个应用商店源？',
+    update:'更新',
+    incompatible:'固件版本过低',
+    requiresVersion:'需要版本',
+    cancel:'取消',
+    ok:'确定',
+    fileLoadFailed:'文件读取失败',
+    fileBinary:'二进制文件，无法预览文本。',
+    storeHint:'安装设备内置的本地 App。',
+    mineHint:'',
+    loadingStore:'正在加载 App 列表...',
+    loadingApps:'正在读取 App 列表...',
+    appSettings:'App 设置',
+    saveSettings:'保存设置',
+    install:'安装',
+    installing:'安装中...',
+    installed:'已安装',
+    localJson:'本地 JSON 应用',
+    jsonApp:'JSON 应用',
+    nativeApp:'内置应用',
+    tapSettings:'点击设置',
+    global:'全局',
+    on:'开启',
+    off:'关闭',
+    left:'左对齐',
+    center:'居中',
+    right:'右对齐',
+    globalAlign:'全局对齐',
+    globalIcon:'全局显示 icon',
+    globalUnder:'全局文字下划线',
+    globalDur:'全局显示时长(秒)',
+    align:'对齐',
+    showIcon:'显示 icon',
+    underline:'文字下划线',
+    duration:'显示时长(秒，0=全局)',
+    textColor:'文字颜色',
+    uid:'Bilibili UID',
+    uidRequired:'请先填写 Bilibili UID',
+    savingOrder:'正在同步顺序...',
+    orderSaved:'排序已实时保存',
+    updating:'正在更新...',
+    updated:'状态已更新',
+    saving:'正在保存...',
+    saved:'已保存',
+    uninstall:'移除',
+    confirmUninstall:'卸载 ',
+    uninstalled:'已卸载 ',
+    count:'共 ',
+    countEnd:' 个应用',
+    noFields:'这个应用当前没有可编辑的内置设置。',
+    createApp:'创建 App',
+    create:'创建',
+    guided:'自定义表单',
+    httpJson:'HTTP 请求',
+    rawJson:'导入 JSON',
+    importJson:'导入 JSON',
+    importPaste:'粘贴 JSON',
+    importPreview:'预览',
+    importApply:'应用到表单',
+    importNext:'下一步',
+    importBack:'上一步',
+    importToForm:'填入表单',
+    importReady:'JSON 已解析，确认后会填入左侧表单，不会直接保存。',
+    importApplied:'已填入表单，请检查后点击创建。',
+    appJson:'应用 JSON',
+    basicInfo:'创建表单',
+    useImport:'导入 JSON',
+    manualCreate:'手动创建',
+    description:'应用介绍',
+    inputDescription:'输入说明',
+    appIcon:'应用图标',
+    createIcon:'创建图标',
+    editApp:'编辑应用',
+    exportJson:'导出应用',
+    exportFailed:'导出失败',
+    version:'版本',
+    author:'作者',
+    tags:'标签(逗号分隔)',
+    matrixPower:'屏幕电源',
+    celsius:'摄氏度',
+    appListLoadFailed:'应用列表加载失败',
+    authorDefault:'Node-RED Conversion',
+    sourceId:'数据源 ID',
+    sourceType:'数据源类型',
+    sourceMethod:'请求方法',
+    sourceUrl:'请求 URL',
+    responseType:'响应类型',
+    interval:'刷新间隔(秒)',
+    timeout:'超时(ms)',
+    headers:'请求头 JSON',
+    body:'请求体 JSON',
+    inputsSection:'输入项',
+    inputs:'输入项',
+    add:'添加',
+    remove:'删除',
+    displaySection:'显示内容',
+    sourceSection:'数据源',
+    jsonPlaceholder:'留空或填写 JSON',
+    appNameLabel:'应用名称',
+    displayText:'显示文字',
+    iconName:'图标名称',
+    jsonContent:'JSON 内容',
+    httpEndpoint:'请求地址',
+    httpBody:'请求 JSON',
+    invalidJson:'JSON 格式错误',
+    nameRequired:'请填写应用名称',
+    background:'背景颜色',
+    payloadDuration:'页面停留时长(秒)',
+    progress:'进度(-1=关闭)',
+    progressColor:'进度颜色',
+    progressBg:'进度背景色',
+    noScroll:'不滚动文字',
+    textCase:'文字大小写(0=默认)',
+    scrollSpeed:'滚动速度(-1=默认)',
+    textOffset:'文字偏移',
+    iconOffset:'图标偏移',
+    topText:'文字置顶',
+    centerText:'居中',
+    rainbow:'彩虹文字',
+    bounce:'弹跳文字',
+    pushIcon:'推开图标',
+    repeat:'重复次数(-1=默认)',
+    fadeText:'淡入淡出',
+    blinkText:'闪烁',
+    lifetime:'过期时间(秒，0=关闭)',
+    lifetimeMode:'生命周期模式',
+    integration:'集成',
+    none:'无',
+    bilibili:'Bilibili',
+    advanced:'高级自定义'
+  },
+  en: {
+    title:'awtrix-light',
+    subtitle:'',
+    settings:'Settings',
+    wifiSetup:'WiFi Setup',
+    wifiSetupHint:'Scan nearby WiFi and connect the device from AP mode.',
+    settingsHint:'Manage display,
+     time,
+     sensors,
+     and app defaults.',
+    loadingSettings:'Loading settings...',
+    matrixDisplay:'Matrix display',
+    timeDate:'Time and date',
+    sensorApps:'Sensors and status',
+    appDefaults:'App defaults',
+    soundOther:'Sound and other',
+    advancedSetup:'Other settings',
+    openOldSetup:'Open setup',
+    deviceSettings:'Device Settings',
+    homeAssistant:'Home Assistant',
+    haEnabled:'Enable Home Assistant',
+    haBaseUrl:'Home Assistant URL',
+    haToken:'Long-lived access token',
+    haTimeout:'Request timeout (ms)',
+    haVerifyTls:'Verify TLS certificate',
+    integrations:'Integrations',
+    startupChecking:'Checking authentication...',
+    startupVerifying:'Verifying session...',
+    startupReady:'Starting interface...',
+    startupLogin:'Login required',
+    autoBrightness:'Auto brightness',
+    brightness:'Brightness',
+    autoTransition:'Auto transition',
+    transitionEffect:'Transition effect',
+    transitionSpeed:'Transition speed (ms)',
+    appTime:'App duration (seconds)',
+    timeMode:'Time mode',
+    calendarHeader:'Calendar header color',
+    calendarText:'Calendar text color',
+    calendarBody:'Calendar body color',
+    timeFormat:'Time format',
+    dateFormat:'Date format',
+    startMonday:'Start on Monday',
+    blockNav:'Block button navigation',
+    matrixLayout:'Matrix layout',
+    sound:'Sound',
+    gamma:'Gamma',
+    uppercase:'Uppercase letters',
+    colorCorrection:'Color correction',
+    colorTemperature:'Color temperature',
+    weekday:'Show weekday',
+    weekdayActive:'Weekday active color',
+    weekdayInactive:'Weekday inactive color',
+    timeColor:'Time color',
+    dateColor:'Date color',
+    humidityColor:'Humidity color',
+    temperatureColor:'Temperature color',
+    batteryColor:'Battery color',
+    globalScrollSpeed:'Global scroll speed',
+    showTime:'Show time',
+    showDate:'Show date',
+    showHumidity:'Show humidity',
+    showTemperature:'Show temperature',
+    showBattery:'Show battery',
+    volume:'Volume',
+    overlay:'Overlay',
+    store:'App Store',
+    mine:'My Apps',
+    files:'Files',
+    filesHint:'Manage LittleFS files.',
+    loadingFiles:'Loading files...',
+    upload:'Upload',
+    newFile:'New file',
+    newFolder:'New folder',
+    refresh:'Refresh',
+    saveFile:'Save',
+    deleteFile:'Delete',
+    noFileSelected:'No file selected',
+    filename:'File name',
+    folderName:'Folder name',
+    confirmDelete:'Delete ',
+    sourceName:'Source name',
+    sourceUrl:'Source URL',
+    addSource:'Add source',
+    removeSource:'Remove source',
+    confirmRemoveSource:'Remove this app store source?',
+    update:'Update',
+    incompatible:'Firmware too old',
+    requiresVersion:'Requires version',
+    cancel:'Cancel',
+    ok:'OK',
+    fileLoadFailed:'Failed to load file',
+    fileBinary:'Binary file;
+     text preview is unavailable.',
+    storeHint:'Install local JSON apps bundled on the device.',
+    mineHint:'',
+    loadingStore:'Loading apps...',
+    loadingApps:'Loading installed apps...',
+    appSettings:'Flow Settings',
+    saveSettings:'Save Settings',
+    install:'Install',
+    installing:'Installing...',
+    installed:'Installed',
+    localJson:'Local JSON app',
+    jsonApp:'JSON app',
+    nativeApp:'Built-in app',
+    tapSettings:'tap to configure',
+    global:'Global',
+    on:'On',
+    off:'Off',
+    left:'Left',
+    center:'Center',
+    right:'Right',
+    globalAlign:'Global alignment',
+    globalIcon:'Global show icon',
+    globalUnder:'Global underline text',
+    globalDur:'Global duration (seconds)',
+    align:'Alignment',
+    showIcon:'Show icon',
+    underline:'Underline text',
+    duration:'Duration (seconds,
+     0=global)',
+    textColor:'Text color',
+    uid:'Bilibili UID',
+    uidRequired:'Fill in Bilibili UID before enabling',
+    savingOrder:'Syncing order...',
+    orderSaved:'Order saved',
+    updating:'Updating...',
+    updated:'Updated',
+    saving:'Saving...',
+    saved:'Saved',
+    uninstall:'Remove',
+    confirmUninstall:'Uninstall Flow ',
+    uninstalled:'Uninstalled ',
+    count:'',
+    countEnd:' apps',
+    noFields:'This app has no editable built-in settings.',
+    createApp:'Create App',
+    create:'Create',
+    guided:'Custom Form',
+    httpJson:'HTTP Request',
+    rawJson:'Import JSON',
+    importJson:'Import JSON',
+    importPaste:'Paste JSON',
+    importPreview:'Preview',
+    importApply:'Apply to Form',
+    importNext:'Next',
+    importBack:'Back',
+    importToForm:'Fill Form',
+    importReady:'JSON parsed. Confirm to fill the form;
+     it will not save directly.',
+    importApplied:'Filled the form. Review it,
+     then click Create.',
+    appJson:'App JSON',
+    basicInfo:'Create Form',
+    useImport:'Import JSON',
+    manualCreate:'Manual Create',
+    description:'Description',
+    inputDescription:'Input description',
+    appIcon:'App icon',
+    createIcon:'Create icon',
+    editApp:'Edit app',
+    exportJson:'Export App',
+    exportFailed:'Export failed',
+    version:'Version',
+    author:'Author',
+    tags:'Tags (comma separated)',
+    matrixPower:'Matrix power',
+    celsius:'Celsius',
+    appListLoadFailed:'App list failed to load',
+    authorDefault:'Node-RED Conversion',
+    sourceId:'Source ID',
+    sourceType:'Source type',
+    sourceMethod:'Method',
+    sourceUrl:'Request URL',
+    responseType:'Response type',
+    interval:'Refresh interval (sec)',
+    timeout:'Timeout (ms)',
+    headers:'Headers JSON',
+    body:'Body JSON',
+    inputsSection:'Inputs',
+    inputs:'Inputs',
+    add:'Add',
+    remove:'Remove',
+    displaySection:'Display content',
+    sourceSection:'Source',
+    jsonPlaceholder:'Leave empty or enter JSON',
+    appNameLabel:'App name',
+    displayText:'Display text',
+    iconName:'Icon name',
+    jsonContent:'JSON content',
+    httpEndpoint:'Endpoint',
+    httpBody:'Request JSON',
+    invalidJson:'Invalid JSON',
+    nameRequired:'Enter an app name',
+    background:'Background color',
+    payloadDuration:'Payload duration (seconds)',
+    progress:'Progress (-1=off)',
+    progressColor:'Progress color',
+    progressBg:'Progress background',
+    noScroll:'No text scroll',
+    textCase:'Text case (0=default)',
+    scrollSpeed:'Scroll speed (-1=default)',
+    textOffset:'Text offset',
+    iconOffset:'Icon offset',
+    topText:'Top text',
+    centerText:'Center',
+    rainbow:'Rainbow text',
+    bounce:'Bounce text',
+    pushIcon:'Push icon',
+    repeat:'Repeat count (-1=default)',
+    fadeText:'Fade text',
+    blinkText:'Blink text',
+    lifetime:'Expire after (seconds,
+     0=off)',
+    lifetimeMode:'Lifetime mode',
+    integration:'Integration',
+    none:'None',
+    bilibili:'Bilibili',
+    advanced:'Advanced custom'
+  }
+};
+
+
+let lang = localStorage.awtrixLang || 'zh';
+let t = I[lang];
+function applyLang() {
+  t = I[lang];
+  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+  document.querySelectorAll('[data-i]').forEach(e => {
+    if (t[e.dataset.i]) e.textContent = t[e.dataset.i];
+  });
+  if ($('langBtn')) $('langBtn').textContent = lang === 'zh' ? 'EN' : '中';
+}
+function applyTheme() {
+  document.body.classList.toggle('dark', localStorage.awtrixTheme === 'dark');
+  if ($('themeBtn')) $('themeBtn').textContent = document.body.classList.contains('dark') ? '\u2600' : '\U0001f319';
+}
+function hex(v) {
+  if (typeof v === 'string' && v[0] === '#') return v;
+  let n = Number(v || 0).toString(16);
+  return '#' + ('000000' + n).slice(-6);
+}
+function numberFromHex(v) {
+  return parseInt(String(v).replace('#', ''), 16) || 0;
+}
+
+
+function startup(msg) {
+  if ($('startupStatus')) $('startupStatus').textContent = msg || '';
+}
+function hideStartup() {
+  if ($('startupGate')) $('startupGate').style.display = 'none';
+}
+function showStartup(msg) {
+  if ($('startupGate')) $('startupGate').style.display = 'grid';
+  startup(msg);
+}
+const UI_DEBUG_BUILD = 'DBG-20260701-2052';
+function showDebugBuildBadge() {
+  let el = document.getElementById('debugBuildBadge');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'debugBuildBadge';
+    document.body.appendChild(el);
+  }
+  el.textContent = UI_DEBUG_BUILD;
+}
+function startApp() {
+  dbg('startApp');
+  startup(t.startupReady);
+  applyTheme();
+  applyLang();
+  showDebugBuildBadge();
+  activate(
+    location.pathname === '/settings' ? 'settings' :
+    location.pathname === '/my-apps' ? 'library' :
+    location.pathname === '/files' ? 'files' : 'store',
+    true
+  );
+  hideStartup();
+  dbg('startup:hidden');
+  setTimeout(initPreviewView, 0);
+}
+function initAuth() {
+  dbg('initAuth');
+  if (authHeader) {
+    dbg('auth:sessionStorage');
+    startApp();
+    return;
+  }
+  let showLogin = () => {
+    let sp = $('startupSpinner'), hint = $('startupHint'), form = $('startupLoginForm');
+    if (sp) sp.style.display = 'none';
+    if (hint) hint.style.display = 'none';
+    if (form) form.style.display = '';
+    startup(t.startupLogin);
+    let user = $('startupUser'), pass = $('startupPass'), btn = $('startupLoginBtn');
+    let doLogin = () => {
+      let u = (user && user.value || '').trim();
+      let p = pass && pass.value || '';
+      if (!u) { startup(lang === 'zh' ? '请输入用户名' : 'Enter username'); return; }
+      authHeader = btoa(u + ':' + p);
+      sessionStorage.awtrixAuth = authHeader;
+      startApp();
+    };
+    if (btn) btn.onclick = doLogin;
+    if (pass) pass.onkeydown = e => { if (e.key === 'Enter') doLogin(); };
+    if (user) user.focus();
+  };
+  fetch('/api/auth/status', { cache: 'no-store' })
+    .then(r => r.json())
+    .then(j => {
+      dbg('auth:status enabled=' + j.enabled);
+      if (!j.enabled) { startApp(); return; }
+      showLogin();
+    })
+    .catch(e => {
+      dbg('auth:status failed ' + e.message);
+      showLogin();
+    });
+}
+
+
+function dbg(label) {
+
+}const $=id=>document.getElementById(id),E= {
+  startupGate:$('startupGate'),
+  startupStatus:$('startupStatus'),
+  startupSpinner:$('startupSpinner'),
+  startupHint:$('startupHint'),
+  startupLoginForm:$('startupLoginForm'),
+  settingsTab:$('settingsTab'),
+  storeTab:$('storeTab'),
+  libraryTab:$('libraryTab'),
+  wifiTab:$('wifiTab'),
+  filesTab:$('filesTab'),
+  settingsPanel:$('settingsPanel'),
+  storePanel:$('storePanel'),
+  libraryPanel:$('libraryPanel'),
+  wifiPanel:$('wifiPanel'),
+  filesPanel:$('filesPanel'),
+  filesSettingsTabs:$('filesSettingsTabs'),
+  fileUploadBtn:$('fileUploadBtn'),
+  fileUploadInput:$('fileUploadInput'),
+  fileNewFolderBtn:$('fileNewFolderBtn'),
+  fileNewBtn:$('fileNewBtn'),
+  fileBackBtn:$('fileBackBtn'),
+  fileRefreshBtn:$('fileRefreshBtn'),
+  fileDeleteBtn:$('fileDeleteBtn'),
+  fileSaveBtn:$('fileSaveBtn'),
+  fileSelected:$('fileSelected'),
+  fileUsage:$('fileUsage'),
+  fileEditor:$('fileEditor'),
+  settingsGrid:$('settingsGrid'),
+  settingsEmpty:$('settingsEmpty'),
+  settingsStatus:$('settingsStatus'),
+  wifiGrid:$('wifiGrid'),
+  wifiEmpty:$('wifiEmpty'),
+  saveDeviceSettings:$('saveDeviceSettings'),
+  storeGrid:$('storeGrid'),
+  storeStatus:$('storeStatus'),
+  libraryList:$('libraryList'),
+  libraryStatus:$('libraryStatus'),
+  sheet:$('sheetBackdrop'),
+  fields:$('fields'),
+  sheetTitle:$('sheetTitle'),
+  sheetStatus:$('sheetStatus'),
+  globalDisplay:$('globalDisplay'),
+  createApp:$('createApp'),
+  themeBtn:$('themeBtn'),
+  langBtn:$('langBtn'),
+  closeSheet:$('closeSheet'),
+  secondaryAction:$('secondaryAction'),
+  saveSettings:$('saveSettings'),
+  interactiveRun:$('interactiveRun'),
+  interactiveStop:$('interactiveStop'),
+  interactiveStatus:$('interactiveStatus'),
+  storeKindTabs:$('storeKindTabs'),
+  storeSourceSlot:$('storeSourceSlot'),
+  libraryKindTabs:$('libraryKindTabs'),
+  liveAppsPanel:$('liveAppsPanel'),
+  stopwatchOpen:$('stopwatchOpen'),
+  countdownOpen:$('countdownOpen')
+};
+
+
+let storeLoaded = false, libraryLoaded = false, filesLoaded = false, apps = [], settings = {};
+let currentApp = null, formMode = 'create';
+let authHeader = sessionStorage.awtrixAuth || '', frameVersion = '0';
+const rawFetch = window.fetch.bind(window);
+window.fetch = function(input, init) {
+  let url = typeof input === 'string' ? input : (input && input.url) || '';
+  let next = Object.assign({}, init || {});
+  let headers = new Headers(next.headers || {});
+  if (authHeader && !url.includes('/api/auth/status')) {
+    headers.set('Authorization', 'Basic ' + authHeader);
+  }
+  next.headers = headers;
+  return rawFetch(input, next).then(function(r) {
+    if (r.status === 401 && authHeader) {
+      authHeader = '';
+      sessionStorage.removeItem('awtrixAuth');
+      setTimeout(function() { if (typeof initAuth === 'function') initAuth(); }, 0);
+    }
+    return r;
+  });
+};
+
+
+async function uninstallApp(name) {
+  hideFooterExport();
+  currentApp='__app_uninstall__';
+  let item=(apps||[]).find(a=>appName(a,
+  0)===name)|| {
+
+  };
+  E.sheetTitle.textContent=t.uninstallTitle||(lang==='zh'?'卸载应用':'Uninstall App');
+  E.sheetStatus.textContent='';
+  E.fields.innerHTML='<section class="settings-card"><h3>'+name+'</h3><p class="hint">'+(lang==='zh'?'确定要删除吗？可以之后从应用商店重新安装。':'Remove this app? You can reinstall it from the app store.')+'</p></section>';
+  E.secondaryAction.style.display='';
+  E.secondaryAction.textContent=lang==='zh'?'取消':'Cancel';
+  E.secondaryAction.onclick=()=>E.sheet.classList.remove('show');
+  E.saveSettings.style.display='';
+  E.saveSettings.textContent=lang==='zh'?'卸载':'Uninstall';
+  E.saveSettings.onclick=async()=> {
+    try {
+      setStatus(E.libraryStatus,
+      '...',
+      false);
+      let r=await fetch('/api/apps/uninstall',
+       {
+        method:'POST',
+        headers: {
+          'Content-Type':'application/json'
+        },
+        body:JSON.stringify( {
+          name
+        })
+      });
+      let j=await r.json().catch(()=>( {
+
+      }));
+      if(!r.ok||!j.success)throw Error(j.error||'uninstall failed');
+      E.saveSettings.onclick=saveAppSettings;
+      E.sheet.classList.remove('show');
+      libraryLoaded=false;
+      await loadLibrary();
+      storeLoaded=false;
+      loadStore();
+      setStatus(E.libraryStatus,
+      t.uninstalled+name,
+      false)
+    }catch(e) {
+      setStatus(E.sheetStatus,
+      e.message,
+      true)
+    }
+  };
+  E.sheet.classList.add('show')
+}
+
+
+let activeStoreKind='app',activeLibraryKind='app';
+function localLabel(v,f) {
+  let d=v&&typeof v==='object'?v:null;
+  return d?(d[lang]||d.en||d.zh||f||''):(v||f||'')
+}function castAppName(app) {
+  return localLabel(app&&app.name,
+  ((app&&app.id)||''))
+}function castAppDescription(app) {
+  return localLabel(app&&app.description,
+  '')
+}function castUi(k) {
+  let m= {
+    zh: {
+      cast:'Cast',
+      animation:'Animation',
+      castHint:'Cast 由浏览器 JS 控制，需要保持页面打开',
+      legacy:'此 Cast 是旧内置项，请卸载后从应用商店重新安装外置版本。',
+      uninstallTitle:'卸载 Cast',
+      uninstallHint:'确定要从我的应用中卸载这个 Cast 吗？可以之后从应用商店重新安装。',
+      empty:'还没有安装 Cast，请到应用商店 > Cast 安装。'
+    },
+    en: {
+      cast:'Cast',
+      animation:'Animation',
+      castHint:'Cast entries are controlled by browser JavaScript. Keep this page open.',
+      legacy:'This Cast entry is a legacy built-in item. Uninstall it,
+       then reinstall the external version from the app store.',
+      uninstallTitle:'Uninstall Cast',
+      uninstallHint:'Remove this Cast from My Apps? You can reinstall it from the app store later.',
+      empty:'No Cast installed yet. Install one from App Store > Cast.'
+    }
+  };
+  return(m[lang]||m.zh)[k]
+}function refreshCastLabels() {
+  document.querySelectorAll('[data-kind="cast"]').forEach(b=>b.textContent=castUi('cast'));
+  document.querySelectorAll('[data-kind="app"]').forEach(b=>b.textContent='App')
+}
+
+
+let castStoreCatalog=[],castModuleCache= {
+
+},castModuleV=0,castInstalledCache=null;
+const CAST_APPS_DIR='/Apps/cast';
+function localCastInstalledMap() {
+  try {
+    return JSON.parse(localStorage.awtrixCastAppManifests||' {
+
+    }')
+  }catch(e) {
+    return {
+
+    }
+  }
+}function castInstalledMap() {
+  return castInstalledCache||localCastInstalledMap()
+}function castAppIds() {
+  return Object.keys(castInstalledMap())
+}function castLocalPath(id,ext) {
+  return CAST_APPS_DIR+'/'+id+ext
+}function normalizeCastManifest(app,id) {
+  app=Object.assign( {
+
+  },
+  app|| {
+
+  });
+  app.id=app.id||id;
+  if(!app.id)return null;
+  let localJs=castLocalPath(app.id,
+  '.js');
+  app.entryLocal=app.entryLocal||app.entryUrl||app.entry||localJs;
+  if(app.entryLocal!==localJs)app.entryLocal=localJs;
+  app.entry=app.entryLocal;
+  app.entryUrl=app.entryLocal;
+  return app
+}async function listCastManifestFiles() {
+  let r=await fetch('/list?dir='+encodeURIComponent(CAST_APPS_DIR),
+   {
+    cache:'no-store'
+  });
+  if(!r.ok)throw Error(await r.text()||'cast list failed');
+  let list=await r.json();
+  return (Array.isArray(list)?list:[]).filter(f=>f&&f.type!=='dir'&&/\.json$/i.test(f.name||'')&&String(f.name).toLowerCase()!=='apps.json').map(f=>String(f.name))
+}async function readCastManifest(name) {
+  let id=String(name).replace(/\.json$/i,
+  ''),
+  path=castLocalPath(id,
+  '.json'),
+  r=await fetch('/api/files/view?path='+encodeURIComponent(path),
+   {
+    cache:'no-store'
+  });
+  if(!r.ok)return null;
+  let j=await r.json();
+  if(j.binary)return null;
+  return normalizeCastManifest(JSON.parse(j.content||' {
+
+  }'),
+  id)
+}async function loadCastInstalledMap(force) {
+  if(castInstalledCache&&!force)return castInstalledCache;
+  let map= {
+
+  };
+  try {
+    let files=await listCastManifestFiles();
+    let manifests=await Promise.all(files.map(readCastManifest));
+    manifests.filter(Boolean).forEach(app=> {
+      map[app.id]=app
+    })
+  }catch(e) {
+    map=localCastInstalledMap()
+  }castInstalledCache=map;
+  localStorage.awtrixCastAppManifests=JSON.stringify(castInstalledCache);
+  localStorage.awtrixCastApps=JSON.stringify(Object.keys(castInstalledCache));
+  return castInstalledCache
+}async function saveCastInstalledMap(map) {
+  castInstalledCache=map|| {
+
+  };
+  localStorage.awtrixCastAppManifests=JSON.stringify(castInstalledCache);
+  localStorage.awtrixCastApps=JSON.stringify(Object.keys(castInstalledCache))
+}function installedCastApps() {
+  let map=castInstalledMap();
+  return Object.keys(map).map(id=>map[id]).filter(Boolean)
+}async function writeCastFile(path,text,type) {
+  let blob=new Blob([text],
+   {
+    type:type||'text/plain'
+  }),
+  form=new FormData();
+  form.append('file',
+  blob,
+  path.replace(/^\//,
+  ''));
+  let r=await fetch('/edit',
+   {
+    method:'POST',
+    body:form
+  });
+  if(!r.ok)throw Error(await r.text()||'cast file save failed')
+}async function loadExternalCastModule(app) {
+  let url=(app&&app.entryLocal)||castLocalPath(app.id,
+  '.js');
+  if(!url)throw Error('missing entry');
+  let sep=url.includes('?')?'&':'?';
+  if(!castModuleCache[url])castModuleCache[url]=import(url+sep+'v='+castModuleV);
+  return castModuleCache[url]
+}async function openCastApp(id) {
+  let map=await loadCastInstalledMap(),
+  app=map[id]||castStoreCatalog.find(a=>a.id===id);
+  if(!app)return;
+  app=normalizeCastManifest(app,
+  id);
+  castModuleV++;
+  castModuleCache= {
+
+  };
+  try {
+    let mod=await loadExternalCastModule(app),
+    api=createCastAppApi(app);
+    if(mod.main)await mod.main(api,
+    app);
+    else throw Error("module missing main()")
+  }catch(e) {
+    setStatus(E.libraryStatus||E.storeStatus,
+    e.message,
+    true)
+  }
+}async function installCastApp(id,btn) {
+  let app=castStoreCatalog.find(a=>a.id===id);
+  if(!app)return;
+  let originalText=btn?btn.textContent:'';
+  if(btn) {
+    btn.disabled=true;
+    btn.textContent=t.installing||originalText
+  }try {
+    let map=Object.assign( {
+
+    },
+    await loadCastInstalledMap()),
+    base=storeBase(selectedStoreSource().url),
+    entryOriginal=app.entryUrl||app.entry;
+    if(!entryOriginal)throw Error('missing entry');
+    let entryResolved=resolveStoreUrl(entryOriginal,
+    base),
+    entryRes=await rawFetch(entryResolved,
+     {
+      cache:'no-store'
+    });
+    if(!entryRes.ok)throw Error('cast download failed');
+    let entryText=await entryRes.text(),
+    jsPath=castLocalPath(app.id,
+    '.js'),
+    manifestPath=castLocalPath(app.id,
+    '.json');
+    await writeCastFile(jsPath,
+    entryText,
+    'text/javascript');
+    await installIconForApp(app,
+    app,
+    base);
+    let installed=normalizeCastManifest(Object.assign( {
+
+    },
+    app,
+     {
+      entry:jsPath,
+      entryLocal:jsPath,
+      entryUrl:jsPath,
+      entryOriginal:entryResolved
+    }),
+    app.id);
+    await writeCastFile(manifestPath,
+    JSON.stringify(installed,
+    null,
+    2),
+    'application/json');
+    map[id]=installed;
+    await saveCastInstalledMap(map);
+    castModuleCache= {
+
+    };
+    castModuleV++;
+    if(btn) {
+      btn.textContent=t.installed;
+      btn.onclick=null;
+      btn.classList.remove('primary');
+      btn.classList.add('tonal');
+      let row=btn.closest('.store-row');
+      if(row)row.classList.add('installed')
+    }renderCastAppStore();
+    if(activeLibraryKind==='cast')renderLibrary();
+    setStatus(E.storeStatus,
+    castAppName(app)+' '+t.installed,
+    false)
+  }catch(e) {
+    setStatus(E.storeStatus,
+    e.message,
+    true);
+    if(btn) {
+      btn.disabled=false;
+      btn.textContent=originalText
+    }
+  }
+}function uninstallCastApp(id) {
+  let map=castInstalledMap(),
+  app=map[id],
+  name=castAppName(app)||id;
+  hideFooterExport();
+  currentApp='__cast_uninstall__';
+  E.sheetTitle.textContent=castUi('uninstallTitle');
+  E.sheetStatus.textContent='';
+  E.fields.innerHTML='<section class="settings-card"><h3>'+name+'</h3><p class="hint">'+castUi('uninstallHint')+'</p></section>';
+  E.secondaryAction.style.display='';
+  E.secondaryAction.textContent='取消';
+  E.secondaryAction.onclick=()=>E.sheet.classList.remove('show');
+  E.saveSettings.style.display='';
+  E.saveSettings.textContent='卸载';
+  E.saveSettings.onclick=async()=> {
+    try {
+      let next=Object.assign( {
+
+      },
+      await loadCastInstalledMap());
+      delete next[id];
+      await Promise.all([fetch('/edit?path='+encodeURIComponent(castLocalPath(id,
+      '.js')),
+       {
+        method:'DELETE'
+      }).catch(()=> {
+
+      }),
+      fetch('/edit?path='+encodeURIComponent(castLocalPath(id,
+      '.json')),
+       {
+        method:'DELETE'
+      }).catch(()=> {
+
+      })]);
+      await saveCastInstalledMap(next);
+      E.saveSettings.onclick=saveAppSettings;
+      E.sheet.classList.remove('show');
+      renderLibrary();
+      storeLoaded=false;
+      if(activeStoreKind==='cast')loadStore()
+    }catch(e) {
+      setStatus(E.sheetStatus,
+      e.message,
+      true)
+    }
+  };
+  E.sheet.classList.add('show')
+}
+
+
+let settingsSection='device',legacySettings= {
+
+};
+
+
+
+function settingTabLabels()  {
+   return lang === 'zh' ?  {
+     device: '设备',
+     network: '网络',
+     time: '时间',
+     integrations: '集成',
+     auth: '账号',
+     files: '文件'
+  } :  {
+     device: 'Device',
+     network: 'Network',
+     time: 'Time',
+     integrations: 'Integrations',
+     auth: 'Auth',
+     files: 'Files'
+  }
+}
+
+
+function deviceSettingGroups() {
+  return  {
+    device: {
+      display:[ {
+        title:t.matrixDisplay,
+        fields:[['MATP',
+        t.matrixPower,
+        'checkbox'],
+        ['ABRI',
+        t.autoBrightness,
+        'checkbox'],
+        ['BRI',
+        t.brightness,
+        'number'],
+        ['GAMMA',
+        t.gamma,
+        'number'],
+        ['CCORRECTION',
+        t.colorCorrection,
+        'colorString'],
+        ['CTEMP',
+        t.colorTemperature,
+        'colorString'],
+        ['OVERLAY',
+        t.overlay,
+        'select',
+        [['clear',
+        'clear'],
+        ['snow',
+        'snow'],
+        ['rain',
+        'rain'],
+        ['drizzle',
+        'drizzle'],
+        ['storm',
+        'storm'],
+        ['thunder',
+        'thunder'],
+        ['frost',
+        'frost']]]]
+      }],
+      sound:[ {
+        title:t.soundOther,
+        fields:[['SOUND',
+        t.sound,
+        'checkbox'],
+        ['VOL',
+        t.volume,
+        'number'],
+        ['BLOCKN',
+        t.blockNav,
+        'checkbox'],
+        ['MAT',
+        t.matrixLayout,
+        'number']]
+      }]
+    },
+    integrations: {
+      homeAssistant:[ {
+        title:'Home Assistant',
+        fields:[['HA_ENABLED',
+        'Home Assistant',
+        'checkbox'],
+        ['HA_BASE_URL',
+        'HA URL',
+        'text'],
+        ['HA_TOKEN',
+        'HA Token',
+        'password'],
+        ['HA_PREFIX',
+        'HA Prefix',
+        'text']]
+      }]
+    }
+  }
+}
+
+
+function legacySettingGroups() {
+  let z=lang==='zh';
+  return  {
+    network:[ {
+      title:z?'网络':'Network',
+      fields:[['Static IP',
+      z?'静态 IP':'Static IP',
+      'checkbox'],
+      ['Local IP',
+      z?'本机 IP':'Local IP',
+      'text'],
+      ['Gateway',
+      z?'网关':'Gateway',
+      'text'],
+      ['Subnet',
+      z?'子网掩码':'Subnet',
+      'text'],
+      ['Primary DNS',
+      z?'首选 DNS':'Primary DNS',
+      'text'],
+      ['Secondary DNS',
+      z?'备用 DNS':'Secondary DNS',
+      'text']]
+    }],
+    time:[],
+    integrations:[ {
+      title:'MQTT',
+      fields:[['Broker',
+      z?'服务器':'Broker',
+      'text'],
+      ['Port',
+      z?'端口':'Port',
+      'number'],
+      ['Username',
+      z?'用户名':'Username',
+      'text'],
+      ['Password',
+      z?'密码':'Password',
+      'password'],
+      ['Prefix',
+      z?'主题前缀':'Prefix',
+      'text'],
+      ['Homeassistant Discovery',
+      'Homeassistant Discovery',
+      'checkbox']]
+    }],
+    auth:[ {
+      title:z?'账号':'Auth',
+      fields:[['Auth Username',
+      z?'账号':'Auth Username',
+      'text'],
+      ['Auth Password',
+      z?'密码':'Auth Password',
+      'password']]
+    }]
+  }
+}
+
+
+function renderSettingsTabs(target) {
+  let labels=settingTabLabels(),
+  order=['device',
+  'network',
+  'integrations',
+  'auth',
+  'files'],
+  tabs=document.createElement('div'),
+  active=E.filesPanel.classList.contains('active')?'files':settingsSection;
+  tabs.className='settings-tabs';
+  order.forEach(k=> {
+    let b=document.createElement('button');
+    b.type='button';
+    b.className='tonal settings-tab'+(active===k?' active':'');
+    b.textContent=labels[k];
+    b.onclick=()=> {
+      if(k==='files') {
+        activate('files',
+        false);
+        return
+      }settingsSection=k;
+      if(E.filesPanel.classList.contains('active'))activate('settings',
+      false);
+      else renderDeviceSettings()
+    };
+    tabs.appendChild(b)
+  });
+  (target||E.settingsGrid).appendChild(tabs)
+}
+
+
+function addSettingsField(card,f,source) {
+  let data=source==='legacy'?legacySettings:settings;
+  if(data[f[0]]===undefined&&source==='api')return;
+  let wrap=document.createElement('div');
+  wrap.className='field';
+  let val=data[f[0]],
+  input;
+  if(val===undefined||val===null)val='';
+  if(f[2]==='checkbox') {
+    input=document.createElement('input');
+    input.type='hidden';
+    input.value=val?'on':'off';
+    let group=document.createElement('div');
+    group.className='segmented';
+    boolOptions().forEach(o=> {
+      let b=document.createElement('button');
+      b.type='button';
+      b.textContent=o[1];
+      b.dataset.value=o[0];
+      b.className=o[0]===input.value?'active':'';
+      b.onclick=()=> {
+        input.value=o[0];
+        group.querySelectorAll('button').forEach(x=>x.classList.toggle('active',
+        x===b))
+      };
+      group.appendChild(b)
+    });
+    input._segment=group
+  }else if(f[2]==='select') {
+    input=document.createElement('select');
+    (f[3]||[]).forEach(o=> {
+      let opt=document.createElement('option');
+      opt.value=o[0];
+      opt.textContent=o[1];
+      input.appendChild(opt)
+    });
+    input.value=val
+  }else {
+    input=document.createElement('input');
+    input.type=f[2]==='password'?'password':f[2];
+    if(f[2]==='number')input.step=Number.isInteger(Number(val))?'1':'0.1';
+    input.value=f[2]==='color'||f[2]==='colorString'?hex(val):val
+  }input.dataset.key=f[0];
+  input.dataset.type=f[2];
+  input.dataset.source=source;
+  let label=document.createElement('label');
+  label.textContent=f[1];
+  wrap.appendChild(label);
+  if(f[2]==='checkbox') {
+    wrap.appendChild(input);
+    wrap.appendChild(input._segment)
+  }else wrap.appendChild(input);
+  card.appendChild(wrap)
+}
+
+
+function renderGroupCards(groups, source)  {
+   groups.forEach(g =>  {
+     let card = document.createElement('section');
+     card.className = 'settings-card';
+     let h = document.createElement('h3');
+     h.textContent = g.title;
+     card.appendChild(h);
+     g.fields.forEach(f => addSettingsField(card,
+     f,
+     source));
+     if (card.querySelector('.field')) E.settingsGrid.appendChild(card)
+  })
+} function renderDeviceSettings() {
+  let apiGroups=deviceSettingGroups(),
+  legacyGroups=legacySettingGroups(),
+  apiSection=apiGroups[settingsSection]||[],
+  legacySection=legacyGroups[settingsSection]||[];
+  if(apiSection&&!Array.isArray(apiSection))apiSection=Object.values(apiSection).flat();
+  if(legacySection&&!Array.isArray(legacySection))legacySection=Object.values(legacySection).flat();
+  E.settingsGrid.innerHTML='';
+  renderSettingsTabs();
+  E.settingsEmpty.style.display='none';
+  if(settingsSection==='network')renderWifiSetupCard(E.settingsGrid,
+  'settings');
+  renderGroupCards(apiSection||[],
+  'api');
+  renderGroupCards(legacySection||[],
+  'legacy');
+  if(!E.settingsGrid.querySelector('.settings-card'))E.settingsEmpty.style.display='block'
+}function wifiIds(prefix) {
+  let p=prefix||'settings';
+  return {
+    ssid:p+'WifiSsid',
+    list:p+'WifiSsidList',
+    password:p+'WifiPassword',
+    status:p+'WifiStatus',
+    scan:p+'WifiScan',
+    connect:p+'WifiConnect'
+  }
+}function renderWifiSetupCard(target,prefix) {
+  let z=lang==='zh',
+  box=target||E.settingsGrid,
+  ids=wifiIds(prefix),
+  card=document.createElement('section');
+  card.className='settings-card wifi-card';
+  card.innerHTML='<h3>'+(z?'WiFi 设置':'WiFi Setup')+'</h3><p class="hint">'+(z?'扫描附近 WiFi，也可以直接输入 SSID。连接成功后设备会重启。':'Scan nearby WiFi,
+   or type an SSID directly. The device restarts after a successful connection.')+'</p><div class="field wifi-ssid-field"><label>SSID</label><div class="wifi-ssid-row"><div class="wifi-ssid-input"><input id="'+ids.ssid+'" type="text" list="'+ids.list+'" placeholder="SSID" autocomplete="off"><span class="wifi-dropdown" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg></span></div><button id="'+ids.scan+'" class="icon-btn wifi-scan" type="button" aria-label="'+(z?'扫描 WiFi':'Scan WiFi')+'" title="'+(z?'扫描 WiFi':'Scan WiFi')+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6v5h-5M4 18v-5h5M18.5 9A7 7 0 0 0 6.3 6.8L4 11M20 13l-2.3 4.2A7 7 0 0 1 5.5 15"/></svg></button><datalist id="'+ids.list+'"></datalist></div><div class="field"><label>'+(z?'WiFi 密码':'WiFi Password')+'</label><input id="'+ids.password+'" type="password" autocomplete="new-password"></div><button id="'+ids.connect+'" class="primary wifi-connect" type="button">'+(z?'连接 WiFi':'Connect WiFi')+'</button><div id="'+ids.status+'" class="status"></div>';
+  box.appendChild(card);
+  $(ids.scan).onclick=()=>scanWifiNetworks(prefix);
+  $(ids.connect).onclick=()=>connectWifiNetwork(prefix)
+}function renderWifiSetupPage() {
+  E.wifiGrid.innerHTML='';
+  renderWifiSetupCard(E.wifiGrid,
+  'wifi');
+  E.wifiEmpty.style.display='none'
+}async function scanWifiNetworks(prefix) {
+  let ids=wifiIds(prefix),
+  status=$(ids.status),
+  listEl=$(ids.list),
+  input=$(ids.ssid),
+  z=lang==='zh';
+  status.textContent=z?'正在扫描...':'Scanning...';
+  status.className='status';
+  try {
+    let r=await fetch('/scan',
+     {
+      cache:'no-store'
+    });
+    if(!r.ok)throw Error('scan failed');
+    let list=await r.json();
+    listEl.innerHTML='';
+    (Array.isArray(list)?list:[]).forEach(n=> {
+      let opt=document.createElement('option');
+      opt.value=n.ssid||'';
+      opt.label=(n.selected?'✓ ':'')+(n.ssid||'')+' '+(n.strength?('('+n.strength+' dBm)'):'');
+      if(n.selected&&!input.value)input.value=n.ssid||'';
+      listEl.appendChild(opt)
+    });
+    status.textContent=(z?'找到 ':'Found ')+(Array.isArray(list)?list.length:0)+(z?' 个网络':' networks')
+  }catch(e) {
+    status.textContent=e.message;
+    status.className='status error'
+  }
+}async function connectWifiNetwork(prefix) {
+  let ids=wifiIds(prefix),
+  status=$(ids.status),
+  z=lang==='zh',
+  ssid=($(ids.ssid).value||'').trim(),
+  password=$(ids.password).value;
+  if(!ssid) {
+    status.textContent=z?'请先选择或输入 SSID':'Select or enter an SSID first';
+    status.className='status error';
+    return
+  }status.textContent=z?'正在连接，成功后设备会重启...':'Connecting. The device will restart on success...';
+  status.className='status';
+  try {
+    let body=new URLSearchParams( {
+      ssid:ssid,
+      password:password,
+      persistent:'true'
+    }),
+    r=await fetch('/connect',
+     {
+      method:'POST',
+      headers: {
+        'Content-Type':'application/x-www-form-urlencoded'
+      },
+      body
+    });
+    let text=await r.text();
+    if(!r.ok)throw Error(text||'wifi failed');
+    status.textContent=text||t.saved
+  }catch(e) {
+    status.textContent=e.message;
+    status.className='status error'
+  }
+}async function loadLegacySettings() {
+  try {
+    let r=await fetch('/DoNotTouch.json',
+     {
+      cache:'no-store'
+    });
+    legacySettings=r.ok?await r.json(): {
+
+    }
+  }catch(e) {
+    legacySettings= {
+
+    }
+  }
+}
+
+
+async function loadDeviceSettings() {
+  setStatus(E.settingsStatus,
+  '',
+  false);
+  if(settings&&Object.keys(settings).length)renderDeviceSettings();
+  try {
+    let r=await fetch('/api/settings',
+     {
+      cache:'no-store'
+    });
+    if(!r.ok)throw Error('settings failed');
+    settings=await r.json();
+    renderDeviceSettings();
+    loadLegacySettings().then(()=> {
+      if(E.settingsPanel.classList.contains('active'))renderDeviceSettings()
+    }).catch(e=>dbg('legacySettings:err '+e.message))
+  }catch(e) {
+    if(!settings||!Object.keys(settings).length) {
+      E.settingsEmpty.style.display='block';
+      E.settingsEmpty.textContent=e.message
+    }setStatus(E.settingsStatus,
+    e.message,
+    true)
+  }
+}
+
+function collectSettingsBody(source) {
+  let body= {
+
+  };
+  E.settingsGrid.querySelectorAll('input,
+  select').forEach(i=> {
+    if(i.dataset.source!==source)return;
+    body[i.dataset.key]=i.dataset.type==='checkbox'?i.value==='on':i.dataset.type==='color'?numberFromHex(i.value):i.dataset.type==='colorString'?i.value:i.dataset.type==='number'||i.dataset.key==='TMODE'?Number(i.value):i.value
+  });
+  return body
+}
+
+
+async function saveLegacySettings(body) {
+  let next=Object.assign( {
+
+  },
+  legacySettings,
+  body),
+  blob=new Blob([JSON.stringify(next,
+  null,
+  2)],
+   {
+    type:'application/json'
+  }),
+  form=new FormData();
+  form.append('file',
+  blob,
+  'DoNotTouch.json');
+  let upload=await fetch('/edit',
+   {
+    method:'POST',
+    body:form
+  });
+  if(!upload.ok)throw Error('legacy upload failed');
+  let reload=await fetch('/save',
+   {
+    method:'POST'
+  });
+  if(!reload.ok)throw Error('legacy reload failed');
+  legacySettings=next
+}
+
+
+async function saveDeviceSettings() {
+  let apiBody=collectSettingsBody('api'),
+  legacyBody=collectSettingsBody('legacy'),
+  hasApi=Object.keys(apiBody).length>0,
+  hasLegacy=Object.keys(legacyBody).length>0;
+  setStatus(E.settingsStatus,
+  t.saving,
+  false);
+  try {
+    if(hasApi) {
+      let r=await fetch('/api/settings',
+       {
+        method:'POST',
+        headers: {
+          'Content-Type':'application/json'
+        },
+        body:JSON.stringify(apiBody)
+      });
+      if(!r.ok)throw Error('save failed');
+      settings=Object.assign(settings,
+      apiBody)
+    }if(hasLegacy)await saveLegacySettings(legacyBody);
+    setStatus(E.settingsStatus,
+    hasLegacy?(lang==='zh'?'已保存，网络或账号改动可能需要重启生效':'Saved. Network or auth changes may require reboot.'):t.saved,
+    false)
+  }catch(e) {
+    setStatus(E.settingsStatus,
+    e.message,
+    true)
+  }
+}
+
+
+function createCastAppApi(app) {
+  let api= {
+    app,
+    get lang() {
+      return lang
+    },
+    label(v) {
+      return localLabel(v)
+    },
+    t(v) {
+      return localLabel(v)
+    },
+    renderDialog(desc) {
+      this._desc=desc;
+      hideFooterExport();
+      currentApp='__cast_external__'+app.id;
+      E.sheetTitle.textContent=this.label(desc.title)||castAppName(app)||'';
+      E.sheetStatus.textContent='';
+      E.secondaryAction.style.display='none';
+      E.saveSettings.style.display='none';
+      this.close=async()=> {
+        if(this._btnTimer) {
+          clearInterval(this._btnTimer);
+          this._btnTimer=null
+        }if(this.onClose)await this.onClose();
+        await this.release();
+        E.sheet.classList.remove('show')
+      };
+      window.currentCastAppApi=this;
+      let html='<section class="settings-card">';
+      if(desc.hint)html+='<p class="hint">'+this.label(desc.hint)+'</p>';
+      if(desc.display&&desc.display.type==='text') {
+        let init=desc.display.initial||'';
+        let id='__cast_disp_'+((desc.display.id)||'v');
+        html+='<h3 id="'+id+'" class="cast-display">'+init+'</h3>'
+      }if(desc.controls&&desc.controls.length) {
+        html+='<div class="live-actions">';
+        desc.controls.forEach(c=> {
+          let cls=c.style==='danger'?'danger':c.style==='tonal'?'tonal':'primary';
+          html+='<button id="__cast_ctrl_'+c.id+'" class="'+cls+'" type="button">'+this.label(c.label)+'</button>'
+        });
+        html+='</div>'
+      }html+='</section>';
+      E.fields.innerHTML=html;
+      this.rootEl=E.fields;
+      desc.controls.forEach(c=> {
+        if(c.action) {
+          let btn=this.rootEl.querySelector('#__cast_ctrl_'+c.id);
+          if(btn)btn.onclick=(e=>c.action(api,
+          e))
+        }
+      });
+      if(desc.config&&desc.config.length) {
+        html+='<section class="settings-card"><h4>'+(lang==='zh'?'设置':'Settings')+'</h4>';
+        desc.config.forEach(c=> {
+          let v=c.value!==undefined?c.value:'';
+          html+='<div class="field"><label>'+this.label(c.label)+'</label>';
+          if(c.type==='checkbox'||c.type==='bool') {
+            html+='<label class="switch"><input id="__cast_cfg_'+c.id+'" type="checkbox" '+(v?'checked':'')+'><span class="slider"></span></label>'
+          }else {
+            html+='<input id="__cast_cfg_'+c.id+'" type="'+(c.type||'text')+'" value="'+esc(v)+'">'
+          }html+='</div>'
+        });
+        html+='</section>'
+      }E.fields.innerHTML=html;
+      this.rootEl=E.fields;
+      desc.controls.forEach(c=> {
+        if(c.action) {
+          let btn=this.rootEl.querySelector('#__cast_ctrl_'+c.id);
+          if(btn)btn.onclick=(e=>c.action(api,
+          e))
+        }
+      });
+      E.sheet.classList.add('show');
+      return E.fields
+    },
+    getConfig() {
+      let cfg= {
+
+      };
+      if(this._desc&&this._desc.config) {
+        this._desc.config.forEach(c=> {
+          let el=document.getElementById('__cast_cfg_'+c.id);
+          if(!el)return;
+          if(c.type==='checkbox'||c.type==='bool')cfg[c.id]=el.checked;
+          else if(c.type==='number')cfg[c.id]=Number(el.value);
+          else cfg[c.id]=el.value
+        })
+      }return cfg
+    },
+    updateDisplay(id,
+    val) {
+      let el=document.getElementById('__cast_disp_'+id);
+      if(el)el.textContent=val
+    },
+    status(msg,
+    err) {
+      setStatus(E.sheetStatus,
+      msg,
+      err)
+    },
+    $(id) {
+      return document.getElementById(id)
+    },
+    async claim() {
+      return runtimePost('/api/runtime/claim',
+       {
+        owner:app.id
+      })
+    },
+    async frame(body) {
+      return runtimePost('/api/runtime/frame',
+      body)
+    },
+    async release() {
+      return runtimePost('/api/runtime/release',
+       {
+
+      })
+    },
+    commands: {
+      clear() {
+        return {
+          df:[0,
+          0,
+          32,
+          8,
+          '#000000']
+        }
+      },
+      text(x,
+      y,
+      text,
+      color) {
+        return {
+          dt:[x,
+          y,
+          text,
+          color||'#ffffff']
+        }
+      },
+      fill(x,
+      y,
+      w,
+      h,
+      color) {
+        return {
+          df:[x,
+          y,
+          w,
+          h,
+          color||'#ffffff']
+        }
+      },
+      pixel(x,
+      y,
+      color) {
+        return {
+          dp:[x,
+          y,
+          color||'#ffffff']
+        }
+      },
+      line(x0,
+      y0,
+      x1,
+      y1,
+      color) {
+        return {
+          dl:[x0,
+          y0,
+          x1,
+          y1,
+          color||'#ffffff']
+        }
+      }
+    },
+    _desc:null,
+    _btnTimer:null,
+    enableButtons() {
+      if(this._btnTimer)clearInterval(this._btnTimer);
+      const self=this;
+      const desc=this._desc;
+      let keyMap= {
+
+      };
+      if(desc&&desc.controls)desc.controls.forEach(c=> {
+        if(c.key)keyMap[c.key]='__cast_ctrl_'+c.id
+      });
+      this._btnTimer=setInterval(async()=> {
+        try {
+          let r=await fetch('/api/runtime/buttons');
+          if(!r.ok)return;
+          let j=await r.json();
+          ['left',
+          'middle',
+          'right'].forEach(k=> {
+            if(j[k]) {
+              let id=keyMap[k];
+              if(id&&self.rootEl) {
+                let btn=self.rootEl.querySelector('#'+id);
+                if(btn)btn.click()
+              }
+            }
+          })
+        }catch(e) {
+
+        }
+      },
+      200)
+    }
+  };
+  return api
+}function wireKindTabs(box,active,onChange) {
+  if(!box)return;
+  box.querySelectorAll('button').forEach(b=> {
+    b.classList.toggle('active',
+    b.dataset.kind===active);
+    b.onclick=()=> {
+      onChange(b.dataset.kind);
+      wireKindTabs(box,
+      b.dataset.kind,
+      onChange)
+    }
+  })
+}function renderAppKindTabs() {
+  wireKindTabs(E.storeKindTabs,
+  activeStoreKind,
+  k=> {
+    activeStoreKind=k;
+    let sf=$('storeFilter');
+    if(sf)sf.classList.toggle('show',
+    k!=='cast');
+    E.storeGrid.innerHTML='';
+    for(let i=0;
+    i<6;
+    i++) {
+      let s=document.createElement('div');
+      s.className='store-row';
+      s.innerHTML='<div class="app-icon" style="background:var(--chip);
+      animation:pulse 1.2s ease-in-out infinite"></div><div style="width:60%;
+      height:14px;
+      background:var(--chip);
+      border-radius:7px;
+      animation:pulse 1.2s ease-in-out infinite;
+      animation-delay:'+(i*.1)+'s"></div><div style="width:80%;
+      height:12px;
+      background:var(--chip);
+      border-radius:6px;
+      animation:pulse 1.2s ease-in-out infinite;
+      animation-delay:'+(i*.1)+'s"></div>';
+      E.storeGrid.appendChild(s)
+    };
+    storeLoaded=false;
+    loadStore()
+  });
+  wireKindTabs(E.libraryKindTabs,
+  activeLibraryKind,
+  k=> {
+    activeLibraryKind=k;
+    E.libraryList.innerHTML='';
+    for(let i=0;
+    i<5;
+    i++) {
+      let s=document.createElement('div');
+      s.className='row';
+      s.style.cssText='opacity:.5';
+      s.innerHTML='<div style="width:38px;
+      height:38px;
+      border-radius:12px;
+      background:var(--chip);
+      animation:pulse 1.2s ease-in-out infinite;
+      animation-delay:'+(i*.1)+'s"></div><div style="grid-column:3"><div style="width:60%;
+      height:14px;
+      background:var(--chip);
+      border-radius:7px;
+      animation:pulse 1.2s ease-in-out infinite;
+      animation-delay:'+(i*.1)+'s;
+      margin-bottom:4px"></div><div style="width:40%;
+      height:12px;
+      background:var(--chip);
+      border-radius:6px;
+      animation:pulse 1.2s ease-in-out infinite;
+      animation-delay:'+(i*.1)+'s"></div></div>';
+      E.libraryList.appendChild(s)
+    };
+    if(k==='cast')loadCastInstalledMap().then(()=> {
+      dbg('castInstalled:loaded');
+      renderLibrary()
+    }).catch(e=> {
+      dbg('castInstalled:err '+e.message);
+      renderLibrary()
+    });
+    else renderLibrary()
+  });
+  if(E.libraryKindTabs) {
+    let actionRow=E.libraryKindTabs.nextElementSibling;
+    if(actionRow&&actionRow.classList.contains('library-actions')) {
+      actionRow.innerHTML='';
+      actionRow.appendChild(E.createApp);
+      actionRow.appendChild(E.globalDisplay)
+    }
+  }
+}function renderCastAppStore() {
+  let sf=$('storeFilter');
+  if(sf)sf.classList.add('show');
+  E.storeGrid.innerHTML='';
+  renderAppKindTabs();
+  renderStoreSourceBar();
+  E.storeGrid.className='store-table';
+  let installedMap=castInstalledMap(),
+  installed=new Set(Object.keys(installedMap));
+  let renderCastGrid=()=> {
+    let input=$('storeSearchInput'),
+    filter=input?input.value.toLowerCase():'',
+    active=$('storeTags')&&$('storeTags').querySelector('.active'),
+    tag=active&&active.dataset?active.dataset.tag:'all';
+    E.storeGrid.innerHTML='';
+    let visible=castStoreCatalog.filter(app=> {
+      let appTags=app.tags||[];
+      if(tag!=='all'&&!appTags.includes(tag))return false;
+      if(filter) {
+        let name=castAppName(app).toLowerCase(),
+        desc=castAppDescription(app).toLowerCase(),
+        tags=appTags.join(' ').toLowerCase();
+        if(!name.includes(filter)&&!desc.includes(filter)&&!tags.includes(filter))return false
+      }return true
+    });
+    E.storeGrid.classList.toggle('store-grid-compact',
+    (filter||tag!=='all')&&visible.length>0);
+    visible.forEach(app=> {
+      let installedApp=installedMap[app.id],
+      isInstalled=installed.has(app.id),
+      compatible=isCompatibleVersion(app),
+      hasUpdate=isInstalled&&app.version&&installedApp&&installedApp.version&&compareVersions(app.version,
+      installedApp.version)>0,
+      row=document.createElement('article');
+      row.className='store-row'+(isInstalled?' installed':'');
+      row.innerHTML='<div class="app-icon"></div><div class="name"></div><div class="meta"></div><button class="tonal" type="button"></button>';
+      setIcon(row.querySelector('.app-icon'),
+      app.icon||'JS',
+      storeBase(selectedStoreSource().url));
+      row.querySelector('.name').textContent=castAppName(app);
+      row.querySelector('.meta').textContent=compatible?castAppDescription(app):(castAppDescription(app)+' · '+t.requiresVersion+' '+minRequiredVersion(app));
+      let btn=row.querySelector('button');
+      btn.textContent=!compatible?t.incompatible:(hasUpdate?t.update:(isInstalled?(lang==='zh'?'已安装':'Installed'):(lang==='zh'?'安装':'Install')));
+      btn.disabled=!compatible||(isInstalled&&!hasUpdate);
+      btn.classList.toggle('incompatible',
+      !compatible);
+      btn.classList.toggle('primary',
+      compatible&&(!isInstalled||hasUpdate));
+      btn.classList.toggle('tonal',
+      !compatible||(isInstalled&&!hasUpdate));
+      if(compatible&&(!isInstalled||hasUpdate))btn.onclick=()=>installCastApp(app.id,
+      btn);
+      else btn.onclick=null;
+      E.storeGrid.appendChild(row)
+    })
+  };
+  let makeTag=(box,
+  l,
+  v)=> {
+    let b=document.createElement('button');
+    b.type='button';
+    b.className='tonal store-tag'+(v==='all'?' active':'');
+    b.textContent=l;
+    b.dataset.tag=v;
+    b.onclick=()=> {
+      box.querySelectorAll('.store-tag').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      renderCastGrid();
+      renderCastTags()
+    };
+    return b
+  };
+  let inp=$('storeSearchInput');
+  if(inp)inp.oninput=renderCastGrid;
+  let tags=$('storeTags'),
+  castTagsExpanded=false,
+  renderCastTags=()=> {
+    if(!tags)return;
+    let limit=8,
+    counts= {
+
+    };
+    castStoreCatalog.forEach(app=>(app.tags||[]).forEach(t=>counts[t]=(counts[t]||0)+1));
+    let sorted=Object.keys(counts).sort((a,
+    b)=>counts[b]-counts[a]||a.localeCompare(b)),
+    active=tags.querySelector('.store-tag.active'),
+    activeTag=active&&active.dataset?active.dataset.tag:'all',
+    shown=castTagsExpanded?sorted:sorted.slice(0,
+    limit);
+    if(!castTagsExpanded&&activeTag!=='all'&&sorted.includes(activeTag)&&!shown.includes(activeTag))shown=shown.concat(activeTag);
+    tags.innerHTML='';
+    tags.appendChild(makeTag(tags,
+    lang==='zh'?'全部':'All',
+    'all'));
+    shown.forEach(t=>tags.appendChild(makeTag(tags,
+    t,
+    t)));
+    let next=[...tags.querySelectorAll('.store-tag')].find(x=>x.dataset&&x.dataset.tag===activeTag);
+    if(next) {
+      tags.querySelectorAll('.store-tag').forEach(x=>x.classList.remove('active'));
+      next.classList.add('active')
+    }if(sorted.length>limit) {
+      let more=document.createElement('button');
+      more.type='button';
+      more.className='tonal store-tag store-tag-more';
+      more.textContent=castTagsExpanded?(lang==='zh'?'收起':'Less'):(lang==='zh'?'展开':'More');
+      more.onclick=()=> {
+        castTagsExpanded=!castTagsExpanded;
+        renderCastTags()
+      };
+      tags.appendChild(more)
+    }
+  };
+  renderCastTags();
+  renderCastGrid();
+  setStatus(E.storeStatus,
+  castUi('castHint'),
+  false)
+}let stopwatch= {
+  running:false,
+  start:0,
+  elapsed:0,
+  timer:null,
+  lap:0
+};
+function fmtStopwatch(ms) {
+  let total=Math.floor(ms/10),
+  cs=total%100,
+  s=Math.floor(total/100)%60,
+  m=Math.floor(total/6000);
+  return String(m).padStart(2,
+  '0')+':'+String(s).padStart(2,
+  '0')+'.'+String(cs).padStart(2,
+  '0')
+}function stopwatchElapsed() {
+  return stopwatch.elapsed+(stopwatch.running?Date.now()-stopwatch.start:0)
+}function stopwatchCommands() {
+  let txt=fmtStopwatch(stopwatchElapsed()),
+  accent=stopwatch.running?'#00e5ff':'#ffcc00';
+  return [ {
+    df:[0,
+    0,
+    32,
+    8,
+    '#000000']
+  },
+   {
+    dt:[0,
+    0,
+    txt,
+    accent]
+  },
+   {
+    df:[0,
+    7,
+    Math.min(32,
+    Math.floor((stopwatchElapsed()%60000)/1875)),
+    1,
+    accent]
+  }]
+}async function drawStopwatch() {
+  try {
+    await runtimePost('/api/runtime/frame',
+     {
+      clear:true,
+      commands:stopwatchCommands()
+    });
+    if(stopwatch.running)stopwatch.timer=setTimeout(drawStopwatch,
+    80)
+  }catch(e) {
+    setStatus(E.sheetStatus,
+    e.message,
+    true)
+  }
+}async function stopwatchClaim() {
+  await runtimePost('/api/runtime/claim',
+   {
+    owner:'stopwatch'
+  });
+  drawStopwatch()
+}async function stopwatchStart() {
+  if(!stopwatch.running) {
+    stopwatch.running=true;
+    stopwatch.start=Date.now();
+    await stopwatchClaim()
+  }
+}async function stopwatchPause() {
+  if(stopwatch.running) {
+    stopwatch.elapsed=stopwatchElapsed();
+    stopwatch.running=false;
+    if(stopwatch.timer)clearTimeout(stopwatch.timer);
+    await drawStopwatch()
+  }
+}async function stopwatchReset() {
+  stopwatch.running=false;
+  stopwatch.elapsed=0;
+  stopwatch.lap=0;
+  if(stopwatch.timer)clearTimeout(stopwatch.timer);
+  await stopwatchClaim();
+  setStatus(E.sheetStatus,
+  '已重置',
+  false)
+}async function stopwatchStop() {
+  stopwatch.running=false;
+  if(stopwatch.timer)clearTimeout(stopwatch.timer);
+  await runtimePost('/api/runtime/release',
+   {
+
+  });
+  E.sheet.classList.remove('show')
+}function openStopwatchDialog() {
+  hideFooterExport();
+  currentApp='__stopwatch__';
+  E.sheetTitle.textContent='秒表 Cast';
+  E.sheetStatus.textContent='';
+  E.secondaryAction.style.display='';
+  E.secondaryAction.textContent='关闭';
+  E.secondaryAction.onclick=stopwatchStop;
+  E.saveSettings.style.display='none';
+  E.fields.innerHTML='<section class="settings-card stopwatch-dialog"><h3 id="stopwatchValue">00:00.00</h3><p class="hint">此 App 由浏览器 JS 控制屏幕，关闭页面会自动释放。</p><div class="live-actions"><button id="stopwatchStart" class="primary" type="button">开始</button><button id="stopwatchPause" class="tonal" type="button">暂停</button><button id="stopwatchReset" class="tonal" type="button">重置</button></div></section>';
+  E.sheet.classList.add('show');
+  let update=()=> {
+    let v=$('stopwatchValue');
+    if(v)v.textContent=fmtStopwatch(stopwatchElapsed());
+    if(E.sheet.classList.contains('show')&&currentApp==='__stopwatch__')requestAnimationFrame(update)
+  };
+  $('stopwatchStart').onclick=()=>stopwatchStart().catch(e=>setStatus(E.sheetStatus,
+  e.message,
+  true));
+  $('stopwatchPause').onclick=()=>stopwatchPause().catch(e=>setStatus(E.sheetStatus,
+  e.message,
+  true));
+  $('stopwatchReset').onclick=()=>stopwatchReset().catch(e=>setStatus(E.sheetStatus,
+  e.message,
+  true));
+  update()
+}let countdown= {
+  running:false,
+  total:300000,
+  remaining:300000,
+  end:0,
+  timer:null
+};
+function fmtCountdown(ms) {
+  ms=Math.max(0,
+  ms);
+  let total=Math.ceil(ms/1000),
+  s=total%60,
+  m=Math.floor(total/60)%60,
+  h=Math.floor(total/3600);
+  return h>0?String(h)+':'+String(m).padStart(2,
+  '0')+':'+String(s).padStart(2,
+  '0'):String(m).padStart(2,
+  '0')+':'+String(s).padStart(2,
+  '0')
+}function countdownRemaining() {
+  return countdown.running?Math.max(0,
+  countdown.end-Date.now()):countdown.remaining
+}function countdownCommands() {
+  let rem=countdownRemaining(),
+  done=rem<=0,
+  txt=done?'DONE':fmtCountdown(rem),
+  color=done?'#ff4444':'#00ff99',
+  width=countdown.total>0?Math.max(0,
+  Math.min(32,
+  Math.ceil(rem/countdown.total*32))):0;
+  return [ {
+    df:[0,
+    0,
+    32,
+    8,
+    '#000000']
+  },
+   {
+    dt:[done?3:0,
+    0,
+    txt,
+    color]
+  },
+   {
+    df:[0,
+    7,
+    width,
+    1,
+    color]
+  }]
+}async function drawCountdown() {
+  try {
+    await runtimePost('/api/runtime/frame',
+     {
+      clear:true,
+      commands:countdownCommands()
+    });
+    if(countdown.running&&countdownRemaining()>0)countdown.timer=setTimeout(drawCountdown,
+    120);
+    else if(countdown.running) {
+      countdown.running=false;
+      countdown.remaining=0;
+      setStatus(E.sheetStatus,
+      '倒计时结束',
+      false)
+    }
+  }catch(e) {
+    setStatus(E.sheetStatus,
+    e.message,
+    true)
+  }
+}function readCountdownInput() {
+  let min=Number(($('countdownMinutes')&&$('countdownMinutes').value)||0),
+  sec=Number(($('countdownSeconds')&&$('countdownSeconds').value)||0);
+  let total=Math.max(1,
+  Math.floor(min*60+sec))*1000;
+  countdown.total=total;
+  countdown.remaining=total
+}async function countdownClaim() {
+  await runtimePost('/api/runtime/claim',
+   {
+    owner:'countdown'
+  });
+  drawCountdown()
+}async function countdownStart() {
+  readCountdownInput();
+  countdown.running=true;
+  countdown.end=Date.now()+countdown.remaining;
+  await countdownClaim()
+}async function countdownPause() {
+  if(countdown.running) {
+    countdown.remaining=countdownRemaining();
+    countdown.running=false;
+    if(countdown.timer)clearTimeout(countdown.timer);
+    await drawCountdown()
+  }
+}async function countdownReset() {
+  countdown.running=false;
+  if(countdown.timer)clearTimeout(countdown.timer);
+  readCountdownInput();
+  await countdownClaim();
+  setStatus(E.sheetStatus,
+  '已重置',
+  false)
+}async function countdownStop() {
+  countdown.running=false;
+  if(countdown.timer)clearTimeout(countdown.timer);
+  await runtimePost('/api/runtime/release',
+   {
+
+  });
+  E.sheet.classList.remove('show')
+}function openCountdownDialog() {
+  hideFooterExport();
+  currentApp='__countdown__';
+  E.sheetTitle.textContent='倒计时 Cast';
+  E.sheetStatus.textContent='';
+  E.secondaryAction.style.display='';
+  E.secondaryAction.textContent='关闭';
+  E.secondaryAction.onclick=countdownStop;
+  E.saveSettings.style.display='none';
+  let minutes=Math.floor(countdown.total/60000),
+  seconds=Math.floor(countdown.total/1000)%60;
+  E.fields.innerHTML='<section class="settings-card stopwatch-dialog"><h3 id="countdownValue">'+fmtCountdown(countdownRemaining())+'</h3><p class="hint">设置时间后点击开始，浏览器 JS 会控制屏幕显示倒计时。</p><div class="field"><label>分钟</label><input id="countdownMinutes" type="number" min="0" max="999" value="'+minutes+'"></div><div class="field"><label>秒</label><input id="countdownSeconds" type="number" min="0" max="59" value="'+seconds+'"></div><div class="live-actions"><button id="countdownStart" class="primary" type="button">开始</button><button id="countdownPause" class="tonal" type="button">暂停</button><button id="countdownReset" class="tonal" type="button">重置</button></div></section>';
+  E.sheet.classList.add('show');
+  let update=()=> {
+    let v=$('countdownValue');
+    if(v)v.textContent=fmtCountdown(countdownRemaining());
+    if(E.sheet.classList.contains('show')&&currentApp==='__countdown__')requestAnimationFrame(update)
+  };
+  $('countdownStart').onclick=()=>countdownStart().catch(e=>setStatus(E.sheetStatus,
+  e.message,
+  true));
+  $('countdownPause').onclick=()=>countdownPause().catch(e=>setStatus(E.sheetStatus,
+  e.message,
+  true));
+  $('countdownReset').onclick=()=>countdownReset().catch(e=>setStatus(E.sheetStatus,
+  e.message,
+  true));
+  update()
+}let interactiveTimer=null,interactiveFrame=0,interactiveRunning=false;
+function setInteractiveStatus(msg,err) {
+  if(!E.interactiveStatus)return;
+  E.interactiveStatus.textContent=msg||'';
+  E.interactiveStatus.className='status'+(err?' error':'')
+}async function runtimePost(path,body) {
+  let r=await fetch(path,
+   {
+    method:'POST',
+    headers: {
+      'Content-Type':'application/json'
+    },
+    body:JSON.stringify(body|| {
+
+    })
+  });
+  let j=await r.json().catch(()=>( {
+
+  }));
+  if(!r.ok||j.ok===false)throw Error(j.error||('runtime '+r.status));
+  return j
+}function interactiveCommands(frame) {
+  let x=frame%29,
+  tail=Math.max(0,
+  x-4),
+  color=frame%2?'#00e5ff':'#ffcc00';
+  return [ {
+    df:[0,
+    0,
+    32,
+    8,
+    '#000000']
+  },
+   {
+    df:[tail,
+    3,
+    5,
+    2,
+    '#14344a']
+  },
+   {
+    df:[x,
+    2,
+    4,
+    4,
+    color]
+  },
+   {
+    dt:[1,
+    0,
+    'WEB',
+    '#ffffff']
+  }]
+}async function drawInteractiveFrame() {
+  if(!interactiveRunning)return;
+  try {
+    await runtimePost('/api/runtime/frame',
+     {
+      clear:true,
+      commands:interactiveCommands(interactiveFrame++)
+    });
+    interactiveTimer=setTimeout(drawInteractiveFrame,
+    120)
+  }catch(e) {
+    interactiveRunning=false;
+    setInteractiveStatus(e.message,
+    true)
+  }
+}async function startInteractiveDemo() {
+  if(interactiveRunning)return;
+  setInteractiveStatus('正在占用屏幕...',
+  false);
+  try {
+    await runtimePost('/api/runtime/claim',
+     {
+      owner:'web-demo'
+    });
+    interactiveRunning=true;
+    interactiveFrame=0;
+    setInteractiveStatus('App 运行中：保持此页面打开',
+    false);
+    drawInteractiveFrame()
+  }catch(e) {
+    setInteractiveStatus(e.message,
+    true)
+  }
+}async function stopInteractiveDemo() {
+  interactiveRunning=false;
+  if(interactiveTimer) {
+    clearTimeout(interactiveTimer);
+    interactiveTimer=null
+  }try {
+    await runtimePost('/api/runtime/release',
+     {
+
+    });
+    setInteractiveStatus('已停止，恢复 Flow 轮播',
+    false)
+  }catch(e) {
+    setInteractiveStatus(e.message,
+    true)
+  }
+}window.addEventListener('beforeunload',()=> {
+  if(interactiveRunning||countdown.running||stopwatch.running)navigator.sendBeacon&&navigator.sendBeacon('/api/runtime/release',
+  new Blob([' {
+
+  }'],
+   {
+    type:'application/json'
+  }))
+});
+function gifWord(a,v) {
+  a.push(v&255,
+  (v>>8)&255)
+}function gifText(a,s) {
+  for(let i=0;
+  i<s.length;
+  i++)a.push(s.charCodeAt(i)&255)
+}function gifPalette() {
+  let p=[];
+  for(let r=0;
+  r<8;
+  r++)for(let g=0;
+  g<8;
+  g++)for(let b=0;
+  b<4;
+  b++) {
+    p.push(Math.round(r*255/7),
+    Math.round(g*255/7),
+    Math.round(b*255/3))
+  }return p
+}function gifIndex(v) {
+  return (((v>>16)&255)>>5)<<5|(((v>>8)&255)>>5)<<2|((v&255)>>6)
+}function gifLzw(pixels) {
+  let min=8,
+  clear=256,
+  end=257,
+  size=9,
+  dict=258,
+  bits=0,
+  cur=0,
+  out=[];
+  let put=c=> {
+    cur|=c<<bits;
+    bits+=size;
+    while(bits>=8) {
+      out.push(cur&255);
+      cur>>=8;
+      bits-=8
+    }if(c===clear) {
+      size=9;
+      dict=258
+    }else {
+      dict++;
+      if(dict===(1<<size)&&size<12)size++
+    }
+  };
+  put(clear);
+  for(let i=0;
+  i<pixels.length;
+  i++) {
+    put(pixels[i]);
+    if(dict>=4094&&i<pixels.length-1)put(clear)
+  }put(end);
+  if(bits>0)out.push(cur&255);
+  let blocks=[];
+  for(let i=0;
+  i<out.length;
+  i+=255)blocks.push(out.slice(i,
+  i+255));
+  return  {
+    min,
+    blocks
+  }
+}function buildPreviewGif(frames,w,h) {
+  let bytes=[];
+  gifText(bytes,
+  'GIF89a');
+  gifWord(bytes,
+  w);
+  gifWord(bytes,
+  h);
+  bytes.push(247,
+  0,
+  0);
+  bytes.push(...gifPalette());
+  for(let f of frames) {
+    let delay=Math.max(2,
+    Math.min(65535,
+    Math.round((f.delay||120)/10)));
+    bytes.push(33,
+    249,
+    4,
+    4);
+    gifWord(bytes,
+    delay);
+    bytes.push(0,
+    0);
+    bytes.push(44);
+    gifWord(bytes,
+    0);
+    gifWord(bytes,
+    0);
+    gifWord(bytes,
+    w);
+    gifWord(bytes,
+    h);
+    bytes.push(0);
+    let pix=f.frame.map(gifIndex),
+    lzw=gifLzw(pix);
+    bytes.push(lzw.min);
+    lzw.blocks.forEach(b=>bytes.push(b.length,
+    ...b));
+    bytes.push(0)
+  }bytes.push(59);
+  return new Blob([new Uint8Array(bytes)],
+   {
+    type:'image/gif'
+  })
+}let previewTimer=null,previewStarted=false;
+function initPreviewView() {
+  if(previewStarted)return;
+  let c=$('liveCanvas');
+  if(!c)return;
+  previewStarted=true;
+  let ctx=c.getContext('2d'),
+  last='',
+  busy=false,
+  baseDelay=200,
+  delay=baseDelay,
+  pw=32,
+  ph=8,
+  paintPending=false,
+  nextFrame=null,
+  gifRecording=false,
+  gifFrames=[],
+  gifLast=0;
+  let paint=a=> {
+    nextFrame=a;
+    if(paintPending)return;
+    paintPending=true;
+    requestAnimationFrame(()=> {
+      paintPending=false;
+      let frame=nextFrame;
+      nextFrame=null;
+      if(!frame)return;
+      if(gifRecording) {
+        let now=Date.now();
+        gifFrames.push( {
+          frame:frame.slice(0,
+          pw*ph),
+          delay:gifLast?now-gifLast:baseDelay
+        });
+        gifLast=now;
+        if(gifFrames.length>=120) {
+          let b=$('liveGif');
+          if(b)b.click()
+        }
+      }ctx.fillStyle='#000';
+      ctx.fillRect(0,
+      0,
+      c.width,
+      c.height);
+      for(let y=0;
+      y<ph;
+      y++)for(let x=0;
+      x<pw;
+      x++) {
+        let v=frame[y*pw+x]||0;
+        ctx.fillStyle='rgb('+((v>>16)&255)+',
+        '+((v>>8)&255)+',
+        '+(v&255)+')';
+        ctx.fillRect(x*Math.floor(c.width/pw)+1,
+        y*Math.floor(c.height/ph)+1,
+        Math.max(1,
+        Math.floor(c.width/pw)-2),
+        Math.max(1,
+        Math.floor(c.height/ph)-2))
+      }
+    })
+  };
+  let schedule=ms=> {
+    if(previewTimer)clearTimeout(previewTimer);
+    previewTimer=setTimeout(draw,
+    ms)
+  };
+  let draw=async()=> {
+    if(!document.body.contains(c)) {
+      previewStarted=false;
+      if(previewTimer) {
+        clearTimeout(previewTimer);
+        previewTimer=null
+      }return
+    }if(document.hidden||!E.libraryPanel.classList.contains('active')) {
+      schedule(1000);
+      return
+    }if(busy) {
+      schedule(delay);
+      return
+    }busy=true;
+    try {
+      let r=await fetch('/api/screen',
+       {
+        cache:'no-store'
+      });
+      if(r.status===401) {
+        authHeader='';
+        sessionStorage.removeItem('awtrixAuth');
+        previewStarted=false;
+        busy=false;
+        if(previewTimer) {
+          clearTimeout(previewTimer);
+          previewTimer=null
+        }initAuth();
+        return
+      }if(!r.ok)throw Error('screen '+r.status);
+      let text=await r.text();
+      if(text!==last) {
+        last=text;
+        paint(JSON.parse(text))
+      }delay=baseDelay
+    }catch(e) {
+      delay=Math.min(Math.max(delay*2,
+      1000),
+      2000)
+    }busy=false;
+    schedule(delay)
+  };
+  $('livePrev').onclick=()=>fetch('/api/previousapp',
+   {
+    method:'POST'
+  });
+  $('liveNext').onclick=()=>fetch('/api/nextapp',
+   {
+    method:'POST'
+  });
+  $('liveDownload').onclick=()=> {
+    let a=document.createElement('a');
+    a.href=c.toDataURL();
+    a.download='awtrix.png';
+    a.click()
+  };
+  let gifBtn=$('liveGif');
+  if(gifBtn)gifBtn.onclick=()=> {
+    if(!gifRecording) {
+      gifFrames=[];
+      gifLast=0;
+      gifRecording=true;
+      gifBtn.textContent=lang==='zh'?'停止':'Stop';
+      gifBtn.classList.add('primary');
+      return
+    }gifRecording=false;
+    gifBtn.textContent='GIF';
+    gifBtn.classList.remove('primary');
+    if(!gifFrames.length)return;
+    let a=document.createElement('a');
+    a.href=URL.createObjectURL(buildPreviewGif(gifFrames,
+    pw,
+    ph));
+    a.download='awtrix.gif';
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),
+    1000)
+  };
+  if(E.interactiveRun)E.interactiveRun.onclick=startInteractiveDemo;
+  if(E.interactiveStop)E.interactiveStop.onclick=stopInteractiveDemo;
+  if(E.stopwatchOpen)E.stopwatchOpen.onclick=openStopwatchDialog;
+  if(E.countdownOpen)E.countdownOpen.onclick=openCountdownDialog;
+  renderAppKindTabs();
+  draw();
+  if(location.pathname==='/wifi')activate('settings',
+  true)
+}E.createApp.onclick=()=>openCreateApp(null,'create');
+E.globalDisplay.onclick=openGlobalDisplaySettings;
+E.themeBtn.onclick=()=> {
+  localStorage.awtrixTheme=document.body.classList.contains('dark')?'light':'dark';
+  applyTheme()
+};
+E.langBtn.onclick=()=> {
+  lang=lang==='zh'?'en':'zh';
+  localStorage.awtrixLang=lang;
+  applyLang();
+  storeLoaded=false;
+  loadStore()
+};
+E.closeSheet.onclick=()=> {
+  if(String(currentApp||'').startsWith('__cast_external__')&&window.currentCastAppApi) {
+    window.currentCastAppApi.close().catch(e=>setStatus(E.sheetStatus,
+    e.message,
+    true));
+    window.currentCastAppApi=null;
+    return
+  }if(currentApp==='__stopwatch__')stopwatchStop().catch(()=> {
+
+  });
+  if(currentApp==='__countdown__')countdownStop().catch(()=> {
+
+  });
+  E.saveSettings.onclick=saveAppSettings;
+  E.sheet.classList.remove('show')
+};
+E.saveSettings.onclick=saveAppSettings;
+E.fileRefreshBtn.onclick=()=>loadFiles(currentFileDir);
+E.fileBackBtn.onclick=()=>loadFiles(parentFileDir(currentFileDir));
+E.fileUploadBtn.onclick=()=>E.fileUploadInput.click();
+E.fileUploadInput.onchange=e=> {
+  let file=e.target.files&&e.target.files[0];
+  if(file)uploadFileToCurrentDir(file).catch(err=>setStatus($('filesStatus'),
+  err.message,
+  true));
+  e.target.value=''
+};
+E.fileNewBtn.onclick=()=>openCreateFileDialog(false);
+E.fileNewFolderBtn.onclick=()=>openCreateFileDialog(true);
+E.fileSaveBtn.onclick=()=>saveSelectedFile().catch(err=>setStatus($('filesStatus'),err.message,true));
+E.fileDeleteBtn.onclick=()=>deleteSelectedFile().catch(err=>setStatus($('filesStatus'),err.message,true));
+E.fileEditor.oninput=()=> {
+  fileDirty=true;
+  E.fileSaveBtn.disabled=selectedFileBinary||!selectedFilePath
+};
+resetFileEditor();
+E.settingsTab.onclick=()=>activate('settings',false);
+if(E.wifiTab)E.wifiTab.style.display='none';
+E.storeTab.onclick=()=>activate('store',false);
+E.libraryTab.onclick=()=>activate('library',false);
+if(E.filesTab)E.filesTab.onclick=()=>activate('files',false);
+E.saveDeviceSettings.onclick=saveDeviceSettings;
+window.onpopstate = () => activate(location.pathname === '/settings' || location.pathname === '/wifi' ? 'settings' : location.pathname === '/my-apps' ? 'library' : location.pathname === '/files' ? 'files' : 'store', true);
+initAuth();
+

@@ -1,0 +1,11 @@
+function collectSettingsBody(source) {
+  let body= {
+
+  };
+  E.settingsGrid.querySelectorAll('input,
+  select').forEach(i=> {
+    if(i.dataset.source!==source)return;
+    body[i.dataset.key]=i.dataset.type==='checkbox'?i.value==='on':i.dataset.type==='color'?numberFromHex(i.value):i.dataset.type==='colorString'?i.value:i.dataset.type==='number'||i.dataset.key==='TMODE'?Number(i.value):i.value
+  });
+  return body
+}

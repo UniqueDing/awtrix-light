@@ -12,7 +12,7 @@
   var statusKey='ready';
   var statusType='';
   var statusArgs=[];
-  var lang=localStorage.awtrixApWifiLang||localStorage.awtrixLang||'zh';
+  lang = localStorage.awtrixApWifiLang || lang;
 
   var I={
     zh:{
@@ -87,24 +87,6 @@
     statusEl.className='status'+(statusType?' '+statusType:'');
   }
 
-  function applyLang(){
-    document.documentElement.lang=lang==='zh'?'zh-CN':'en';
-    document.title=lang==='zh'?'awtrix-light WiFi 配网':'awtrix-light WiFi Setup';
-    document.querySelectorAll('[data-i]').forEach(function(el){
-      el.textContent=text(el.dataset.i);
-    });
-    document.querySelectorAll('[data-placeholder]').forEach(function(el){
-      el.placeholder=text(el.dataset.placeholder);
-    });
-    document.querySelectorAll('[data-aria]').forEach(function(el){
-      el.setAttribute('aria-label',text(el.dataset.aria));
-    });
-    langBtn.textContent=lang==='zh'?'EN':'中';
-    renderNetworks(networksCache);
-    setStatus(statusKey,statusType,statusArgs);
-  }
-
-  function networkLabel(item){
     var strength=Number(item.strength);
     var signal=Number.isFinite(strength)?strength+' dBm':text('unknownSignal');
     return signal+' | '+(item.security?text('secured'):text('open'));
