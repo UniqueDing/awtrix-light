@@ -2,26 +2,27 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-JS_DIR="$ROOT/www/src/app"
+JS_DIR="$ROOT/www/js"
 OUT="$ROOT/www/app.js"
 
 files=(
-  00-state-i18n.js
-  01-app-uninstall.js
-  02-cast-labels.js
-  03-cast-files-install.js
-  04-settings-state.js
-  05-settings-tabs-labels.js
-  06-device-setting-groups.js
-  07-legacy-setting-groups.js
-  08-settings-tabs-render.js
-  09-settings-field.js
-  10-settings-render-wifi.js
-  11-settings-load-save.js
-  12-settings-collect.js
-  13-legacy-save.js
-  14-device-save.js
-  15-cast-runtime-preview-bootstrap.js
+  i18n.js
+  state-i18n.js
+  app-uninstall.js
+  cast-labels.js
+  cast-files-install.js
+  settings-state.js
+  settings-tabs-labels.js
+  device-setting-groups.js
+  legacy-setting-groups.js
+  settings-tabs-render.js
+  settings-field.js
+  settings-render-wifi.js
+  settings-load-save.js
+  settings-collect.js
+  legacy-save.js
+  device-save.js
+  cast-runtime-preview-bootstrap.js
 )
 
 for file in "${files[@]}"; do
