@@ -1,0 +1,149 @@
+.library-controls .app-kind-tabs {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.library-controls .app-kind-tabs .tonal {
+  white-space: nowrap;
+}
+
+.library-actions {
+  justify-content: flex-end;
+}
+
+.app-kind-tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 0 0 14px;
+}
+
+.app-kind-tabs .active {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.interactive-card {
+  border: 1px solid color-mix(in srgb, var(--primary) 28%, transparent);
+}
+
+.interactive-card .primary {
+  min-width: 120px;
+}
+
+.stopwatch-dialog {
+  text-align: center;
+}
+
+.stopwatch-dialog h3,
+.cast-display {
+  font-size: 40px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 1px;
+}
+
+.cast-display {
+  text-align: center;
+  margin: 4px 0 12px;
+}
+
+.dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 64px);
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.dpad button {
+  height: 46px;
+  padding: 8px 10px;
+}
+
+.dpad span {
+  display: block;
+}
+
+.row.cast-row {
+  grid-template-columns: 42px 1fr 38px 38px;
+}
+
+.row.store-app-row > .app-icon,
+.row.cast-row > .app-icon {
+  display: grid;
+}
+
+@media (max-width: 720px) {
+  .row.cast-row {
+    grid-template-columns: 1fr 38px 38px;
+  }
+
+  .row.cast-row > .app-icon,
+  .row.store-app-row > .app-icon,
+  .row.store-cast-row > .app-icon {
+    display: none;
+  }
+
+  #libraryList > .row:not(.cast-row):not(.store-app-row):not(.store-cast-row) {
+    grid-template-columns: auto 32px minmax(5ch, 1fr) 34px 34px 54px;
+    gap: 6px;
+    padding: 10px 8px;
+    align-items: center;
+  }
+
+  #libraryList > .row:not(.cast-row):not(.store-app-row):not(.store-cast-row) > .handle {
+    display: flex;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  #libraryList > .row:not(.cast-row):not(.store-app-row):not(.store-cast-row) > .app-icon {
+    display: grid;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+  }
+
+  #libraryList > .row:not(.cast-row):not(.store-app-row):not(.store-cast-row) > div:nth-child(3) {
+    min-width: 5ch;
+    overflow: hidden;
+  }
+
+  #libraryList > .row:not(.cast-row):not(.store-app-row):not(.store-cast-row) .name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #libraryList > .row:not(.cast-row):not(.store-app-row):not(.store-cast-row) .meta {
+    display: none;
+  }
+
+  #libraryList > .row:not(.cast-row):not(.store-app-row):not(.store-cast-row) > .handle .icon-btn,
+  #libraryList > .row:not(.cast-row):not(.store-app-row):not(.store-cast-row) > .trash,
+  #libraryList > .row:not(.cast-row):not(.store-app-row):not(.store-cast-row) > .settings-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  #libraryList > .row:not(.cast-row):not(.store-app-row):not(.store-cast-row) > .trash,
+  #libraryList > .row:not(.cast-row):not(.store-app-row):not(.store-cast-row) > .settings-btn,
+  #libraryList > .row:not(.cast-row):not(.store-app-row):not(.store-cast-row) > .switch {
+    justify-self: end;
+  }
+
+  #libraryList > .row:not(.cast-row):not(.store-app-row):not(.store-cast-row) > .switch {
+    margin: 0;
+  }
+
+  .nav {
+    grid-template-columns: 1fr 1fr 42px 42px 42px;
+  }
+}
+
+@media (max-width: 420px) {
+  .dpad {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
