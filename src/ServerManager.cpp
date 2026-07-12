@@ -14,6 +14,7 @@
 #include "PowerManager.h"
 #include <WiFiUdp.h>
 #include <HTTPClient.h>
+#include <ArduinoJson.h>
 #ifndef awtrix2_upgrade
 #include "Games/GameManager.h"
 #include <EEPROM.h>
@@ -26,8 +27,10 @@ char incomingPacket[255];
 
 // Pufferdefinition
 #define BUFFER_SIZE 64
+#ifndef awtrix2_upgrade
 char dataBuffer[BUFFER_SIZE];
 int bufferIndex = 0;
+#endif
 
 // Aktueller verbundener Client
 WiFiClient currentClient = WiFiClient();
@@ -51,6 +54,216 @@ void versionHandler()
 {
     WebServerClass *webRequest = mws.getRequest();
     webRequest->send(200, F("text/plain"), VERSION);
+}
+
+static bool validCustomAppName(const String &name)
+{
+    if (name.length() == 0 || name.length() > 64 || name.indexOf('/') >= 0 || name.indexOf('\\') >= 0 || name.indexOf("..") >= 0)
+        return false;
+    for (size_t i = 0; i < name.length(); i++)
+    {
+        char c = name[i];
+        bool valid = (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_' || c == '-' || c == '.';
+        if (!valid)
+            return false;
+    }
+    return true;
+}
+
+static void refreshCustomApp()
+{
+    String name = mws.webserver->arg("name");
+    if (!validCustomAppName(name))
+    {
+        mws.webserver->send(400, F("application/json"), F("{\"success\":false,\"error\":\"invalid name\"}"));
+        return;
+    }
+
+    String fileName = "/CUSTOMAPPS/" + name + ".json";
+    if (!LittleFS.exists(fileName))
+    {
+        mws.webserver->send(404, F("application/json"), F("{\"success\":false,\"error\":\"app not found\"}"));
+        return;
+    }
+
+    DisplayManager.refreshFlowApp(name);
+    mws.webserver->send(200, F("application/json"), F("{\"success\":true}"));
+}
+
+static void uninstallCustomApp()
+{
+    DynamicJsonDocument doc(256);
+    if (deserializeJson(doc, mws.webserver->arg("plain")) != DeserializationError::Ok)
+    {
+        mws.webserver->send(400, F("application/json"), F("{\"success\":false,\"error\":\"invalid json\"}"));
+        return;
+    }
+
+    String name = doc["name"].as<String>();
+    if (!validCustomAppName(name))
+    {
+        mws.webserver->send(400, F("application/json"), F("{\"success\":false,\"error\":\"invalid name\"}"));
+        return;
+    }
+
+    String fileName = "/CUSTOMAPPS/" + name + ".json";
+    if (!LittleFS.exists(fileName))
+    {
+        mws.webserver->send(404, F("application/json"), F("{\"success\":false,\"error\":\"app not found\"}"));
+        return;
+    }
+
+    if (!DisplayManager.uninstallCustomApp(name))
+    {
+        mws.webserver->send(500, F("application/json"), F("{\"success\":false,\"error\":\"uninstall failed\"}"));
+        return;
+    }
+
+    mws.webserver->send(200, F("application/json"), F("{\"success\":true}"));
+}
+
+static String jsonEscape(const String &value)
+{
+    String escaped;
+    escaped.reserve(value.length() + 8);
+    for (size_t i = 0; i < value.length(); i++)
+    {
+        char c = value[i];
+        if (c == '\\' || c == '"')
+        {
+            escaped += '\\';
+            escaped += c;
+        }
+        else if (c == '\n')
+            escaped += F("\\n");
+        else if (c == '\r')
+            escaped += F("\\r");
+        else if (c == '\t')
+            escaped += F("\\t");
+        else if ((uint8_t)c < 0x20)
+            escaped += ' ';
+        else
+            escaped += c;
+    }
+    return escaped;
+}
+
+static void appendJsonEscapedChar(String &escaped, char c)
+{
+    if (c == '\\' || c == '"')
+    {
+        escaped += '\\';
+        escaped += c;
+    }
+    else if (c == '\n')
+        escaped += F("\\n");
+    else if (c == '\r')
+        escaped += F("\\r");
+    else if (c == '\t')
+        escaped += F("\\t");
+    else if (c == '\b')
+        escaped += F("\\b");
+    else if (c == '\f')
+        escaped += F("\\f");
+    else if ((uint8_t)c < 0x20)
+    {
+        const char hex[] = "0123456789abcdef";
+        escaped += F("\\u00");
+        escaped += hex[((uint8_t)c >> 4) & 0x0F];
+        escaped += hex[(uint8_t)c & 0x0F];
+    }
+    else
+        escaped += c;
+}
+
+static const __FlashStringHelper *fileContentType(const String &path)
+{
+    String p = path;
+    p.toLowerCase();
+    if (p.endsWith(".png"))
+        return F("image/png");
+    if (p.endsWith(".jpg") || p.endsWith(".jpeg"))
+        return F("image/jpeg");
+    if (p.endsWith(".gif"))
+        return F("image/gif");
+    if (p.endsWith(".svg"))
+        return F("image/svg+xml");
+    if (p.endsWith(".css"))
+        return F("text/css");
+    if (p.endsWith(".js"))
+        return F("application/javascript");
+    if (p.endsWith(".html") || p.endsWith(".htm"))
+        return F("text/html");
+    if (p.endsWith(".json"))
+        return F("application/json");
+    return F("text/plain");
+}
+
+static void sendFileViewJson(const String &path, File &file, size_t size, bool binary)
+{
+    mws.webserver->setContentLength(CONTENT_LENGTH_UNKNOWN);
+    mws.webserver->send(200, F("application/json"), "");
+    mws.webserver->sendContent(F("{\"path\":\""));
+    mws.webserver->sendContent(jsonEscape(path));
+    mws.webserver->sendContent(F("\",\"size\":"));
+    mws.webserver->sendContent(String(size));
+    mws.webserver->sendContent(F(",\"contentType\":\""));
+    mws.webserver->sendContent(fileContentType(path));
+    mws.webserver->sendContent(F("\",\"binary\":"));
+    mws.webserver->sendContent(binary ? F("true") : F("false"));
+    if (!binary)
+    {
+        mws.webserver->sendContent(F(",\"content\":\""));
+        String chunk;
+        chunk.reserve(512);
+        while (file.available())
+        {
+            appendJsonEscapedChar(chunk, (char)file.read());
+            if (chunk.length() >= 480)
+            {
+                mws.webserver->sendContent(chunk);
+                chunk = "";
+            }
+        }
+        if (chunk.length())
+            mws.webserver->sendContent(chunk);
+        mws.webserver->sendContent(F("\""));
+    }
+    mws.webserver->sendContent(F("}"));
+}
+
+static bool isTextFileName(const String &path)
+{
+    String p = path;
+    p.toLowerCase();
+    return p.endsWith(".json") || p.endsWith(".txt") || p.endsWith(".js") || p.endsWith(".css") || p.endsWith(".html") || p.endsWith(".md") || p.endsWith(".csv") || p.endsWith(".log") || p.endsWith(".xml") || p.endsWith(".svg");
+}
+
+static void viewFile()
+{
+    String path = mws.webserver->arg("path");
+    if (!path.startsWith("/"))
+        path = "/" + path;
+    if (path.indexOf("..") >= 0 || path.endsWith("/"))
+    {
+        mws.webserver->send(400, F("application/json"), F("{\"error\":\"invalid path\"}"));
+        return;
+    }
+    if (!LittleFS.exists(path))
+    {
+        mws.webserver->send(404, F("application/json"), F("{\"error\":\"file not found\"}"));
+        return;
+    }
+    File file = LittleFS.open(path, "r");
+    if (!file)
+    {
+        mws.webserver->send(500, F("application/json"), F("{\"error\":\"open failed\"}"));
+        return;
+    }
+    size_t size = file.size();
+    bool binary = !isTextFileName(path);
+    sendFileViewJson(path, file, size, binary);
+    file.close();
 }
 
 void ServerManager_::erase()
@@ -126,6 +339,8 @@ void addHandler()
                    { DisplayManager.dismissNotify(); mws.webserver->send(200,F("text/plain"),F("OK")); });
     mws.addHandler("/api/apps", HTTP_POST, []()
                    { DisplayManager.updateAppVector(mws.webserver->arg("plain").c_str()); mws.webserver->send(200,F("text/plain"),F("OK")); });
+    mws.addHandler("/api/apps/uninstall", HTTP_POST, []()
+                   { uninstallCustomApp(); });
     mws.addHandler(
         "/api/switch", HTTP_POST, []()
         {
@@ -141,6 +356,8 @@ void addHandler()
                    { mws.webserver->send_P(200, "application/json", DisplayManager.getAppsWithIcon().c_str()); });
     mws.addHandler("/api/app-store", HTTP_GET, []()
                    { mws.webserver->send_P(200, "application/json", getAppStoreManifestJson()); });
+    mws.addHandler("/api/files/view", HTTP_GET, []()
+                   { viewFile(); });
     mws.addHandler("/api/app-store/install", HTTP_POST, []()
                    {
                     String body = mws.webserver->arg("plain");
@@ -177,12 +394,17 @@ void addHandler()
     mws.addHandler("/api/settings", HTTP_GET, []()
                    { mws.webserver->send_P(200, "application/json", DisplayManager.getSettings().c_str()); });
     mws.addHandler("/api/custom", HTTP_POST, []()
-                   { 
-                    if (DisplayManager.parseCustomPage(mws.webserver->arg("name"),mws.webserver->arg("plain").c_str(),false)){
-                        mws.webserver->send(200,F("text/plain"),F("OK")); 
-                    }else{
-                        mws.webserver->send(500,F("text/plain"),F("ErrorParsingJson")); 
-                    } });
+                   {
+                     String name = mws.webserver->arg("name");
+                     if (!validCustomAppName(name)){
+                         mws.webserver->send(400,F("text/plain"),F("InvalidName"));
+                     }else if (DisplayManager.parseCustomPage(name,mws.webserver->arg("plain").c_str(),false)){
+                         mws.webserver->send(200,F("text/plain"),F("OK"));
+                     }else{
+                         mws.webserver->send(500,F("text/plain"),F("ErrorParsingJson"));
+                     } });
+    mws.addHandler("/api/custom/refresh", HTTP_POST, []()
+                   { refreshCustomApp(); });
     mws.addHandler("/api/stats", HTTP_GET, []()
                    { mws.webserver->send_P(200, "application/json", DisplayManager.getStats().c_str()); });
     mws.addHandler("/api/screen", HTTP_GET, []()
@@ -336,13 +558,12 @@ void ServerManager_::tick()
     }
 
     if (currentClient && currentClient.connected()) {
+#ifndef awtrix2_upgrade
         while (currentClient.available()) {
             char incomingByte = currentClient.read();            
             if (incomingByte == '\n') {
                 dataBuffer[bufferIndex] = '\0';               
-#ifndef awtrix2_upgrade
                 GameManager.ControllerInput(dataBuffer);
-#endif
                 bufferIndex = 0;
             }
             else if (incomingByte != '\r') {
@@ -354,6 +575,10 @@ void ServerManager_::tick()
                 }
             }
         }
+#else
+        while (currentClient.available())
+            currentClient.read();
+#endif
     }
 }
 

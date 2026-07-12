@@ -1,8 +1,6 @@
 #include "AppStore.h"
 
-static const char appStoreManifestJson[] PROGMEM = R"EOF([{"id":"demo-clock","name":"Demo Clock","version":"1.0.0","author":"AWTRIX Local","description":"Local demo JSON app"}])EOF";
-
-static const char demoClockAppJson[] PROGMEM = R"EOF({"text":"Demo Clock","duration":10,"save":true})EOF";
+static const char appStoreManifestJson[] PROGMEM = R"AWTRIXSTORE({"schemaVersion":1,"apps":{"flow":[],"animation":[],"live":[{"id":"awtrix-says","type":"live","name":{"zh":"记忆游戏","en":"AWTRIX Says"},"version":"1.0.0","author":"awtrix-light","description":{"zh":"记忆颜色顺序的经典游戏。","en":"Classic memory game with color sequence."},"icon":"3359","tags":["game","memory"],"entry":"https://raw.githubusercontent.com/awtrix-light/awtrix-light-apps/main/apps/live/awtrix-says.js","minFirmwareVersion":"0.98"},{"id":"bounce-dot","type":"live","name":{"zh":"弹跳点","en":"Bounce Dot"},"version":"1.0.0","author":"awtrix-light","description":{"zh":"浏览器控制弹跳点动画。","en":"Bounce dot animation controlled by browser."},"icon":"2230","tags":["demo"],"entry":"https://raw.githubusercontent.com/awtrix-light/awtrix-light-apps/main/apps/live/bounce-dot.js","minFirmwareVersion":"0.98"},{"id":"countdown","type":"live","name":{"zh":"倒计时","en":"Countdown"},"version":"1.0.0","author":"awtrix-light","description":{"zh":"设置时长，倒计时到零。","en":"Set duration, count down to zero."},"icon":"1460","tags":["timer"],"entry":"https://raw.githubusercontent.com/awtrix-light/awtrix-light-apps/main/apps/live/countdown.js","minFirmwareVersion":"0.98"},{"id":"fireworks","type":"live","name":{"zh":"烟花","en":"Fireworks"},"version":"1.0.0","author":"awtrix-light","description":{"zh":"随机烟花动画。","en":"Random fireworks animation."},"icon":"2283","tags":["toy","animation"],"entry":"https://raw.githubusercontent.com/awtrix-light/awtrix-light-apps/main/apps/live/fireworks.js","minFirmwareVersion":"0.98"},{"id":"pixel-pad","type":"live","name":{"zh":"像素板","en":"Pixel Pad"},"version":"1.0.0","author":"awtrix-light","description":{"zh":"输入坐标点亮像素。","en":"Light pixels by entering coordinates."},"icon":"2423","tags":["tool","drawing"],"entry":"https://raw.githubusercontent.com/awtrix-light/awtrix-light-apps/main/apps/live/pixel-pad.js","minFirmwareVersion":"0.98"},{"id":"slot-machine","type":"live","name":{"zh":"老虎机","en":"Slot Machine"},"version":"1.0.0","author":"awtrix-light","description":{"zh":"自动旋转老虎机。","en":"Auto-spinning slot machine."},"icon":"2369","tags":["game"],"entry":"https://raw.githubusercontent.com/awtrix-light/awtrix-light-apps/main/apps/live/slot-machine.js","minFirmwareVersion":"0.98"},{"id":"snake","type":"live","name":{"zh":"贪吃蛇","en":"Snake"},"version":"1.0.0","author":"awtrix-light","description":{"zh":"贪吃蛇小游戏，支持方向按钮操作。","en":"Snake mini game with directional controls."},"icon":"2957","tags":["game"],"entry":"https://raw.githubusercontent.com/awtrix-light/awtrix-light-apps/main/apps/live/snake.js","minFirmwareVersion":"0.98"},{"id":"stopwatch","type":"live","name":{"zh":"秒表","en":"Stopwatch"},"version":"1.0.0","author":"awtrix-light","description":{"zh":"正向计时，支持开始、暂停、重置。","en":"Count upward with start, pause, and reset controls."},"icon":"1460","tags":["timer"],"entry":"https://raw.githubusercontent.com/awtrix-light/awtrix-light-apps/main/apps/live/stopwatch.js","minFirmwareVersion":"0.98"}]}})AWTRIXSTORE";
 
 const char *getAppStoreManifestJson()
 {
@@ -11,10 +9,5 @@ const char *getAppStoreManifestJson()
 
 const char *getAppStoreAppJson(const String &id)
 {
-  if (id == "demo-clock")
-  {
-    return demoClockAppJson;
-  }
-
   return nullptr;
 }

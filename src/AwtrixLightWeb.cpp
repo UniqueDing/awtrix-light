@@ -38,7 +38,7 @@ static void sendAppShell(FSWebServer &mws)
 {
     mws.webserver->sendHeader("Content-Encoding", "gzip");
     mws.webserver->sendHeader("Cache-Control", "no-cache");
-    mws.webserver->send_P(200, app_html_content_type, (const char *)app_html_gz, app_html_gz_len);
+    mws.webserver->send_P(200, app_html_content_type, reinterpret_cast<const char *>(app_html_gz), app_html_gz_len);
 }
 
 void setAwtrixLightRuntimeButton(byte btn, bool state)
