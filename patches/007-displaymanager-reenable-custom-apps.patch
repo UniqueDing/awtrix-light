@@ -1,0 +1,15 @@
+diff --git a/src/DisplayManager.cpp b/src/DisplayManager.cpp
+--- a/src/DisplayManager.cpp
++++ b/src/DisplayManager.cpp
+@@ -1970,6 +1970,11 @@ void DisplayManager_::updateAppVector(const char *json)
+       }
+       else
+       {
++        if (appIt == Apps.end())
++        {
++          pushCustomApp(appName, position);
++          continue;
++        }
+         if (appIt != Apps.end() && appObj.containsKey("pos"))
+         {
+           std::pair<String, AppCallback> app = *appIt;

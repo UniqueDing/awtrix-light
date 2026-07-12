@@ -1,0 +1,65 @@
+diff --git a/platformio.ini b/platformio.ini
+--- a/platformio.ini
++++ b/platformio.ini
+@@ -59,4 +59,4 @@ build_flags = 
+ 	-fno-exceptions
+ lib_deps = 
+ 	${env.lib_deps}
+-src_filter = +<*> -<Games/AwtrixSays.*> -<Games/SlotMachine.*>
++src_filter = +<*> -<Games/*>
+diff --git a/src/DisplayManager.cpp b/src/DisplayManager.cpp
+--- a/src/DisplayManager.cpp
++++ b/src/DisplayManager.cpp
+@@ -22,7 +22,9 @@
+ #include <HTTPClient.h>
+ #include <WiFiClientSecure.h>
+ #include "base64.hpp"
++#ifndef awtrix2_upgrade
+ #include "Games/GameManager.h"
++#endif
+ 
+ unsigned long lastArtnetStatusTime = 0;
+ const int numberOfChannels = 256 * 3;
+@@ -1570,9 +1572,13 @@ void DisplayManager_::tick()
+ {
+   if (GAME_ACTIVE)
+   {
++#ifndef awtrix2_upgrade
+     GameManager.tick();
+     matrix->show();
+     memcpy(ledsCopy, leds, sizeof(leds));
++#else
++    GAME_ACTIVE = false;
++#endif
+   }
+   else if (AP_MODE)
+   {
+@@ -2460,6 +2466,7 @@ void DisplayManager_::setNewSettings(const char *json)
+     return;
+   }
+ 
++#ifndef awtrix2_upgrade
+   if (doc.containsKey("GAMEMODE"))
+   {
+     bool gamemode = doc["GAMEMODE"];
+@@ -2470,6 +2477,7 @@ void DisplayManager_::setNewSettings(const char *json)
+     GameManager.ChooseGame(game);
+     return;
+   }
++#endif
+ 
+   TIME_MODE = doc.containsKey("TMODE") ? doc["TMODE"].as<int>() : TIME_MODE;
+   TRANS_EFFECT = doc.containsKey("TEFF") ? doc["TEFF"] : TRANS_EFFECT;
+diff --git a/src/PeripheryManager.cpp b/src/PeripheryManager.cpp
+--- a/src/PeripheryManager.cpp
++++ b/src/PeripheryManager.cpp
+@@ -17,7 +17,9 @@
+ #include <ServerManager.h>
+ #include <MedianFilterLib.h>
+ #include <MeanFilterLib.h>
++#ifndef awtrix2_upgrade
+ #include <Games/GameManager.h>
++#endif
+ const int buzzerPin = 2;       // Buzzer an GPIO2
+ const int baudRate = 50;       // Nachrichtenübertragungsrate
+ const char *message = "HELLO"; // Die Nachricht, die gesendet werden soll

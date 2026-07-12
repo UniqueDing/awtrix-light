@@ -1,0 +1,93 @@
+--- a/src/DisplayManager.cpp
++++ b/src/DisplayManager.cpp
+@@ -284,53 +284,57 @@
+ 
+ void pushCustomApp(String name, int position)
+ {
+-  if (customApps.count(name) == 0)
++  auto existingApp = std::find_if(Apps.begin(), Apps.end(), [&name](const std::pair<String, AppCallback> &app)
++                                  { return app.first == name; });
++  if (existingApp != Apps.end())
+   {
+-    int availableCallbackIndex = -1;
++    return;
++  }
+ 
+-    for (int i = 0; i < 20; ++i)
+-    {
+-      bool callbackUsed = false;
++  int availableCallbackIndex = -1;
+ 
+-      for (const auto &appPair : Apps)
+-      {
+-        if (appPair.second == customAppCallbacks[i])
+-        {
+-          callbackUsed = true;
+-          break;
+-        }
+-      }
++  for (int i = 0; i < 20; ++i)
++  {
++    bool callbackUsed = false;
+ 
+-      if (!callbackUsed)
++    for (const auto &appPair : Apps)
++    {
++      if (appPair.second == customAppCallbacks[i])
+       {
+-        availableCallbackIndex = i;
++        callbackUsed = true;
+         break;
+       }
+     }
+ 
+-    if (availableCallbackIndex == -1)
++    if (!callbackUsed)
+     {
+-      if (DEBUG_MODE)
+-        DEBUG_PRINTLN(F("Error adding custom app -> Maximum number of custom apps reached"));
+-      return;
++      availableCallbackIndex = i;
++      break;
+     }
++  }
+ 
+-    if (position < 0) // Insert at the end of the vector
+-    {
+-      Apps.push_back(std::make_pair(name, customAppCallbacks[availableCallbackIndex]));
+-    }
+-    else if (position < Apps.size()) // Insert at a specific position
+-    {
+-      Apps.insert(Apps.begin() + position, std::make_pair(name, customAppCallbacks[availableCallbackIndex]));
+-    }
+-    else // Invalid position, Insert at the end of the vector
+-    {
+-      Apps.push_back(std::make_pair(name, customAppCallbacks[availableCallbackIndex]));
+-    }
++  if (availableCallbackIndex == -1)
++  {
++    if (DEBUG_MODE)
++      DEBUG_PRINTLN(F("Error adding custom app -> Maximum number of custom apps reached"));
++    return;
++  }
+ 
+-    ui->setApps(Apps); // Add Apps
+-    DisplayManager.getInstance().setAutoTransition(true);
++  if (position < 0) // Insert at the end of the vector
++  {
++    Apps.push_back(std::make_pair(name, customAppCallbacks[availableCallbackIndex]));
+   }
++  else if (position < Apps.size()) // Insert at a specific position
++  {
++    Apps.insert(Apps.begin() + position, std::make_pair(name, customAppCallbacks[availableCallbackIndex]));
++  }
++  else // Invalid position, Insert at the end of the vector
++  {
++    Apps.push_back(std::make_pair(name, customAppCallbacks[availableCallbackIndex]));
++  }
++
++  ui->setApps(Apps); // Add Apps
++  DisplayManager.getInstance().setAutoTransition(true);
+ }
+ 
+ bool deleteCustomAppFile(const String &name)

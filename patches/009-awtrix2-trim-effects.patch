@@ -1,0 +1,24 @@
+diff --git a/platformio.ini b/platformio.ini
+--- a/platformio.ini
++++ b/platformio.ini
+@@ -59,4 +59,4 @@ build_flags = 
+ 	-fno-exceptions
+ lib_deps = 
+ 	${env.lib_deps}
+-src_filter = +<*> -<Games/*>
++src_filter = +<*> -<Games/*> -<effects.cpp>
+diff --git a/src/effects.h b/src/effects.h
+--- a/src/effects.h
++++ b/src/effects.h
+@@ -36,7 +36,11 @@ enum OverlayEffect
+ 
+ 
+ 
++#ifdef awtrix2_upgrade
++const int numOfEffects = 0;
++#else
+ const int numOfEffects = 19;
++#endif
+ extern Effect effects[];
+ void callEffect(FastLED_NeoMatrix *matrix, int16_t x, int16_t y, u_int8_t index);
+ int getEffectIndex(String name);

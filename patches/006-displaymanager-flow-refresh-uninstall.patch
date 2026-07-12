@@ -1,0 +1,44 @@
+diff --git a/src/DisplayManager.cpp b/src/DisplayManager.cpp
+index 8118a2c..9e50bbc 100644
+--- a/src/DisplayManager.cpp
++++ b/src/DisplayManager.cpp
+@@ -786,6 +786,26 @@ DisplayManager_::CustomAppInstallResult DisplayManager_::installCustomAppFromJso
+   return CUSTOM_APP_INSTALL_OK;
+ }
+ 
++void DisplayManager_::refreshFlowApp(const String &name)
++{
++  String fileName = "/CUSTOMAPPS/" + name + ".json";
++  if (!LittleFS.exists(fileName))
++    return;
++
++  File file = LittleFS.open(fileName, "r");
++  if (!file)
++    return;
++  String json = "";
++  while (file.available())
++    json += char(file.read());
++  file.close();
++  parseCustomPage(name, json.c_str(), true);
++}
++
++bool DisplayManager_::uninstallCustomApp(const String &name)
++{
++  return parseCustomPage(name, "{}", false);
++}
+ 
+ 
+ 
+diff --git a/src/DisplayManager.h b/src/DisplayManager.h
+index ab6a4f3..acf981e 100644
+--- a/src/DisplayManager.h
++++ b/src/DisplayManager.h
+@@ -37,6 +37,8 @@ public:
+     void setBrightness(int);
+     bool generateNotification(uint8_t source, const char *json);
+     bool generateCustomPage(const String &name, JsonObject doc, bool preventSave);
++    void refreshFlowApp(const String &name);
++    bool uninstallCustomApp(const String &name);
+     void printText(int16_t x, int16_t y, const char *text, bool centered, byte textCase);
+     void GradientText(int16_t x, int16_t y, const char *text, int color1, int color2, bool clear, byte textCase);
+     bool setAutoTransition(bool active);
