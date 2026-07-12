@@ -1,26 +1,26 @@
-# Cast Development Tutorial
+# Live Development Tutorial
 
-A Cast is a browser-run JavaScript module that casts frames to the AWTRIX matrix through `/api/runtime/*`. It is called Cast because the app logic runs in the web page and casts the current frame to the device, similar to a small screen-cast session.
+A Live is a browser-run JavaScript module that casts frames to the AWTRIX matrix through `/api/runtime/*`. It is called Live because the app logic runs in the web page and casts the current frame to the device, similar to a small screen-cast session.
 
-Use a Cast for games, controls, drawing tools, timers, and other experiences that need buttons or active browser-side logic.
+Use a Live for games, controls, drawing tools, timers, and other experiences that need buttons or active browser-side logic.
 
 ## Runtime model
 
-A Cast requires the Web UI to stay open. The browser loads the module, claims the display runtime, sends frames, and releases runtime when the user closes the app.
+A Live requires the Web UI to stay open. The browser loads the module, claims the display runtime, sends frames, and releases runtime when the user closes the app.
 
 Current behavior:
 
 - The store manifest is loaded from the app store JSON.
 - The JavaScript module referenced by `entry` is dynamically imported from its URL.
-- Installed Cast manifests are stored one-per-app on the device under `/Apps/cast/<id>.json`.
+- Installed Live manifests are stored one-per-app on the device under `/Apps/cast/<id>.json`.
 - Browser `localStorage` is used only as a compatibility/migration mirror.
 - The JS module itself is cached to LittleFS at `/Apps/cast/<id>.js` during install.
 
-This means the installed Cast list follows the AWTRIX device when you switch browsers or phones. The module code runs from the locally cached `/Apps/cast/<id>.js` file after install, while `entryOriginal` preserves the remote source URL for future updates or recovery.
+This means the installed Live list follows the AWTRIX device when you switch browsers or phones. The module code runs from the locally cached `/Apps/cast/<id>.js` file after install, while `entryOriginal` preserves the remote source URL for future updates or recovery.
 
 ## Manifest
 
-Cast still use `castApps` and `type: "live"` internally for compatibility. User-facing UI calls them Cast.
+Live still use `castApps` and `type: "live"` internally for compatibility. User-facing UI calls them Live.
 
 ```json
 {
@@ -61,13 +61,15 @@ A module exports `open(api, manifest)` or a default function.
 ```js
 export async function open(api, manifest) {
   const L = {
-    start: { zh: '开始', en: 'Start' },
-    reset: { zh: '重置', en: 'Reset' },
-    ready: { zh: '已准备', en: 'Ready' }
+    start: { zh: "开始", en: "Start" },
+    reset: { zh: "重置", en: "Reset" },
+    ready: { zh: "已准备", en: "Ready" },
   };
 
-  const accent = manifest.params?.accent || '#00e5ff';
-  const root = api.openDialog(api.label(manifest.name_i18n) || manifest.name, `
+  const accent = manifest.params?.accent || "#00e5ff";
+  const root = api.openDialog(
+    api.label(manifest.name_i18n) || manifest.name,
+    `
     <section class="settings-card stopwatch-dialog">
       <h3>Demo</h3>
       <div class="live-actions">
@@ -75,27 +77,28 @@ export async function open(api, manifest) {
         <button id="reset" class="tonal">${api.t(L.reset)}</button>
       </div>
     </section>
-  `);
+  `,
+  );
 
   api.onClose = async () => {
     // Stop timers here. The SDK releases runtime after this hook finishes.
   };
 
-  root.querySelector('#start').onclick = async () => {
+  root.querySelector("#start").onclick = async () => {
     await api.claim();
     await api.frame({
       clear: true,
       commands: [
         api.commands.clear(),
-        api.commands.text(9, 0, 'HELLO', accent)
-      ]
+        api.commands.text(9, 0, "HELLO", accent),
+      ],
     });
     api.status(api.t(L.ready), false);
   };
 }
 ```
 
-## Parameters passed to a Cast
+## Parameters passed to a Live
 
 The module receives two arguments:
 
@@ -125,7 +128,7 @@ Language and labels:
 
 Dialog and status:
 
-- `api.openDialog(title, html)`: open the Cast dialog and return the root element.
+- `api.openDialog(title, html)`: open the Live dialog and return the root element.
 - `api.status(message, isError)`: show a status line in the dialog.
 - `api.$(id)`: shortcut for `document.getElementById(id)`.
 - `api.onClose`: optional async hook. Stop timers here.
@@ -164,7 +167,7 @@ Frame body example:
 4. Stop timers when paused or stopped, but do not release runtime unless the app is closing.
 5. Let the right-top close button release runtime and return to Flow.
 
-The Stop or Pause button inside a Cast should stop the app logic only. The display stays under runtime control until the user closes the app.
+The Stop or Pause button inside a Live should stop the app logic only. The display stays under runtime control until the user closes the app.
 
 ## Local development
 
@@ -172,4 +175,4 @@ Place modules under `mock-app-store/cast/` and add entries under `castApps` in `
 
 Serve the directory with any static HTTP server that sends CORS headers.
 
-Open App Store > Cast, install the app, then open it from My Apps > Cast.
+Open App Store > Live, install the app, then open it from My Apps > Live.

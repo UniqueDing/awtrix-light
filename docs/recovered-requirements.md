@@ -25,7 +25,7 @@ The target experience is:
 - Custom login/auth flow without browser-native auth popups.
 - Local/offline JSON app support.
 - App Store and My Apps pages.
-- Cast/browser-runtime app support.
+- Live/browser-runtime app support.
 - Real-board firmware build and flashing path for Ulanzi/AWTRIX2 upgrade devices.
 - Preservation of existing AWTRIX3 custom app behavior.
 
@@ -161,7 +161,7 @@ Preserve or restore these behaviors when restoring the later UI:
 - Install buttons should be pinned to card bottom.
 - Skeleton loading should replace plain loading text.
 - Store search and tag filters should exist for the App tab.
-- Search/tag filters should not appear on the Cast tab.
+- Search/tag filters should not appear on the Live tab.
 - Search should match app name, description, and tags.
 - Tag filters should be generated from app `tags` arrays.
 - Install name priority should be:
@@ -189,30 +189,30 @@ Irrelevant display fields should not be shown for animation apps, including text
   - URL template with `{{uid}}`
   - display text `{{relation.data.follower}}`
 
-## Cast Requirements
+## Live Requirements
 
 ### Concept
 
-- User-facing name is `Cast`.
+- User-facing name is `Live`.
 - Compatibility names may remain `castApps` and `type: "live"`.
-- Cast apps run in the browser and render/send frames to the device runtime.
-- Cast should not be confused with persisted JSON custom apps.
+- Live apps run in the browser and render/send frames to the device runtime.
+- Live should not be confused with persisted JSON custom apps.
 
 ### Storage
 
-- Installed Cast manifests live at `/Apps/cast/<id>.json`.
-- Cast JS modules are cached to `/Apps/cast/<id>.js`.
+- Installed Live manifests live at `/Apps/cast/<id>.json`.
+- Live JS modules are cached to `/Apps/cast/<id>.js`.
 - `entryOriginal` preserves the remote source URL.
 - Browser `localStorage` can be used as a mirror/fallback, but LittleFS is the persistent source.
 
 ### Runtime
 
-- Cast claims `/api/runtime/*` while running.
-- Cast sends frames to the device display runtime.
-- Cast releases runtime on close.
-- Cast app UI should support descriptor-driven dialogs.
+- Live claims `/api/runtime/*` while running.
+- Live sends frames to the device display runtime.
+- Live releases runtime on close.
+- Live app UI should support descriptor-driven dialogs.
 
-### Cast API v2
+### Live API v2
 
 Historical docs describe these browser APIs:
 
@@ -222,7 +222,7 @@ Historical docs describe these browser APIs:
 - `api.onButton(callback)`
 - `api.enableButtons()`
 
-The backup docs say 8 Cast apps were refactored to this descriptor-based API. Restore only after checking current source and mock store assets.
+The backup docs say 8 Live apps were refactored to this descriptor-based API. Restore only after checking current source and mock store assets.
 
 ### Hardware Buttons
 
@@ -275,7 +275,7 @@ Requirements:
 - Project-owned build scripts should live in `awtrix-light`, not inside upstream source when avoidable.
 - `awtrix3/` is the build target/submodule, not the primary home for custom source.
 - Build should not automatically delete/re-clone/reinitialize `awtrix3` every time.
-- Generated files such as bundled `app.js` and embedded web asset headers should be treated as build outputs.
+- Generated files such as bundled `app.js.min` and embedded web asset headers should be treated as build outputs.
 - C++ changes require firmware rebuild.
 - HTML/CSS/JS changes can be uploaded to LittleFS without firmware rebuild when not embedded into firmware.
 
@@ -352,8 +352,8 @@ These removals should not be reversed unless the user asks.
 These were not authorized for removal and should be preserved/restored unless the user explicitly approves removal:
 
 - Live preview canvas UI.
-- Cast store tag/filter behavior.
-- Cast install/cache/runtime support.
+- Live store tag/filter behavior.
+- Live install/cache/runtime support.
 - App/My Apps management behavior.
 - Settings restoration behavior.
 - Existing Flow/Animation store functionality.
@@ -405,7 +405,7 @@ If restoration is requested, proceed in this order:
 4. Restore JSON app storage/API path using `/CUSTOMAPPS` and existing `parseCustomPage()` flow.
 5. Restore `/app-store`, `/my-apps`, and `/` entry behavior.
 6. Restore App management UI only after API support is verified.
-7. Restore Cast install/cache/runtime support.
+7. Restore Live install/cache/runtime support.
 8. Restore live preview canvas and runtime controls.
 9. Restore Bilibili native app if the later feature set is desired.
 10. Address firmware size only with user-approved removals or reversible build/config changes.

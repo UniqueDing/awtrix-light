@@ -1,26 +1,26 @@
-# Cast Convention
+# Live Convention
 
-Cast are browser-run JavaScript applications that cast frames to the AWTRIX matrix through `/api/runtime/*`. The old name was Live App; the user-facing name is now Cast.
+Live are browser-run JavaScript applications that cast frames to the AWTRIX matrix through `/api/runtime/*`. The old name was Live App; the user-facing name is now Live.
 
-This file keeps the old filename so older links still work. New documentation should link to `cast-app-development.md`.
+This file keeps the old filename so older links still work. New documentation should link to `live-app-development.md`.
 
-## Why "Cast"
+## Why "Live"
 
-The app logic runs in the browser, not on the device. The browser claims the runtime and casts frame updates to the matrix. Closing the Cast releases runtime and returns the device to Flow rotation.
+The app logic runs in the browser, not on the device. The browser claims the runtime and casts frame updates to the matrix. Closing the Live releases runtime and returns the device to Flow rotation.
 
 ## Compatibility Names
 
 For compatibility, the store schema still uses:
 
 - `castApps` in `list.json`
-- `type: "live"` in each Cast manifest
+- `type: "live"` in each Live manifest
 - existing browser storage keys such as `localStorage.awtrixLiveApps`
 
-These names are implementation details. UI and docs should call them Cast.
+These names are implementation details. UI and docs should call them Live.
 
 ## Manifest
 
-A Cast entry should contain:
+A Live entry should contain:
 
 ```json
 {
@@ -43,7 +43,7 @@ A Cast entry should contain:
 
 Fields:
 
-- `id`: stable install id, unique among Cast.
+- `id`: stable install id, unique among Live.
 - `type`: keep `live` for compatibility.
 - `name`: fallback display name.
 - `name_i18n`: localized display names.
@@ -55,7 +55,7 @@ Fields:
 
 ## Runtime Contract
 
-A Cast should:
+A Live should:
 
 1. Open UI with `api.openDialog(title, html)`.
 2. Call `api.claim()` before drawing.
@@ -100,15 +100,15 @@ Runtime helpers:
 
 ## Install And Cache Model
 
-Flow installs live on the device under `/Apps/flow`. Animation installs live under `/Apps/animation`. Cast installs use one manifest per app under `/Apps/cast/<id>.json`, so the installed Cast list survives changing browser, phone, or computer. Browser `localStorage` remains only as a migration mirror for older installs.
+Flow installs live on the device under `/Apps/flow`. Animation installs live under `/Apps/animation`. Live installs use one manifest per app under `/Apps/cast/<id>.json`, so the installed Live list survives changing browser, phone, or computer. Browser `localStorage` remains only as a migration mirror for older installs.
 
-The current Cast loader dynamically imports the locally cached JS module from `/Apps/cast/<id>.js` after install. The original remote URL is kept in the manifest as `entryOriginal` for updates or recovery.
+The current Live loader dynamically imports the locally cached JS module from `/Apps/cast/<id>.js` after install. The original remote URL is kept in the manifest as `entryOriginal` for updates or recovery.
 
-The current install model already caches Cast JS to LittleFS, so updates and uninstall cleanup must keep the `.json` and `.js` sidecar files in sync.
+The current install model already caches Live JS to LittleFS, so updates and uninstall cleanup must keep the `.json` and `.js` sidecar files in sync.
 
 ## External Modules
 
-A mock store publishes Cast through `castApps` in `list.json`:
+A mock store publishes Live through `castApps` in `list.json`:
 
 ```json
 {
@@ -133,4 +133,4 @@ A mock store publishes Cast through `castApps` in `list.json`:
 
 External modules must export `open(api, manifest)` or a default function.
 
-For a full tutorial, see `docs/cast-app-development.md`.
+For a full tutorial, see `docs/live-app-development.md`.

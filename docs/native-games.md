@@ -1,9 +1,9 @@
 # Native Games
 
-AWTRIX3 previously included two native firmware games: Slot Machine and AWTRIX Says. They have been removed from the firmware build to save flash because the project now provides external Cast versions instead. This page is kept as a gameplay archive for the original native implementations.
+AWTRIX3 previously included two native firmware games: Slot Machine and AWTRIX Says. They have been removed from the firmware build to save flash because the project now provides external Live versions instead. This page is kept as a gameplay archive for the original native implementations.
 
-- The former `GAME: 0` native slot machine is now replaced by the Slot Machine Cast entry.
-- The former `GAME: 1` native AWTRIX Says game is now replaced by the AWTRIX Says Cast entry.
+- The former `GAME: 0` native slot machine is now replaced by the Slot Machine Live entry.
+- The former `GAME: 1` native AWTRIX Says game is now replaced by the AWTRIX Says Live entry.
 
 The removed native versions rendered directly on the 32x8 matrix and reported points back through the TCP controller channel as JSON, for example `{ "points": 25 }`. The current compatibility stub ignores native game start requests and returns `points: 0`.
 
@@ -39,18 +39,18 @@ There is no manual stop button in the native implementation. A spin always runs 
 
 Three matching symbols are a jackpot-style win:
 
-| Match | Points |
-| --- | ---: |
-| Three Sevens | 100 |
-| Three Diamonds | 75 |
-| Three Crowns | 50 |
-| Three of any other symbol | 25 |
+| Match                     | Points |
+| ------------------------- | -----: |
+| Three Sevens              |    100 |
+| Three Diamonds            |     75 |
+| Three Crowns              |     50 |
+| Three of any other symbol |     25 |
 
 Two matching reels also score:
 
-| Match | Points |
-| --- | ---: |
-| Any pair of equal symbols | 10 |
+| Match                     | Points |
+| ------------------------- | -----: |
+| Any pair of equal symbols |     10 |
 
 The code checks all three pairs, so two matching symbols normally give 10 points. Three matching symbols use the jackpot table instead.
 
@@ -64,12 +64,12 @@ The code checks all three pairs, so two matching symbols normally give 10 points
 
 AWTRIX Says is a Simon Says style memory game. The display is divided into four large color buttons:
 
-| Button | Matrix Area | Color | Controller Command |
-| --- | --- | --- | --- |
-| A | Top left | Green | `ADOWN` |
-| B | Top right | Red | `BDOWN` |
-| C | Bottom left | Yellow | `CDOWN` |
-| D | Bottom right | Blue | `DDOWN` |
+| Button | Matrix Area  | Color  | Controller Command |
+| ------ | ------------ | ------ | ------------------ |
+| A      | Top left     | Green  | `ADOWN`            |
+| B      | Top right    | Red    | `BDOWN`            |
+| C      | Bottom left  | Yellow | `CDOWN`            |
+| D      | Bottom right | Blue   | `DDOWN`            |
 
 ### How to play
 
@@ -90,11 +90,11 @@ AWTRIX Says is a Simon Says style memory game. The display is divided into four 
 
 ### Scoring
 
-| Result | Points |
-| --- | ---: |
-| Complete a round | Current sequence length |
-| Press a wrong color | 0 |
-| Complete all 32 steps | 1000 |
+| Result                |                  Points |
+| --------------------- | ----------------------: |
+| Complete a round      | Current sequence length |
+| Press a wrong color   |                       0 |
+| Complete all 32 steps |                    1000 |
 
 For example, after correctly repeating a 5-step sequence, the game sends 6 points because the next sequence length has just been prepared.
 
@@ -109,8 +109,8 @@ AWTRIX Says plays a short RTTTL tone for each displayed color and for each corre
 
 A wrong input plays a descending lose melody.
 
-## Native Games vs Cast Games
+## Native Games vs Live Games
 
-The original native games were compiled into the firmware and ran fully on the device. They are now removed from the firmware build. Cast games run in the browser and cast frames to the device through `/api/runtime/*`.
+The original native games were compiled into the firmware and ran fully on the device. They are now removed from the firmware build. Live games run in the browser and cast frames to the device through `/api/runtime/*`.
 
-Use the Cast versions for current gameplay. They provide richer browser controls, faster iteration, and app-store style external JavaScript modules without carrying the original native firmware implementations.
+Use the Live versions for current gameplay. They provide richer browser controls, faster iteration, and app-store style external JavaScript modules without carrying the original native firmware implementations.

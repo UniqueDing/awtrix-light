@@ -215,10 +215,9 @@ Formula fields are evaluated in declaration order, so later fields may reference
 
 Formula is not JavaScript and does not execute arbitrary code. For complex domain logic such as lunar calendar conversion, use an external HTTP/HA source first, then apply `display` branches.
 
-
 ## Naming
 
 - Flow: a device-run data display definition. Flows fetch HTTP/HA/MQTT/formula data and render through `display` rules. They continue running without the browser.
-- Cast: a browser-run program. Cast require the Web UI to stay open and cast frames to the matrix through `/api/runtime/*`.
+- Live: a browser-run program. Live require the Web UI to stay open and cast frames to the matrix through `/api/runtime/*`.
 
-The current `/api/apps` name is kept for firmware compatibility, but installed Flow files now live under `/Apps/flow`, installed Animation files under `/Apps/animation`, and installed Cast files under `/Apps/cast`.
+The current `/api/apps` name is kept for firmware compatibility, but installed Flow files now live under `/Apps/flow`, installed Animation files under `/Apps/animation`, and installed Live files under `/Apps/cast`.
