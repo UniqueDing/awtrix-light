@@ -1,4 +1,2 @@
-let settingsSection='device',legacySettings= {
-
-};
-
+let settingsSection = "device",
+  legacySettings = {};

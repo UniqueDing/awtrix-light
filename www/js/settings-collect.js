@@ -1,11 +1,18 @@
 function collectSettingsBody(source) {
-  let body= {
-
-  };
-  E.settingsGrid.querySelectorAll('input,
-  select').forEach(i=> {
-    if(i.dataset.source!==source)return;
-    body[i.dataset.key]=i.dataset.type==='checkbox'?i.value==='on':i.dataset.type==='color'?numberFromHex(i.value):i.dataset.type==='colorString'?i.value:i.dataset.type==='number'||i.dataset.key==='TMODE'?Number(i.value):i.value
+  let body = {};
+  E.settingsGrid.querySelectorAll("input, select").forEach((input) => {
+    if (input.dataset.source !== source) return;
+    body[input.dataset.key] =
+      input.dataset.type === "checkbox"
+        ? input.value === "on"
+        : input.dataset.type === "color"
+          ? numberFromHex(input.value)
+          : input.dataset.type === "colorString"
+            ? input.value
+            : input.dataset.type === "number" || input.dataset.key === "TMODE"
+              ? Number(input.value)
+              : input.value;
   });
-  return body
+
+  return body;
 }

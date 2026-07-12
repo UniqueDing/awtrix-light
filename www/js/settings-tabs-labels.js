@@ -1,17 +1,10 @@
-function settingTabLabels()  {
-   return lang === 'zh' ?  {
-     device: '设备',
-     network: '网络',
-     time: '时间',
-     integrations: '集成',
-     auth: '账号',
-     files: '文件'
-  } :  {
-     device: 'Device',
-     network: 'Network',
-     time: 'Time',
-     integrations: 'Integrations',
-     auth: 'Auth',
-     files: 'Files'
-  }
+function settingTabLabels() {
+  return {
+    device: t.device || "Device",
+    network: t.network,
+    time: t.timeDate,
+    integrations: t.integrations,
+    auth: t.auth,
+    files: t.files,
+  };
 }

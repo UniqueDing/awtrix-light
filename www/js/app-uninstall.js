@@ -1,51 +1,47 @@
 async function uninstallApp(name) {
   hideFooterExport();
-  currentApp='__app_uninstall__';
-  let item=(apps||[]).find(a=>appName(a,
-  0)===name)|| {
+  currentApp = "__app_uninstall__";
 
-  };
-  E.sheetTitle.textContent=t.uninstallTitle||(lang==='zh'?'卸载应用':'Uninstall App');
-  E.sheetStatus.textContent='';
-  E.fields.innerHTML='<section class="settings-card"><h3>'+name+'</h3><p class="hint">'+(lang==='zh'?'确定要删除吗？可以之后从应用商店重新安装。':'Remove this app? You can reinstall it from the app store.')+'</p></section>';
-  E.secondaryAction.style.display='';
-  E.secondaryAction.textContent=lang==='zh'?'取消':'Cancel';
-  E.secondaryAction.onclick=()=>E.sheet.classList.remove('show');
-  E.saveSettings.style.display='';
-  E.saveSettings.textContent=lang==='zh'?'卸载':'Uninstall';
-  E.saveSettings.onclick=async()=> {
+  E.sheetTitle.textContent = t.uninstallTitle;
+  E.sheetStatus.textContent = "";
+  E.fields.innerHTML = "";
+  let section = document.createElement("section"),
+    title = document.createElement("h3"),
+    hint = document.createElement("p");
+  section.className = "settings-card";
+  hint.className = "hint";
+  title.textContent = name;
+  hint.textContent = t.uninstallConfirmText;
+  section.appendChild(title);
+  section.appendChild(hint);
+  E.fields.appendChild(section);
+  E.secondaryAction.style.display = "";
+  E.secondaryAction.textContent = t.cancel;
+  E.secondaryAction.onclick = () => E.sheet.classList.remove("show");
+  E.saveSettings.style.display = "";
+  E.saveSettings.textContent = t.uninstall;
+  E.saveSettings.onclick = async () => {
     try {
-      setStatus(E.libraryStatus,
-      '...',
-      false);
-      let r=await fetch('/api/apps/uninstall',
-       {
-        method:'POST',
-        headers: {
-          'Content-Type':'application/json'
-        },
-        body:JSON.stringify( {
-          name
-        })
+      setStatus(E.libraryStatus, "...", false);
+      let response = await fetch("/api/apps/uninstall", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
       });
-      let j=await r.json().catch(()=>( {
+      let result = await response.json().catch(() => ({}));
+      if (!response.ok || !result.success)
+        throw Error(result.error || "uninstall failed");
 
-      }));
-      if(!r.ok||!j.success)throw Error(j.error||'uninstall failed');
-      E.saveSettings.onclick=saveAppSettings;
-      E.sheet.classList.remove('show');
-      libraryLoaded=false;
+      E.saveSettings.onclick = saveAppSettings;
+      E.sheet.classList.remove("show");
+      libraryLoaded = false;
       await loadLibrary();
-      storeLoaded=false;
+      storeLoaded = false;
       loadStore();
-      setStatus(E.libraryStatus,
-      t.uninstalled+name,
-      false)
-    }catch(e) {
-      setStatus(E.sheetStatus,
-      e.message,
-      true)
+      setStatus(E.libraryStatus, t.uninstalled + name, false);
+    } catch (e) {
+      setStatus(E.sheetStatus, e.message, true);
     }
   };
-  E.sheet.classList.add('show')
+  E.sheet.classList.add("show");
 }

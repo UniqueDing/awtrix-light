@@ -1,29 +1,18 @@
 async function saveLegacySettings(body) {
-  let next=Object.assign( {
-
-  },
-  legacySettings,
-  body),
-  blob=new Blob([JSON.stringify(next,
-  null,
-  2)],
-   {
-    type:'application/json'
-  }),
-  form=new FormData();
-  form.append('file',
-  blob,
-  'DoNotTouch.json');
-  let upload=await fetch('/edit',
-   {
-    method:'POST',
-    body:form
+  let next = Object.assign({}, legacySettings, body),
+    blob = new Blob([JSON.stringify(next, null, 2)], {
+      type: "application/json",
+    }),
+    form = new FormData();
+  form.append("file", blob, "DoNotTouch.json");
+  let upload = await fetch("/edit", {
+    method: "POST",
+    body: form,
   });
-  if(!upload.ok)throw Error('legacy upload failed');
-  let reload=await fetch('/save',
-   {
-    method:'POST'
+  if (!upload.ok) throw Error("legacy upload failed");
+  let reload = await fetch("/save", {
+    method: "POST",
   });
-  if(!reload.ok)throw Error('legacy reload failed');
-  legacySettings=next
+  if (!reload.ok) throw Error("legacy reload failed");
+  legacySettings = next;
 }
