@@ -192,7 +192,17 @@ function initPreviewView() {
       return;
     }
     if (document.hidden || !E.libraryPanel.classList.contains("active")) {
+      runtimeTransport.setPreview(false, paint);
       schedule(1000);
+      return;
+    }
+    runtimeTransport.setPreview(true, paint);
+    if (runtimeTransport.isPreviewWebSocketReady()) {
+      schedule(1000);
+      return;
+    }
+    if (!runtimeTransport.isHttp() && !runtimeTransport.isWebSocket()) {
+      schedule(200);
       return;
     }
     if (busy) {
@@ -271,6 +281,10 @@ function initPreviewView() {
   if (E.countdownOpen) E.countdownOpen.onclick = openCountdownDialog;
 
   renderAppKindTabs();
+
+  document.addEventListener("visibilitychange", () => {
+    runtimeTransport.setPreview(!document.hidden && E.libraryPanel.classList.contains("active"), paint);
+  });
 
   draw();
 

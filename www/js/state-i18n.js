@@ -87,6 +87,7 @@ window.fetch = function (input, init) {
   next.headers = headers;
   return rawFetch(input, next).then(function (r) {
     if (r.status === 401 && authHeader) {
+      if (typeof runtimeTransport !== "undefined") runtimeTransport.authReset();
       authHeader = "";
       sessionStorage.removeItem("awtrixAuth");
       setTimeout(function () {
