@@ -1,4 +1,17 @@
-let stopwatch = { running: false, start: 0, elapsed: 0, timer: null, lap: 0 };
+let stopwatch = {
+  running: false,
+  start: 0,
+  elapsed: 0,
+  timer: null,
+  lap: 0,
+  nextFrame: 0,
+  generation: 0,
+  pendingFrame: null,
+  sendPromise: null,
+  claimPromise: null,
+};
+
+let stopwatchFrameInterval = 1000 / 15;
 
 function fmtStopwatch(ms) {
   let total = Math.floor(ms / 10),
@@ -40,29 +53,67 @@ function stopwatchCommands() {
   ];
 }
 
-async function drawStopwatch() {
-  try {
-    await runtimePost("/api/runtime/frame", {
-      clear: true,
-      commands: stopwatchCommands(),
+function queueStopwatchFrame(generation) {
+  if (generation !== stopwatch.generation) return Promise.resolve();
+  let body = { clear: true, commands: stopwatchCommands() };
+  if (runtimeTransport.isWebSocket())
+    return runtimePost("/api/runtime/frame", body).catch(function (e) {
+      setStatus(E.sheetStatus, e.message, true);
     });
-    if (stopwatch.running) stopwatch.timer = setTimeout(drawStopwatch, 80);
-  } catch (e) {
-    setStatus(E.sheetStatus, e.message, true);
-  }
+  stopwatch.pendingFrame = {
+    generation: generation,
+    body: body,
+  };
+  if (!stopwatch.sendPromise) stopwatch.sendPromise = sendStopwatchFrames();
+  return stopwatch.sendPromise;
 }
 
-async function stopwatchClaim() {
-  await runtimePost("/api/runtime/claim", { owner: "stopwatch" });
+async function sendStopwatchFrames() {
+  while (stopwatch.pendingFrame) {
+    let frame = stopwatch.pendingFrame;
+    stopwatch.pendingFrame = null;
+    if (frame.generation !== stopwatch.generation) continue;
+    try {
+      await runtimePost("/api/runtime/frame", frame.body);
+    } catch (e) {
+      setStatus(E.sheetStatus, e.message, true);
+    }
+  }
+  stopwatch.sendPromise = null;
+}
 
-  drawStopwatch();
+function drawStopwatch(generation) {
+  if (!stopwatch.running || generation !== stopwatch.generation) return;
+  queueStopwatchFrame(generation);
+  let now = Date.now();
+  do stopwatch.nextFrame += stopwatchFrameInterval;
+  while (stopwatch.nextFrame <= now);
+  stopwatch.timer = setTimeout(
+    function () {
+      drawStopwatch(generation);
+    },
+    stopwatch.nextFrame - now,
+  );
+}
+
+async function stopwatchClaim(generation) {
+  let claim = runtimePost("/api/runtime/claim", { owner: "stopwatch" });
+  stopwatch.claimPromise = claim;
+  await claim;
+  if (stopwatch.claimPromise === claim) stopwatch.claimPromise = null;
+  if (generation !== stopwatch.generation) return;
+  if (stopwatch.running) {
+    stopwatch.nextFrame = Date.now();
+    drawStopwatch(generation);
+  } else await queueStopwatchFrame(generation);
 }
 
 async function stopwatchStart() {
   if (!stopwatch.running) {
     stopwatch.running = true;
     stopwatch.start = Date.now();
-    await stopwatchClaim();
+    stopwatch.generation++;
+    await stopwatchClaim(stopwatch.generation);
   }
 }
 
@@ -71,7 +122,10 @@ async function stopwatchPause() {
     stopwatch.elapsed = stopwatchElapsed();
     stopwatch.running = false;
     if (stopwatch.timer) clearTimeout(stopwatch.timer);
-    await drawStopwatch();
+    stopwatch.timer = null;
+    stopwatch.generation++;
+    stopwatch.pendingFrame = null;
+    await queueStopwatchFrame(stopwatch.generation);
   }
 }
 
@@ -83,8 +137,11 @@ async function stopwatchReset() {
   stopwatch.lap = 0;
 
   if (stopwatch.timer) clearTimeout(stopwatch.timer);
+  stopwatch.timer = null;
+  stopwatch.generation++;
+  stopwatch.pendingFrame = null;
 
-  await stopwatchClaim();
+  await stopwatchClaim(stopwatch.generation);
 
   setStatus(E.sheetStatus, "已重置", false);
 }
@@ -93,6 +150,11 @@ async function stopwatchStop() {
   stopwatch.running = false;
 
   if (stopwatch.timer) clearTimeout(stopwatch.timer);
+  stopwatch.timer = null;
+  stopwatch.generation++;
+  stopwatch.pendingFrame = null;
+  if (stopwatch.claimPromise) await stopwatch.claimPromise;
+  if (stopwatch.sendPromise) await stopwatch.sendPromise;
 
   await runtimePost("/api/runtime/release", {});
 

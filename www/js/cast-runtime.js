@@ -20,13 +20,24 @@ function createCastAppApi(app) {
       E.secondaryAction.style.display = "none";
       E.saveSettings.style.display = "none";
       this.close = async () => {
-        if (this._btnTimer) {
-          clearInterval(this._btnTimer);
-          this._btnTimer = null;
-        }
-        if (this.onClose) await this.onClose();
-        await this.release();
-        E.sheet.classList.remove("show");
+        if (this._closing) return this._closing;
+        this._closing = (async () => {
+          if (this._buttonHandler) runtimeTransport.disableButtons(this._buttonHandler);
+          let closeError = null;
+          try {
+            if (this.onClose) await this.onClose();
+          } catch (error) {
+            closeError = error;
+          }
+          try {
+            await this.release();
+          } finally {
+            E.sheet.classList.remove("show");
+            if (window.currentCastAppApi === this) window.currentCastAppApi = null;
+          }
+          if (closeError) throw closeError;
+        })();
+        return this._closing;
       };
       window.currentCastAppApi = this;
       let html = '<section class="settings-card">';
@@ -121,13 +132,16 @@ function createCastAppApi(app) {
       return document.getElementById(id);
     },
     async claim() {
-      return runtimePost("/api/runtime/claim", { owner: app.id });
+      return runtimeTransport.claim(app.id);
     },
     async frame(body) {
-      return runtimePost("/api/runtime/frame", body);
+      return runtimeTransport.frame(body);
+    },
+    isWebSocket() {
+      return runtimeTransport.isWebSocket();
     },
     async release() {
-      return runtimePost("/api/runtime/release", {});
+      return runtimeTransport.release();
     },
     commands: {
       clear() {
@@ -147,9 +161,9 @@ function createCastAppApi(app) {
       },
     },
     _desc: null,
-    _btnTimer: null,
+    _buttonHandler: null,
+    _closing: null,
     enableButtons() {
-      if (this._btnTimer) clearInterval(this._btnTimer);
       const self = this;
       const desc = this._desc;
       let keyMap = {};
@@ -157,22 +171,15 @@ function createCastAppApi(app) {
         desc.controls.forEach((c) => {
           if (c.key) keyMap[c.key] = "__cast_ctrl_" + c.id;
         });
-      this._btnTimer = setInterval(async () => {
-        try {
-          let r = await fetch("/api/runtime/buttons");
-          if (!r.ok) return;
-          let j = await r.json();
-          ["left", "middle", "right"].forEach((k) => {
-            if (j[k]) {
-              let id = keyMap[k];
-              if (id && self.rootEl) {
-                let btn = self.rootEl.querySelector("#" + id);
-                if (btn) btn.click();
-              }
-            }
-          });
-        } catch (e) {}
-      }, 200);
+      if (this._buttonHandler) runtimeTransport.disableButtons(this._buttonHandler);
+      this._buttonHandler = (key) => {
+        let id = keyMap[key];
+        if (id && self.rootEl) {
+          let btn = self.rootEl.querySelector("#" + id);
+          if (btn) btn.click();
+        }
+      };
+      runtimeTransport.enableButtons(this._buttonHandler);
     },
   };
 
@@ -192,6 +199,9 @@ function setInteractiveStatus(msg, err) {
 }
 
 async function runtimePost(path, body) {
+  if (path === "/api/runtime/claim") return runtimeTransport.claim(body && body.owner);
+  if (path === "/api/runtime/frame") return runtimeTransport.frame(body);
+  if (path === "/api/runtime/release") return runtimeTransport.release();
   let r = await fetch(path, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -265,10 +275,5 @@ async function stopInteractiveDemo() {
 }
 
 window.addEventListener("beforeunload", () => {
-  if (interactiveRunning || countdown.running || stopwatch.running)
-    navigator.sendBeacon &&
-      navigator.sendBeacon(
-        "/api/runtime/release",
-        new Blob(["{}"], { type: "application/json" }),
-      );
+  runtimeTransport.unloadRelease();
 });

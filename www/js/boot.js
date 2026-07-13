@@ -24,10 +24,10 @@ function bindUiHandlers() {
         String(currentApp || "").startsWith("__cast_external__") &&
         window.currentCastAppApi
       ) {
-        window.currentCastAppApi
+        let closingApi = window.currentCastAppApi;
+        closingApi
           .close()
           .catch((e) => setStatus(E.sheetStatus, e.message, true));
-        window.currentCastAppApi = null;
         return;
       }
       if (currentApp === "__stopwatch__") stopwatchStop().catch(() => {});
