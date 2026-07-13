@@ -1,0 +1,129 @@
+diff --git a/src/DisplayManager.cpp b/src/DisplayManager.cpp
+index 6e5e2bd..dc94b4c 100644
+--- a/src/DisplayManager.cpp
++++ b/src/DisplayManager.cpp
+@@ -54,6 +54,11 @@ CRGB ledsCopy[MATRIX_WIDTH * MATRIX_HEIGHT];
+ float actualBri;
+ int16_t cursor_x, cursor_y;
+ uint32_t textColor;
++#ifdef awtrix2_upgrade
++static CRGB runtimeScreen[MATRIX_WIDTH * MATRIX_HEIGHT];
++static bool runtimeOwned = false;
++static uint32_t runtimeScreenSequence = 0;
++#endif
+ 
+ // NeoMatrix
+ FastLED_NeoMatrix *matrix = new FastLED_NeoMatrix(leds, 8, 8, 4, 1, NEO_MATRIX_TOP + NEO_MATRIX_LEFT + NEO_MATRIX_ROWS + NEO_MATRIX_PROGRESSIVE);
+@@ -1597,6 +1602,9 @@ bool universe2_complete = false;
+ 
+ void DisplayManager_::tick()
+ {
++#ifdef awtrix2_upgrade
++  if (runtimeOwned) return;
++#endif
+   if (GAME_ACTIVE)
+   {
+ #ifndef awtrix2_upgrade
+@@ -1734,6 +1742,37 @@ void DisplayManager_::show()
+   matrix->show();
+ }
+ 
++#ifdef awtrix2_upgrade
++void DisplayManager_::claimRuntime()
++{
++  MenuManager.inMenu = false;
++  runtimeOwned = true;
++}
++void DisplayManager_::releaseRuntime()
++{
++  runtimeOwned = false;
++  MatrixDisplayUiState *state = ui->getUiState();
++  state->lastUpdate = 0;
++  state->ticksSinceLastStateSwitch = 0;
++  state->appState = FIXED;
++}
++void DisplayManager_::showRuntime() { gammaCorrection(); matrix->show(); memcpy(leds, ledsCopy, sizeof(leds)); }
++void DisplayManager_::runtimeRgb(uint8_t *rgb) const
++{
++  int output = 0;
++  for (int y = 0; y < MATRIX_HEIGHT; ++y)
++    for (int x = 0; x < MATRIX_WIDTH; ++x)
++    {
++      const CRGB &pixel = runtimeScreen[matrix->XY(x, y)];
++      rgb[output++] = pixel.r;
++      rgb[output++] = pixel.g;
++      rgb[output++] = pixel.b;
++    }
++}
++uint32_t DisplayManager_::runtimeSequence() const { return runtimeScreenSequence; }
++bool DisplayManager_::runtimeActive() const { return runtimeOwned; }
++#endif
++
+ void DisplayManager_::leftButton()
+ {
+   if (!MenuManager.inMenu)
+@@ -2353,7 +2392,14 @@ float logMap(float x, float in_min, float in_max, float out_min, float out_max,
+ void DisplayManager_::gammaCorrection()
+ {
+   float gamma = logMap(actualBri, 2, 180, 0.535, 2.3, 1.9);
++#ifdef awtrix2_upgrade
++  if (memcmp(runtimeScreen, leds, sizeof(leds)) != 0)
++  {
++    memcpy(runtimeScreen, leds, sizeof(leds));
++    ++runtimeScreenSequence;
++  }
++#endif
+   memcpy(ledsCopy, leds, sizeof(leds));
+   for (int i = 0; i < 256; i++)
+   {
+     leds[i] = applyGamma_video(leds[i], gamma);
+diff --git a/src/DisplayManager.h b/src/DisplayManager.h
+index acf981e..49e67bd 100644
+--- a/src/DisplayManager.h
++++ b/src/DisplayManager.h
+@@ -101,7 +101,15 @@ public:
+     void matrixPrint(char *str);
+     void matrixPrint(char str[], size_t length);
+     void setCursor(int16_t x, int16_t y);
+-    void setTextColor(uint32_t color);
++    void setTextColor(uint32_t color);
++#ifdef awtrix2_upgrade
++    void claimRuntime();
++    void releaseRuntime();
++    void showRuntime();
++    void runtimeRgb(uint8_t *rgb) const;
++    uint32_t runtimeSequence() const;
++    bool runtimeActive() const;
++#endif
+     void matrixPrint(double number, uint8_t digits);
+     void setCustomAppColors(uint32_t color);
+ };
+diff --git a/src/PeripheryManager.cpp b/src/PeripheryManager.cpp
+index fc38219..4e458d3 100644
+--- a/src/PeripheryManager.cpp
++++ b/src/PeripheryManager.cpp
+@@ -15,6 +15,7 @@
+ #include <LightDependentResistor.h>
+ #include <MenuManager.h>
+ #include <ServerManager.h>
++#include "AwtrixLightWeb.h"
+ #include <MedianFilterLib.h>
+ #include <MeanFilterLib.h>
+ #ifndef awtrix2_upgrade
+@@ -475,6 +476,9 @@ void PeripheryManager_::tick()
+     }
+     else
+     {
++        setAwtrixLightRuntimeButton(0, false);
++        setAwtrixLightRuntimeButton(1, false);
++        setAwtrixLightRuntimeButton(2, false);
+         button_left.read();
+         button_select.read();
+         button_right.read();
+@@ -587,4 +591,4 @@ void PeripheryManager_::r2d2(const char *msg)
+     }
+     noTone(BUZZER_PIN);
+ #endif
+-}
+\ No newline at end of file
++}
