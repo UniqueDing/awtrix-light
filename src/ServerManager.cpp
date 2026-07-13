@@ -491,6 +491,7 @@ void ServerManager_::setup()
     }
     mws.addHandler("/version", HTTP_GET, versionHandler);
     mws.begin(WEB_PORT);
+    beginAwtrixLightRuntime();
 
     if (!MDNS.begin(HOSTNAME))
     {
@@ -516,6 +517,7 @@ void ServerManager_::setup()
 void ServerManager_::tick()
 {
     mws.run();
+    tickAwtrixLightRuntime();
 
     if (!AP_MODE)
     {
