@@ -43,6 +43,22 @@ awtrix3_patch_already_applied() {
       grep -Fq -- '-<effects.cpp>' "$awtrix3_dir/platformio.ini" && \
         grep -Fq 'const int numOfEffects = 0;' "$awtrix3_dir/src/effects.h"
       ;;
+    011-runtime-display-ownership.patch)
+      grep -Fq 'void DisplayManager_::showRuntime()' "$awtrix3_dir/src/DisplayManager.cpp" && \
+        grep -Fq 'runtimeSequence() const' "$awtrix3_dir/src/DisplayManager.h"
+      ;;
+    012-runtime-websockets-platformio.patch)
+      grep -Fq 'fastled/FastLED@3.6.0' "$awtrix3_dir/platformio.ini" && \
+        ! grep -Fq 'fastled/FastLED@^3.6.0' "$awtrix3_dir/platformio.ini" && \
+        grep -Fq 'links2004/WebSockets@2.7.2' "$awtrix3_dir/platformio.ini" && \
+        grep -Fq -- '-DWEBSOCKETS_SERVER_CLIENT_MAX=1' "$awtrix3_dir/platformio.ini" && \
+        grep -Fq -- '-DWEBSOCKETS_MAX_DATA_SIZE=4096' "$awtrix3_dir/platformio.ini" && \
+        grep -Fq -- '-DNODEBUG_WEBSOCKETS' "$awtrix3_dir/platformio.ini" && \
+        grep -Fq -- '-DWEBSOCKETS_TCP_TIMEOUT=1000' "$awtrix3_dir/platformio.ini" && \
+        grep -Fq 'extra_scripts = pre:../tools/patch_websockets_272.py' "$awtrix3_dir/platformio.ini" && \
+        grep -Fq 'src_filter = +<*> -<AwtrixLightRuntime.cpp> -<AwtrixLightWebSocket.cpp>' "$awtrix3_dir/platformio.ini" && \
+        ! grep -Fq 'board_build.partitions' "$awtrix3_dir/platformio.ini"
+      ;;
     *)
       return 1
       ;;

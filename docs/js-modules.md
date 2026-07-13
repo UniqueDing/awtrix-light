@@ -130,6 +130,20 @@ Device settings persistence.
 
 - `saveDeviceSettings()` saves API settings and legacy settings from the settings page.
 
+## runtime-transport.js
+
+Singleton Live Runtime transport loaded after shared auth/state and before all runtime consumers. It bootstraps WebSocket v1 through authenticated `POST /api/runtime/session`, keeps the token in memory, sends binary protocol packets, owns preview/button subscriptions, and falls back to the lease-based HTTP runtime without changing the Live app API.
+
+- Client packet types: `AUTH 0x01`, `CLAIM 0x02`, `RELEASE 0x03`, `DRAW_FRAME 0x04`, `SUBSCRIBE 0x05`, and `PING 0x06`.
+- Server packet types: `READY 0x81`, `ACK 0x82`, `ERROR 0x83`, `SCREEN_RGB 0x84`, `BUTTON_EDGE 0x85`, `BUTTON_SNAPSHOT 0x86`, and `PONG 0x87`.
+- Protocol version is `1`; request IDs, generations, and event sequences are big-endian.
+- The bootstrap token is decoded to 16 raw AUTH bytes and is never placed in a URL or browser storage.
+- `runtimeTransport.claim()`, `.frame()`, `.release()`, and `.enableButtons()` select exactly one transport.
+- WebSocket requests have bounded ACK deadlines; a timeout closes the socket and discards stale queued frames before fallback.
+- HTTP fallback claims are single-flight and a frame is never posted until the current owner has a lease.
+- Button snapshots establish a big-endian uint32 sequence baseline; duplicate or older queued edges are ignored with wrap-safe comparison.
+- Unload sends a lease-bearing HTTP release beacon when possible, otherwise closes WebSocket ownership for firmware-side disconnect release.
+
 ## cast-runtime.js
 
 Runtime API used by browser-controlled Live apps and interactive demo.

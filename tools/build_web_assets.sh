@@ -68,6 +68,7 @@ build_app_js() {
     settings-collect.js
     legacy-save.js
     device-save.js
+    runtime-transport.js
     cast-runtime.js
     cast-tools.js
     cast-preview.js
