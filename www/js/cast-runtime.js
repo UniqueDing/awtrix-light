@@ -1,4 +1,12 @@
 function createCastAppApi(app) {
+  let dialogLabel = (value, key) =>
+    value === app[key] ? localizedField(app, key, localLabel(value)) : localLabel(value);
+  let componentId = (value) => {
+    let id = String(value || "");
+    if (!/^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/.test(id))
+      throw Error("invalid component id");
+    return id;
+  };
   let api = {
     app,
     get lang() {
@@ -15,7 +23,7 @@ function createCastAppApi(app) {
       hideFooterExport();
       currentApp = "__cast_external__" + app.id;
       E.sheetTitle.textContent =
-        this.label(desc.title) || castAppName(app) || "";
+        dialogLabel(desc.title, "name") || castAppName(app) || "";
       E.sheetStatus.textContent = "";
       E.secondaryAction.style.display = "none";
       E.saveSettings.style.display = "none";
@@ -33,85 +41,129 @@ function createCastAppApi(app) {
             await this.release();
           } finally {
             E.sheet.classList.remove("show");
-            if (window.currentCastAppApi === this) window.currentCastAppApi = null;
+            if (window["currentCastAppApi"] === this)
+              window["currentCastAppApi"] = null;
           }
           if (closeError) throw closeError;
         })();
         return this._closing;
       };
-      window.currentCastAppApi = this;
-      let html = '<section class="settings-card">';
-      if (desc.hint)
-        html += '<p class="hint">' + this.label(desc.hint) + "</p>";
+      window["currentCastAppApi"] = this;
+      E.fields.innerHTML = "";
+      this._controlElements = {};
+      this._configElements = {};
+      this._configLabels = {};
+      this._displayElements = {};
+      let main = document.createElement("section");
+      main.className = "settings-card";
+      if (desc.hint) {
+        let hint = document.createElement("p");
+        hint.className = "hint";
+        hint.dataset.castHint = "1";
+        hint.textContent = dialogLabel(desc.hint, "description");
+        main.appendChild(hint);
+      }
       if (desc.display && desc.display.type === "text") {
-        let init = desc.display.initial || "";
-        let id = "__cast_disp_" + (desc.display.id || "v");
-        html += '<h3 id="' + id + '" class="cast-display">' + init + "</h3>";
+        let displayId = componentId(desc.display.id || "v"),
+          display = document.createElement("h3");
+        display.id = "__cast_disp_" + displayId;
+        display.className = "cast-display";
+        display.textContent = desc.display.initial || "";
+        main.appendChild(display);
+        this._displayElements[displayId] = display;
       }
       if (desc.controls && desc.controls.length) {
-        html += '<div class="live-actions">';
+        let actions = document.createElement("div");
+        actions.className = "live-actions";
         desc.controls.forEach((c) => {
-          let cls =
+          let id = componentId(c.id),
+            button = document.createElement("button"),
+            cls =
             c.style === "danger"
               ? "danger"
               : c.style === "tonal"
                 ? "tonal"
                 : "primary";
-          html +=
-            '<button id="__cast_ctrl_' +
-            c.id +
-            '" class="' +
-            cls +
-            '" type="button">' +
-            this.label(c.label) +
-            "</button>";
+          button.id = "__cast_ctrl_" + id;
+          button.className = cls;
+          button.type = "button";
+          button.textContent = this.label(c.label);
+          actions.appendChild(button);
+          this._controlElements[id] = button;
         });
-        html += "</div>";
+        main.appendChild(actions);
       }
-      html += "</section>";
+      E.fields.appendChild(main);
       if (desc.config && desc.config.length) {
-        html += '<section class="settings-card"><h4>' + t.settings + "</h4>";
+        let configSection = document.createElement("section"),
+          configTitle = document.createElement("h4");
+        configSection.className = "settings-card";
+        configTitle.dataset.castSettings = "1";
+        configTitle.textContent = t.settings;
+        configSection.appendChild(configTitle);
         desc.config.forEach((c) => {
-          let v = c.value !== undefined ? c.value : "";
-          html +=
-            '<div class="field"><label>' + this.label(c.label) + "</label>";
+          let id = componentId(c.id),
+            value = c.value !== undefined ? c.value : "",
+            field = document.createElement("div"),
+            label = document.createElement("label"),
+            input = document.createElement("input");
+          field.className = "field";
+          label.textContent = this.label(c.label);
+          field.appendChild(label);
           if (c.type === "checkbox" || c.type === "bool") {
-            html +=
-              '<label class="switch"><input id="__cast_cfg_' +
-              c.id +
-              '" type="checkbox" ' +
-              (v ? "checked" : "") +
-              '><span class="slider"></span></label>';
+            let toggle = document.createElement("label"),
+              slider = document.createElement("span");
+            toggle.className = "switch";
+            input.type = "checkbox";
+            input.checked = !!value;
+            slider.className = "slider";
+            toggle.appendChild(input);
+            toggle.appendChild(slider);
+            field.appendChild(toggle);
           } else {
-            html +=
-              '<input id="__cast_cfg_' +
-              c.id +
-              '" type="' +
-              (c.type || "text") +
-              '" value="' +
-              esc(v) +
-              '">';
+            input.type = c.type || "text";
+            input.value = value;
+            field.appendChild(input);
           }
-          html += "</div>";
+          input.id = "__cast_cfg_" + id;
+          configSection.appendChild(field);
+          this._configElements[id] = input;
+          this._configLabels[id] = label;
         });
-        html += "</section>";
+        E.fields.appendChild(configSection);
       }
-      E.fields.innerHTML = html;
       this.rootEl = E.fields;
-      desc.controls.forEach((c) => {
+      (desc.controls || []).forEach((c) => {
         if (c.action) {
-          let btn = this.rootEl.querySelector("#__cast_ctrl_" + c.id);
+          let btn = this._controlElements[componentId(c.id)];
           if (btn) btn.onclick = (e) => c.action(api, e);
         }
       });
       E.sheet.classList.add("show");
       return E.fields;
     },
+    rerenderDialog() {
+      let desc = this._desc;
+      if (!desc || !this.rootEl) return;
+      E.sheetTitle.textContent = dialogLabel(desc.title, "name") || castAppName(app) || "";
+      let hint = this.rootEl.querySelector("[data-cast-hint]");
+      if (hint) hint.textContent = dialogLabel(desc.hint, "description");
+      let settingsTitle = this.rootEl.querySelector("[data-cast-settings]");
+      if (settingsTitle) settingsTitle.textContent = t.settings;
+      (desc.controls || []).forEach((c) => {
+        let el = this._controlElements[componentId(c.id)];
+        if (el) el.textContent = this.label(c.label);
+      });
+      (desc.config || []).forEach((c) => {
+        let el = this._configLabels[componentId(c.id)];
+        if (el) el.textContent = this.label(c.label);
+      });
+    },
     getConfig() {
       let cfg = {};
       if (this._desc && this._desc.config) {
         this._desc.config.forEach((c) => {
-          let el = document.getElementById("__cast_cfg_" + c.id);
+          let el = this._configElements[componentId(c.id)];
           if (!el) return;
           if (c.type === "checkbox" || c.type === "bool")
             cfg[c.id] = el.checked;
@@ -122,7 +174,7 @@ function createCastAppApi(app) {
       return cfg;
     },
     updateDisplay(id, val) {
-      let el = document.getElementById("__cast_disp_" + id);
+      let el = this._displayElements[componentId(id)];
       if (el) el.textContent = val;
     },
     status(msg, err) {
@@ -169,13 +221,13 @@ function createCastAppApi(app) {
       let keyMap = {};
       if (desc && desc.controls)
         desc.controls.forEach((c) => {
-          if (c.key) keyMap[c.key] = "__cast_ctrl_" + c.id;
+          if (c.key) keyMap[c.key] = componentId(c.id);
         });
       if (this._buttonHandler) runtimeTransport.disableButtons(this._buttonHandler);
       this._buttonHandler = (key) => {
         let id = keyMap[key];
         if (id && self.rootEl) {
-          let btn = self.rootEl.querySelector("#" + id);
+          let btn = self._controlElements[id];
           if (btn) btn.click();
         }
       };

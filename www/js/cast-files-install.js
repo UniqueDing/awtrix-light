@@ -88,6 +88,16 @@ function installedCastApps() {
     .map((id) => map[id])
     .filter(Boolean);
 }
+let castUninstallDialog = null;
+
+function rerenderCastUninstallDialog() {
+  if (!castUninstallDialog || currentApp !== "__cast_uninstall__") return;
+  E.sheetTitle.textContent = castUi("uninstallTitle");
+  castUninstallDialog.title.textContent = castAppName(castUninstallDialog.app);
+  castUninstallDialog.hint.textContent = castUi("uninstallHint");
+  E.secondaryAction.textContent = castUi("cancel");
+  E.saveSettings.textContent = castUi("uninstall");
+}
 async function writeCastFile(path, text, type) {
   let blob = new Blob([text], {
       type: type || "text/plain",
@@ -152,6 +162,8 @@ async function installCastApp(id, btn) {
         manifestUrl: manifestResolved,
         storeBase: manifestBase,
       });
+      catalogApp = mergeLocalizationMetadata(catalogApp, app);
+      catalogApp = mergeLocalizationMetadata(catalogApp, manifestApp);
       if (!validCastId(catalogApp.id)) throw Error("invalid app id");
       if (!isCompatibleVersion(catalogApp, storeFirmwareVersion))
         throw Error(incompatibleText(catalogApp));
@@ -226,10 +238,14 @@ function uninstallCastApp(id) {
   section.appendChild(hint);
   E.fields.appendChild(section);
   E.secondaryAction.style.display = "";
-  E.secondaryAction.textContent = "取消";
-  E.secondaryAction.onclick = () => E.sheet.classList.remove("show");
+  E.secondaryAction.textContent = castUi("cancel");
+  E.secondaryAction.onclick = () => {
+    E.saveSettings.onclick = saveAppSettings;
+    E.sheet.classList.remove("show");
+  };
   E.saveSettings.style.display = "";
-  E.saveSettings.textContent = "卸载";
+  E.saveSettings.textContent = castUi("uninstall");
+  castUninstallDialog = { id, app, title, hint };
   E.saveSettings.onclick = async () => {
     try {
       let next = Object.assign({}, await loadCastInstalledMap());

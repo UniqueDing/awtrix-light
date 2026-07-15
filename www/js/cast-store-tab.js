@@ -10,19 +10,16 @@ function renderCastAppStore() {
   let renderCastGrid = () => {
     let input = $("storeSearchInput"),
       filter = input ? input.value.toLowerCase() : "",
-      active = $("storeTags") && $("storeTags").querySelector(".active"),
-      tag = active && active.dataset ? active.dataset.tag : "all";
+      tag = liveStoreTag;
     E.storeGrid.innerHTML = "";
     let visible = castStoreCatalog.filter((app) => {
       let appTags = app.tags || [];
       if (tag !== "all" && !appTags.includes(tag)) return false;
       if (filter) {
-        let name = castAppName(app).toLowerCase(),
-          desc = castAppDescription(app).toLowerCase(),
+        let text = localizedSearchText(app),
           tags = appTags.join(" ").toLowerCase();
         if (
-          !name.includes(filter) &&
-          !desc.includes(filter) &&
+          !text.includes(filter) &&
           !tags.includes(filter)
         )
           return false;
@@ -76,10 +73,11 @@ function renderCastAppStore() {
   let makeTag = (box, l, v) => {
     let b = document.createElement("button");
     b.type = "button";
-    b.className = "tonal store-tag" + (v === "all" ? " active" : "");
+    b.className = "tonal store-tag" + (v === liveStoreTag ? " active" : "");
     b.textContent = l;
     b.dataset.tag = v;
     b.onclick = () => {
+      liveStoreTag = b.dataset.tag;
       box
         .querySelectorAll(".store-tag")
         .forEach((x) => x.classList.remove("active"));
@@ -103,8 +101,7 @@ function renderCastAppStore() {
       let sorted = Object.keys(counts).sort(
           (a, b) => counts[b] - counts[a] || a.localeCompare(b),
         ),
-        active = tags.querySelector(".store-tag.active"),
-        activeTag = active && active.dataset ? active.dataset.tag : "all",
+        activeTag = liveStoreTag,
         shown = castTagsExpanded ? sorted : sorted.slice(0, limit);
       if (
         !castTagsExpanded &&
@@ -113,6 +110,12 @@ function renderCastAppStore() {
         !shown.includes(activeTag)
       )
         shown = shown.concat(activeTag);
+      if (
+        activeTag !== "all" &&
+        castStoreCatalog.length &&
+        !sorted.includes(activeTag)
+      )
+        liveStoreTag = activeTag = "all";
       tags.innerHTML = "";
       tags.appendChild(makeTag(tags, t.all, "all"));
       shown.forEach((t) => tags.appendChild(makeTag(tags, t, t)));
