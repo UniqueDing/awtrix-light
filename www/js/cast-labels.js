@@ -1,14 +1,10 @@
 let activeStoreKind = "app",
   activeLibraryKind = "app";
-function localLabel(v, f) {
-  let d = v && typeof v === "object" ? v : null;
-  return d ? d[lang] || d.en || d.zh || f || "" : v || f || "";
-}
 function castAppName(app) {
-  return localLabel(app && app.name, (app && app.id) || "");
+  return localizedField(app, "name", (app && app.id) || "");
 }
 function castAppDescription(app) {
-  return localLabel(app && app.description, "");
+  return localizedField(app, "description", "");
 }
 function castUi(k) {
   let m = {
@@ -20,6 +16,9 @@ function castUi(k) {
       uninstallTitle: "卸载 Live",
       uninstallHint:
         "确定要从我的应用中卸载这个 Live 吗？可以之后从应用商店重新安装。",
+      cancel: "取消",
+      uninstall: "卸载",
+      open: "打开",
       empty: "还没有安装 Live，请到应用商店 > Live 安装。",
     },
     en: {
@@ -32,6 +31,9 @@ function castUi(k) {
       uninstallTitle: "Uninstall Live",
       uninstallHint:
         "Remove this Live app from My Apps? You can reinstall it from the app store later.",
+      cancel: "Cancel",
+      uninstall: "Uninstall",
+      open: "Open",
       empty: "No Live apps installed yet. Install one from App Store > Live.",
     },
   };
