@@ -1,5 +1,6 @@
 async function loadStore() {
   let requestId = ++storeLoadRequestId;
+  rerenderRegularStore = null;
   storeLoaded = true;
   let source = selectedStoreSource(),
     storeUrl = storeManifestUrl(source.url);
@@ -15,9 +16,16 @@ async function loadStore() {
         loadedUrl = loaded.url,
         base = storeBase(loadedUrl);
       if (requestId !== storeLoadRequestId) return;
-      castStoreCatalog = normalizeLiveStoreList(data, base);
+      let list = normalizeLiveStoreList(data, base);
+      if (!Array.isArray(list)) throw Error("invalid live app store response");
+      castStoreCatalog = list;
       await loadCastInstalledMap();
       if (requestId !== storeLoadRequestId) return;
+      let sourceKey = storeSourceKey(source.url);
+      if (liveStoreSourceKey !== sourceKey) {
+        liveStoreTag = "all";
+        liveStoreSourceKey = sourceKey;
+      }
       renderCastAppStore();
       setStatus(
         E.storeStatus,
@@ -46,6 +54,11 @@ async function loadStore() {
     if (requestId !== storeLoadRequestId) return;
     if (!list || (!Array.isArray(list) && !list.flow))
       throw Error("invalid app store response");
+    let sourceKey = storeSourceKey(source.url);
+    if (regularStoreSourceKey !== sourceKey) {
+      regularStoreTag = "all";
+      regularStoreSourceKey = sourceKey;
+    }
     let installedList = Array.isArray(installed) ? installed : [],
       sourceLabel = source.name || loadedUrl,
       installedNames = new Set(installedList.map((a) => a && a.name)),
@@ -61,7 +74,7 @@ async function loadStore() {
     let doStoreRender = () => {
       E.storeGrid.innerHTML = "";
       let filter = $("storeSearchInput").value.toLowerCase();
-      let tag = $("storeTags").querySelector(".active")?.dataset?.tag || "all";
+      let tag = regularStoreTag;
       let compact = filter || tag !== "all";
       E.storeGrid.classList.toggle("store-grid-compact", false);
       let items = Array.isArray(list)
@@ -94,8 +107,7 @@ async function loadStore() {
       }
     };
     let matchStoreFilter = (item, q) =>
-      appName(item, 0).toLowerCase().includes(q) ||
-      (item.description || "").toLowerCase().includes(q) ||
+      localizedSearchText(item).includes(q) ||
       (item.tags || []).join(" ").toLowerCase().includes(q);
     let renderStoreTags = () => {
       let box = $("storeTags");
@@ -112,13 +124,17 @@ async function loadStore() {
       let sorted = Object.keys(counts).sort(
         (a, b) => counts[b] - counts[a] || a.localeCompare(b),
       );
+      if (regularStoreTag !== "all" && !sorted.includes(regularStoreTag))
+        regularStoreTag = "all";
       let make = (l, v) => {
         let b = document.createElement("button");
         b.type = "button";
-        b.className = "tonal store-tag" + (v === "all" ? " active" : "");
+        b.className =
+          "tonal store-tag" + (v === regularStoreTag ? " active" : "");
         b.textContent = l;
         b.dataset.tag = v;
         b.onclick = () => {
+          regularStoreTag = b.dataset.tag;
           box
             .querySelectorAll(".store-tag")
             .forEach((x) => x.classList.remove("active"));
@@ -129,8 +145,7 @@ async function loadStore() {
         return b;
       };
       let render = () => {
-        let active = box.querySelector(".store-tag.active"),
-          activeTag = active && active.dataset ? active.dataset.tag : "all",
+        let activeTag = regularStoreTag,
           shown = expanded ? sorted : sorted.slice(0, limit);
         if (
           !expanded &&
@@ -171,6 +186,7 @@ async function loadStore() {
       items.forEach((item) => {
         let row = document.createElement("article");
         let name = appName(item, 0),
+          displayName = appDisplayName(item, 0),
           id = item.id || name,
           manifest =
             item.manifest ||
@@ -181,9 +197,9 @@ async function loadStore() {
         row.innerHTML =
           '<div class="app-icon"></div><div class="name"></div><div class="meta"></div><button class="primary" type="button"></button>';
         setIcon(row.querySelector(".app-icon"), item.icon || name, base);
-        row.querySelector(".name").textContent = name;
+        row.querySelector(".name").textContent = displayName;
         row.querySelector(".meta").textContent =
-          item.description || t.localJson;
+          appDisplayDescription(item) || t.localJson;
         let btn = row.querySelector("button"),
           installedVersion = installedAppVersion(installedMap, id, name),
           compatible = isCompatibleVersion(item, storeFirmwareVersion),
@@ -224,6 +240,11 @@ async function loadStore() {
       appendItems(grid, items);
       E.storeGrid.appendChild(s);
     };
+    rerenderRegularStore = () => {
+      renderStoreSourceBar();
+      renderStoreTags();
+      doStoreRender();
+    };
     renderStoreTags();
     doStoreRender();
     setStatus(
@@ -256,12 +277,17 @@ async function installApp(item, btn, name, quiet) {
     let appRes = await rawFetch(manifestUrl, { cache: "no-store" });
     if (!appRes.ok) throw Error("download failed");
     let payload = await appRes.json(),
-      installName = payload.name || item.name || item.id || name;
+      installName =
+        item.id ||
+        (typeof payload.name === "string" && payload.name) ||
+        (typeof item.name === "string" && item.name) ||
+        name;
     if (!isCompatibleVersion(payload, storeFirmwareVersion)) throw Error(incompatibleText(payload));
     if (payload.version === undefined && item.version !== undefined)
       payload.version = item.version;
     if (!installName) throw Error("missing app name");
     await installIconForApp(payload, item, storeBase(manifestUrl));
+    payload = mergeLocalizationMetadata(payload, item);
     payload = withDisplayCompatibility(payload);
     payload.save = true;
     let r = await fetch(
@@ -282,7 +308,8 @@ async function installApp(item, btn, name, quiet) {
       let row = btn.closest(".store-row");
       if (row) row.classList.add("installed");
     }
-    if (!quiet) setStatus(E.storeStatus, name + " " + t.installed, false);
+    if (!quiet)
+      setStatus(E.storeStatus, appDisplayName(item, 0) + " " + t.installed, false);
     libraryLoaded = false;
     return true;
   } catch (e) {

@@ -9,7 +9,12 @@ const LEGACY_STORE_SELECTED_KEY = "awtrixStoreUrl";
 const STORE_MIGRATED_KEY = "awtrixStoreSourcesMigratedV2";
 const FALLBACK_STORE_SOURCE = { name: "fallback", url: "/api/app-store" };
 let storeFirmwareVersion = "",
-  storeLoadRequestId = 0;
+  storeLoadRequestId = 0,
+  rerenderRegularStore = null,
+  regularStoreTag = "all",
+  regularStoreSourceKey = "",
+  liveStoreTag = "all",
+  liveStoreSourceKey = "";
 
 function isStaleStoreSource(url) {
   return (
@@ -187,7 +192,15 @@ function resolveStoreUrl(path, base) {
 
 function normalizeLiveStoreList(data, base) {
   let grouped = data && data.apps && !Array.isArray(data.apps) ? data.apps : {},
-    list = grouped.live || [];
+    groupedList = Array.isArray(grouped.live) ? grouped.live : [],
+    topLevelList = data && Array.isArray(data.castApps) ? data.castApps : [],
+    seen = new Set(),
+    list = groupedList.concat(topLevelList).filter((app) => {
+      let id = app && app.id;
+      if (id && seen.has(id)) return false;
+      if (id) seen.add(id);
+      return true;
+    });
   return list.map((app) => {
     let next = Object.assign({}, app);
     next.storeBase = base;
