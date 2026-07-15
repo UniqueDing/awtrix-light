@@ -2,6 +2,7 @@ function addField(f, item, parent) {
   parent = parent || E.fields;
   let wrap = document.createElement("div");
   wrap.className = "field";
+  wrap.dataset.fieldKey = f[0];
   let src = f[3] === "legacy" ? "legacy" : "api",
     val =
       src === "legacy"
@@ -97,6 +98,7 @@ function addField(f, item, parent) {
   input.dataset.type = f[2];
   input.dataset.source = src;
   let label = document.createElement("label");
+  label.className = "field-title";
   label.textContent = f[1];
   if (f[4]) {
     let labelRow = document.createElement("div");
@@ -105,6 +107,7 @@ function addField(f, item, parent) {
     let help = document.createElement("button");
     help.type = "button";
     help.className = "help-btn";
+    help.dataset.fieldHelp = "1";
     help.textContent = "?";
     help.title = f[4];
     help.setAttribute("aria-label", f[1] + ":" + f[4]);
@@ -122,7 +125,102 @@ function addField(f, item, parent) {
   parent.appendChild(wrap);
 }
 
+let regularSettingsDialog = null;
+
+function regularSettingsFields(name, item) {
+  let fields = appSettingFields()[name] || [],
+    commonFields = [];
+  if (
+    item.type === "custom" ||
+    item.type === "flow" ||
+    item.type === "animation"
+  ) {
+    let inputFields = Array.isArray(item.inputs)
+        ? item.inputs.map((input) => [
+            "input_" + input.id,
+            localizedField(input, "label", input.id),
+            input.type === "number" ? "number" : "text",
+            undefined,
+            localizedField(input, "description", ""),
+          ])
+        : item.bilibiliUid !== undefined
+          ? [["bilibiliUid", t.uid, "text"]]
+          : [],
+      sourceFields = Array.isArray(item.sources)
+        ? item.sources.map((source) => [
+            "source_" + source.id + "_interval",
+            (source.id || "source") + " " + t.interval,
+            "number",
+          ])
+        : [],
+      animationFields =
+        item.type === "animation" && item.animation
+          ? [
+              ["animation_fps", "FPS", "number"],
+              ["animation_repeat", t.repeatCount, "number"],
+            ]
+          : [];
+    commonFields = settingsDisplayFields();
+    fields =
+      item.type === "animation"
+        ? animationFields.concat([["displayDuration", t.duration, "number"]])
+        : inputFields.concat(sourceFields, animationFields);
+  }
+  return { fields, commonFields };
+}
+
+function relabelField(field) {
+  let wrap = Array.from(E.fields.querySelectorAll("[data-field-key]")).find(
+    (candidate) => candidate.dataset.fieldKey === field[0],
+  );
+  if (!wrap) return;
+  let label = wrap.querySelector(".field-title"),
+    help = wrap.querySelector("[data-field-help]"),
+    input = wrap.querySelector("input,select");
+  if (label) label.textContent = field[1];
+  if (help) {
+    help.title = field[4] || "";
+    help.setAttribute("aria-label", field[1] + ":" + (field[4] || ""));
+    help.onclick = () => openInputHelpDialog(field[1], field[4] || "");
+  }
+  let options =
+    field[2] === "checkbox"
+      ? boolOptions()
+      : field[2] === "segmented" || field[2] === "select"
+        ? field[3] || []
+        : [];
+  if (input && input.tagName === "SELECT")
+    Array.from(input.options).forEach((option, index) => {
+      if (options[index]) option.textContent = options[index][1];
+    });
+  else
+    wrap.querySelectorAll(".segmented button").forEach((button, index) => {
+      if (options[index]) button.textContent = options[index][1];
+    });
+}
+
+function rerenderRegularSettingsDialog() {
+  if (!regularSettingsDialog || currentApp !== regularSettingsDialog.name) return;
+  let name = regularSettingsDialog.name,
+    item = regularSettingsDialog.item,
+    descriptors = regularSettingsFields(name, item);
+  E.sheetTitle.textContent = appDisplayName(item, 0) + " " + t.appSettings;
+  E.saveSettings.textContent = t.saveSettings;
+  if (item.type === "custom" || item.type === "flow")
+    E.secondaryAction.textContent = t.editApp;
+  let refresh = E.fields.querySelector("[data-settings-refresh]");
+  if (refresh) refresh.textContent = t.refresh;
+  let exportBtn = E.exportAction;
+  if (exportBtn && exportBtn.style.display !== "none") exportBtn.textContent = t.exportJson;
+  let summary = E.fields.querySelector(".advanced-settings summary");
+  if (summary) summary.textContent = t.commonSettings;
+  descriptors.fields.concat(descriptors.commonFields).forEach(relabelField);
+  let empty = E.fields.querySelector("[data-settings-empty]");
+  if (empty) empty.textContent = t.noFields;
+}
+
 function openInputHelpDialog(label, description) {
+  regularSettingsDialog = null;
   hideFooterExport();
   E.secondaryAction.style.display = "none";
   E.saveSettings.style.display = "";
@@ -139,10 +237,12 @@ function openInputHelpDialog(label, description) {
 }
 
 function openGlobalDisplaySettings() {
+  regularSettingsDialog = null;
   E.secondaryAction.style.display = "none";
   hideFooterExport();
   E.saveSettings.style.display = "";
   E.saveSettings.textContent = t.saveSettings;
+  E.saveSettings.onclick = saveAppSettings;
   currentApp = "__global__";
   E.sheetTitle.textContent = t.appSettings;
   E.sheetStatus.textContent = "";
@@ -151,7 +251,6 @@ function openGlobalDisplaySettings() {
   E.sheet.classList.add("show");
 }
 async function loadSavedCustomPayload(name, item) {
-  if (!item) return item;
   try {
     let savedRes = await fetch("/api/custom?name=" + encodeURIComponent(name), {
         cache: "no-store",
@@ -165,7 +264,7 @@ async function loadSavedCustomPayload(name, item) {
       ).catch(() => null);
       if (fileRes && fileRes.ok) saved = await fileRes.json();
     }
-    return Object.assign({}, item, saved || {});
+    return saved ? Object.assign({}, item || {}, saved) : item;
   } catch (e) {
     return item;
   }
@@ -207,10 +306,12 @@ async function exportCustomAppJson(name, item) {
 }
 
 async function openSettings(name) {
+  regularSettingsDialog = null;
   E.secondaryAction.style.display = "none";
   hideFooterExport();
   E.saveSettings.style.display = "";
   E.saveSettings.textContent = t.saveSettings;
+  E.saveSettings.onclick = saveAppSettings;
   currentApp = name;
   E.sheetTitle.textContent = name + " " + t.appSettings;
   E.sheetStatus.textContent = "";
@@ -219,10 +320,12 @@ async function openSettings(name) {
   E.sheet.classList.add("show");
   let item = (apps || []).find((a) => appName(a, 0) === name) || {};
   item = await loadSavedCustomPayload(name, item);
+  E.sheetTitle.textContent = appDisplayName(item, 0) + " " + t.appSettings;
   if (name === "Time") await loadLegacySettings();
   E.fields.innerHTML = "";
-  let fields = appSettingFields()[name] || [],
-    commonFields = [];
+  let descriptors = regularSettingsFields(name, item),
+    fields = descriptors.fields,
+    commonFields = descriptors.commonFields;
   if (
     item.type === "custom" ||
     item.type === "flow" ||
@@ -241,6 +344,7 @@ async function openSettings(name) {
       refreshCard.className = "settings-card";
       refreshBtn.type = "button";
       refreshBtn.className = "tonal";
+      refreshBtn.dataset.settingsRefresh = "1";
       refreshBtn.textContent = t.refresh;
       refreshBtn.onclick = () => refreshCustomApp(name, refreshBtn, E.sheetStatus);
       refreshCard.appendChild(refreshBtn);
@@ -249,39 +353,14 @@ async function openSettings(name) {
     exportBtn.style.display = "";
     exportBtn.textContent = t.exportJson;
     exportBtn.onclick = () => exportCustomAppJson(name, item);
-    let inputFields = Array.isArray(item.inputs)
-        ? item.inputs.map((x) => [
-            "input_" + x.id,
-            x.label || x.id,
-            x.type === "number" ? "number" : "text",
-            undefined,
-            x.description || "",
-          ])
-        : item.bilibiliUid !== undefined
-          ? [["bilibiliUid", t.uid, "text"]]
-          : [],
-      sourceFields = Array.isArray(item.sources)
-        ? item.sources.map((x) => [
-            "source_" + x.id + "_interval",
-            (x.id || "source") + " " + t.interval,
-            "number",
-          ])
-        : [],
-      animationFields =
-        item.type === "animation" && item.animation
-          ? [
-              ["animation_fps", "FPS", "number"],
-              ["animation_repeat", t.repeatCount, "number"],
-            ]
-          : [];
-    commonFields = settingsDisplayFields();
-    fields =
-      item.type === "animation"
-        ? animationFields.concat([["displayDuration", t.duration, "number"]])
-        : inputFields.concat(sourceFields, animationFields);
   }
+  regularSettingsDialog = { name, item };
   if (!fields.length && !commonFields.length) {
-    E.fields.innerHTML += '<p class="hint">' + t.noFields + "</p>";
+    let empty = document.createElement("p");
+    empty.className = "hint";
+    empty.dataset.settingsEmpty = "1";
+    empty.textContent = t.noFields;
+    E.fields.appendChild(empty);
     E.sheet.classList.add("show");
     return;
   }

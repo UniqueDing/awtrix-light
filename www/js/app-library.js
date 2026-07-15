@@ -48,14 +48,42 @@ async function loadLibrary() {
   libraryLoaded = true;
   if (apps && apps.length) renderLibrary();
   try {
-    let appRes = await fetch("/api/apps", { cache: "no-store" });
-    apps = await appRes.json();
-    let setRes = await fetch("/api/settings", { cache: "no-store" });
+    let [appRes, setRes] = await Promise.all([
+      fetch("/api/apps", { cache: "no-store" }),
+      fetch("/api/settings", { cache: "no-store" }),
+    ]);
+    apps = await enrichInstalledApps(await appRes.json());
     settings = await setRes.json();
     renderLibrary();
   } catch (e) {
     setStatus(E.libraryStatus, e.message, true);
   }
+}
+
+async function enrichInstalledApps(list) {
+  return await Promise.all(
+    (Array.isArray(list) ? list : []).map(async (item) => {
+      if (
+        !item ||
+        (item.type !== "custom" && item.type !== "flow" && item.type !== "animation")
+      )
+        return item;
+      let key = appName(item, 0),
+        saved = await loadSavedCustomPayload(key, null);
+      if (!saved) return item;
+      let next = mergeLocalizationMetadata(item, saved);
+      next.appKey = key;
+      next.enabled = item.enabled;
+      next.type =
+        saved.type === "animation" &&
+        saved.animation &&
+        typeof saved.animation === "object"
+          ? "animation"
+          : item.type;
+      if (item.icon !== undefined) next.icon = item.icon;
+      return next;
+    }),
+  );
 }
 
 function renderLibrary() {
@@ -78,14 +106,16 @@ function renderLibrary() {
       let row = document.createElement("article");
       row.className = "row cast-row";
       row.innerHTML =
-        '<div class="app-icon"></div><div><div class="name"></div><div class="meta"></div></div><button class="trash" type="button" title="卸载"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15M10 10v7M14 10v7"/></svg></button><button class="settings-btn" type="button" title="打开"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7-11-7Z"/></svg></button>';
+        '<div class="app-icon"></div><div><div class="name"></div><div class="meta"></div></div><button class="trash" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15M10 10v7M14 10v7"/></svg></button><button class="settings-btn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7-11-7Z"/></svg></button>';
       setIcon(row.querySelector(".app-icon"), app.icon);
       row.querySelector(".name").textContent = castAppName(app);
       row.querySelector(".meta").textContent = castAppDescription(app);
+      row.querySelector(".trash").title = t.uninstall;
       row.querySelector(".trash").onclick = (e) => {
         e.stopPropagation();
         uninstallCastApp(app.id);
       };
+      row.querySelector(".settings-btn").title = castUi("open");
       row.querySelector(".settings-btn").onclick = (e) => {
         e.stopPropagation();
         openCastApp(app.id);
@@ -103,6 +133,7 @@ function renderLibrary() {
   }
   flowApps.forEach((item, index) => {
     let name = appName(item, index),
+      localizedName = appDisplayName(item, index),
       enabled = item.enabled !== false,
       row = document.createElement("article");
     row.className = "row" + (enabled ? "" : " disabled");
@@ -119,10 +150,10 @@ function renderLibrary() {
         : item.type === "flow"
           ? "Flow"
           : "";
-    let displayName = suffix ? name + " · " + suffix : name;
+    let displayName = suffix ? localizedName + " · " + suffix : localizedName;
     row.querySelector(".name").textContent = displayName;
     let meta = row.querySelector(".meta");
-    meta.textContent = item.description || "";
+    meta.textContent = appDisplayDescription(item);
     meta.style.display = meta.textContent ? "block" : "none";
     let settingsBtn = row.querySelector(".settings-btn");
     settingsBtn.onclick = (e) => {
