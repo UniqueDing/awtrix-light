@@ -14,8 +14,7 @@ function bindUiHandlers() {
       lang = t.langToggleShort;
       localStorage.awtrixLang = lang;
       applyLang();
-      storeLoaded = false;
-      loadStore();
+      rerenderLocalizedUi();
     };
   }
   if (E.closeSheet) {
