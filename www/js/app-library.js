@@ -1,3 +1,6 @@
+let libraryLoadRequestId = 0,
+  pendingAppToggles = new Map();
+
 function appSettingFields() {
   return {
     Time: [
@@ -29,33 +32,32 @@ function appSettingFields() {
 function isRefreshableApp(item) {
   return item && (item.type === "custom" || item.type === "flow");
 }
-function isMissingRequired(item) {
-  return (
-    item &&
-    item.integration === "bilibili" &&
-    String(item.bilibiliUid || "").trim() === ""
-  );
-}
 function enabledAppPosition(name) {
   let position = 0;
-  for (let item of apps || []) {
-    if (appName(item, 0) === name) return position;
-    if (!item || item.enabled !== false) position++;
+  for (let item of apps) {
+    if (appName(item, 0) === name) break;
+    position += !item || item.enabled !== false;
   }
   return position;
 }
-async function loadLibrary() {
+async function loadLibrary(options) {
+  let requestId = ++libraryLoadRequestId;
   libraryLoaded = true;
-  if (apps && apps.length) renderLibrary();
+  apps.length && options?.renderCached !== false && renderLibrary();
   try {
     let [appRes, setRes] = await Promise.all([
       fetch("/api/apps", { cache: "no-store" }),
       fetch("/api/settings", { cache: "no-store" }),
     ]);
-    apps = await enrichInstalledApps(await appRes.json());
-    settings = await setRes.json();
+    let nextApps = await enrichInstalledApps(await appRes.json()),
+      nextSettings = await setRes.json();
+    if (requestId !== libraryLoadRequestId) return;
+    apps = nextApps;
+    settings = nextSettings;
     renderLibrary();
   } catch (e) {
+    if (requestId !== libraryLoadRequestId) return;
+    libraryLoaded = false;
     setStatus(E.libraryStatus, e.message, true);
   }
 }
@@ -126,7 +128,7 @@ function renderLibrary() {
     return;
   }
   E.libraryList.innerHTML = "";
-  let flowApps = (Array.isArray(apps) ? apps : []).filter((a) => a && a);
+  let flowApps = apps;
   if (!flowApps.length) {
     setStatus(E.libraryStatus, t.count + 0 + t.countEnd, false);
     return;
@@ -134,7 +136,8 @@ function renderLibrary() {
   flowApps.forEach((item, index) => {
     let name = appName(item, index),
       localizedName = appDisplayName(item, index),
-      enabled = item.enabled !== false,
+      pending = pendingAppToggles.has(name),
+      enabled = pending ? pendingAppToggles.get(name) : item.enabled !== false,
       row = document.createElement("article");
     row.className = "row" + (enabled ? "" : " disabled");
     row.innerHTML =
@@ -172,6 +175,7 @@ function renderLibrary() {
     let sw = row.querySelector(".switch"),
       input = row.querySelector("input");
     input.checked = enabled;
+    input.disabled = pending;
     sw.onclick = (e) => e.stopPropagation();
     input.onclick = (e) => e.stopPropagation();
     input.onchange = (e) => {
@@ -239,40 +243,42 @@ async function saveOrder() {
 }
 
 async function toggleApp(name, show) {
-  let item = (apps || []).find((a) => appName(a, 0) === name) || {};
-  if (show && isMissingRequired(item)) {
+  let item = apps.find((a) => appName(a, 0) === name) || {};
+  if (pendingAppToggles.has(name)) return;
+  if (show && item.integration === "bilibili" && !String(item.bilibiliUid || "").trim()) {
     openSettings(name);
     setStatus(E.sheetStatus, t.uidRequired, true);
     loadLibrary();
     return;
   }
+  pendingAppToggles.set(name, show);
+  renderLibrary();
   setStatus(E.libraryStatus, t.updating, false);
   try {
-    let key = nativeKeys[name];
-    if (key) {
-      let body = {};
-      body[key] = show;
-      let r = await fetch("/api/settings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (!r.ok) throw Error("settings failed");
-    }
-    let r2 = await fetch("/api/apps", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify([
-        { name: name, show: show, pos: show ? enabledAppPosition(name) : 0 },
-      ]),
-    });
-    if (!r2.ok) throw Error("app update failed");
+    let key = nativeKeys[name],
+      post = async (url, body, error) => {
+        let response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        if (!response.ok) throw Error(error);
+      };
+    if (key) await post("/api/settings", { [key]: show }, "settings failed");
+    await post(
+      "/api/apps",
+      [{ name, show, pos: show ? enabledAppPosition(name) : 0 }],
+      "app update failed",
+    );
     libraryLoaded = false;
-    await loadLibrary();
+    await loadLibrary({ renderCached: false });
     setStatus(E.libraryStatus, t.updated, false);
   } catch (e) {
     setStatus(E.libraryStatus, e.message, true);
     libraryLoaded = false;
-    loadLibrary();
+    await loadLibrary({ renderCached: false });
+  } finally {
+    pendingAppToggles.delete(name);
+    renderLibrary();
   }
 }

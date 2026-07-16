@@ -3,9 +3,37 @@
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const vm = require("node:vm");
+const zlib = require("node:zlib");
 
 function source(name) {
   return fs.readFileSync("www/js/" + name, "utf8");
+}
+
+function testGeneratedUiHasNoDebugBadge() {
+  const markers = [
+    "DBG-20260701-2105",
+    "DBG-20260701-2052",
+    "UI_DEBUG_BUILD",
+    "debugBuildBadge",
+    "showDebugBuildBadge",
+  ];
+  const assets = [
+    "www/app.css.min",
+    "www/app.js.min",
+    "awtrix3/www/app.css.min",
+    "awtrix3/www/app.js.min",
+  ];
+  for (const asset of assets) {
+    const content = fs.readFileSync(asset, "utf8");
+    for (const marker of markers)
+      assert.equal(content.includes(marker), false, `${asset} contains ${marker}`);
+  }
+
+  const header = fs.readFileSync("awtrix3/src/web_assets.h", "utf8");
+  const bytes = [...header.matchAll(/0x([0-9a-f]{2})/gi)].map((match) => Number.parseInt(match[1], 16));
+  const shell = zlib.gunzipSync(Buffer.from(bytes)).toString("utf8");
+  for (const marker of markers)
+    assert.equal(shell.includes(marker), false, `embedded app shell contains ${marker}`);
 }
 
 function load(code, extra) {
@@ -753,7 +781,168 @@ async function testLiveStoreTagPersistsUntilSourceChanges() {
   assert.deepEqual(writes, [], "Live tag selection does not persist to localStorage");
 }
 
+function deferred() {
+  let resolve, reject;
+  return {
+    promise: new Promise((nextResolve, nextReject) => {
+      resolve = nextResolve;
+      reject = nextReject;
+    }),
+    resolve,
+    reject,
+  };
+}
+
+function libraryLoadContext(fetch, renders, statuses) {
+  return load(
+    "let apps=[{name:'cached',enabled:true}],settings={version:'cached'},libraryLoaded=false;" +
+      "let E={libraryStatus:{},sheetStatus:{}}; let t={};" +
+      source("app-library.js") +
+      "\nfunction renderLibrary(){renders.push({apps:apps,settings:settings})}" +
+      "\nthis.api={load:loadLibrary,apps:()=>apps,settings:()=>settings,loaded:()=>libraryLoaded};",
+    {
+      fetch,
+      renders,
+      statuses,
+      enrichInstalledApps: async (items) => items,
+      setStatus(_element, message, error) { statuses.push({ message, error }); },
+    },
+  );
+}
+
+async function testLibraryLoadsIgnoreOutOfOrderAndStaleFailures() {
+  const requests = [];
+  const renders = [];
+  const statuses = [];
+  const context = libraryLoadContext((url) => {
+    const request = deferred();
+    requests.push({ url, request });
+    return request.promise;
+  }, renders, statuses);
+
+  const first = context.api.load({ renderCached: false });
+  const second = context.api.load({ renderCached: false });
+  assert.deepEqual(requests.map((request) => request.url), [
+    "/api/apps", "/api/settings", "/api/apps", "/api/settings",
+  ]);
+
+  requests[2].request.resolve({ json: async () => [{ name: "new", enabled: false }] });
+  requests[3].request.resolve({ json: async () => ({ version: "new" }) });
+  await second;
+  requests[0].request.resolve({ json: async () => [{ name: "old", enabled: true }] });
+  requests[1].request.resolve({ json: async () => ({ version: "old" }) });
+  await first;
+
+  assert.equal(context.api.apps()[0].name, "new");
+  assert.equal(context.api.settings().version, "new");
+  assert.equal(context.api.loaded(), true, "authoritative success marks the library loaded");
+  assert.equal(renders.length, 1, "only the authoritative load renders");
+  assert.deepEqual(statuses, []);
+
+  const staleFailureRequests = [];
+  const staleFailureRenders = [];
+  const staleFailureStatuses = [];
+  const staleFailure = libraryLoadContext((url) => {
+    const request = deferred();
+    staleFailureRequests.push({ url, request });
+    return request.promise;
+  }, staleFailureRenders, staleFailureStatuses);
+  const failed = staleFailure.api.load({ renderCached: false });
+  const authoritative = staleFailure.api.load({ renderCached: false });
+  staleFailureRequests[2].request.resolve({ json: async () => [{ name: "authoritative" }] });
+  staleFailureRequests[3].request.resolve({ json: async () => ({ version: "authoritative" }) });
+  await authoritative;
+  staleFailureRequests[0].request.reject(Error("stale load failed"));
+  await failed;
+
+  assert.equal(staleFailure.api.apps()[0].name, "authoritative");
+  assert.equal(staleFailure.api.loaded(), true, "stale failure preserves a newer successful load");
+  assert.equal(staleFailureRenders.length, 1);
+  assert.deepEqual(staleFailureStatuses, [], "stale failures are silent");
+
+  const authoritativeFailureRequests = [];
+  const authoritativeFailure = libraryLoadContext((url) => {
+    const request = deferred();
+    authoritativeFailureRequests.push({ url, request });
+    return request.promise;
+  }, [], []);
+  const failedAuthoritatively = authoritativeFailure.api.load({ renderCached: false });
+  authoritativeFailureRequests[0].request.reject(Error("authoritative load failed"));
+  await failedAuthoritatively;
+  assert.equal(authoritativeFailure.api.loaded(), false, "authoritative failure permits a later library retry");
+}
+
+function libraryRowDocument() {
+  const document = testDocument();
+  const createElement = document.createElement.bind(document);
+  document.createElement = (tag) => {
+    const element = createElement(tag);
+    if (tag !== "article") return element;
+    const selectors = {};
+    Object.defineProperty(element, "innerHTML", {
+      set(value) {
+        if (!value.includes('type="checkbox"')) return;
+        [".app-icon", ".name", ".meta", ".settings-btn", ".trash", ".switch", "input", ".up", ".down"].forEach((selector) => {
+          selectors[selector] = createElement(selector === "input" ? "input" : "div");
+        });
+      },
+      get() { return ""; },
+    });
+    element.querySelector = (selector) => selectors[selector] || null;
+    return element;
+  };
+  return document;
+}
+
+async function testPendingLibraryTogglePreventsDuplicatesAndPreservesTarget() {
+  const document = libraryRowDocument();
+  const requests = [];
+  const nativeSettings = deferred();
+  const appMutation = deferred();
+  const context = load(
+    "let apps=[{name:'native-clock',enabled:false,type:'native'}],settings={},libraryLoaded=true,activeLibraryKind='app';" +
+      "let E={libraryStatus:{},sheetStatus:{},libraryList:testList,liveAppsPanel:{style:{}}};" +
+      "let t={count:'',countEnd:'',updating:'Updating',updated:'Updated'}; let nativeKeys={'native-clock':'CLOCK'};" +
+      "function renderAppKindTabs(){} function setIcon(){} function appName(item){return item.name} function appDisplayName(item){return item.name}" +
+      "function appDisplayDescription(){return ''} function installedCastApps(){return []} function castUi(){return ''} function openSettings(){}" +
+      source("app-library.js") +
+      "\nthis.api={render:renderLibrary,toggle:toggleApp};",
+    {
+      document,
+      testList: document.createElement("div"),
+      fetch(url, options) {
+        requests.push({ url, options });
+        if (url === "/api/settings" && options && options.method === "POST") return nativeSettings.promise;
+        if (url === "/api/apps" && options && options.method === "POST") return appMutation.promise;
+        if (url === "/api/apps") return Promise.resolve({ json: async () => [{ name: "native-clock", enabled: true, type: "native" }] });
+        return Promise.resolve({ json: async () => ({}) });
+      },
+      enrichInstalledApps: async (items) => items,
+      setStatus() {},
+    },
+  );
+
+  context.api.render();
+  const firstToggle = context.api.toggle("native-clock", true);
+  const pendingInput = context.testList.children[0].querySelector("input");
+  assert.equal(pendingInput.checked, true, "pending control shows requested state");
+  assert.equal(pendingInput.disabled, true, "pending control is disabled");
+  const duplicateToggle = context.api.toggle("native-clock", false);
+  await duplicateToggle;
+  assert.deepEqual(requests.map((request) => request.url), ["/api/settings"], "duplicate toggle submits nothing");
+
+  nativeSettings.resolve({ ok: true });
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.deepEqual(requests.map((request) => request.url), ["/api/settings", "/api/apps"], "native requests retain settings then apps ordering");
+  appMutation.resolve({ ok: true });
+  await firstToggle;
+  const finalInput = context.testList.children[0].querySelector("input");
+  assert.equal(finalInput.checked, true);
+  assert.equal(finalInput.disabled, false, "control is re-enabled after completion");
+}
+
 async function run() {
+  testGeneratedUiHasNoDebugBadge();
   testUnifiedFallbacksAndIdentity();
   testRegularCatalogDescriptionsMatchManifests();
   testStoreAndInstalledLabels();
@@ -771,6 +960,8 @@ async function run() {
   await testFailedStoreLoadClearsRerenderClosure();
   await testRegularStoreTagSurvivesLiveRoundTrip();
   await testLiveStoreTagPersistsUntilSourceChanges();
+  await testLibraryLoadsIgnoreOutOfOrderAndStaleFailures();
+  await testPendingLibraryTogglePreventsDuplicatesAndPreservesTarget();
   console.log("app localization tests: ok");
 }
 
