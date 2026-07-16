@@ -1,6 +1,6 @@
 function renderSettingsTabs(target) {
   let labels = settingTabLabels(),
-    order = ["device", "network", "integrations", "auth", "files"],
+    order = ["device", "network", "integrations", "auth", "files", "about"],
     tabs = document.createElement("div"),
     active = E.filesPanel.classList.contains("active")
       ? "files"

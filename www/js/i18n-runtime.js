@@ -20,6 +20,8 @@ function rerenderLocalizedUi() {
     else if (rerenderRegularStore) rerenderRegularStore();
   }
   if (libraryLoaded) renderLibrary();
+  if (E.settingsPanel && E.settingsPanel.classList.contains("active"))
+    renderDeviceSettings();
   rerenderRegularSettingsDialog();
   rerenderRegularUninstallDialog();
   rerenderCastUninstallDialog();

@@ -77,7 +77,12 @@ function renderDeviceSettings() {
     legacySection = Object.values(legacySection).flat();
   E.settingsGrid.innerHTML = "";
   renderSettingsTabs();
+  E.saveDeviceSettings.style.display = settingsSection === "about" ? "none" : "";
   E.settingsEmpty.style.display = "none";
+  if (settingsSection === "about") {
+    renderAboutCard();
+    return;
+  }
   if (settingsSection === "network")
     renderWifiSetupCard(E.settingsGrid, "settings");
   renderGroupCards(apiSection || [], "api");

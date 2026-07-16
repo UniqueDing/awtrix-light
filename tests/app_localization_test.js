@@ -132,6 +132,7 @@ class TestElement {
   }
   set innerHTML(value) {
     assert.equal(value, "", "tests only allow clearing DOM with innerHTML");
+    this.children.forEach((child) => { child.parentNode = null; });
     this.children = [];
   }
   get innerHTML() { return ""; }
@@ -249,11 +250,12 @@ function testLanguageRerenderDispatch() {
   const context = load(
     "const I={zh:{langCode:'zh-CN'},en:{langCode:'en'}};" +
       "let storeLoaded=true,libraryLoaded=true,activeStoreKind='app';" +
-      "let E={sheet:{classList:{contains:()=>true}}};" +
+       "let E={sheet:{classList:{contains:()=>true}},settingsPanel:{classList:{contains:()=>true}}};" +
       "let document={documentElement:{},querySelectorAll:()=>[]};" +
        "function $(id){return null} function refreshCastLabels(){calls.push('labels')}" +
        "function renderCastAppStore(){calls.push('cast-store')} function renderLibrary(){calls.push('library')}" +
-       "function rerenderRegularSettingsDialog(){calls.push('settings-dialog')}" +
+        "function rerenderRegularSettingsDialog(){calls.push('settings-dialog')}" +
+        "function renderDeviceSettings(){calls.push('device-settings')}" +
        "function rerenderRegularUninstallDialog(){calls.push('app-uninstall')}" +
        "function rerenderCastUninstallDialog(){calls.push('cast-uninstall')}" +
        "let rerenderRegularStore=()=>calls.push('app-store');" +
@@ -264,9 +266,147 @@ function testLanguageRerenderDispatch() {
   context.window.currentCastAppApi = { rerenderDialog: () => calls.push("dialog") };
   context.run();
   assert.deepEqual(calls, [
-    "labels", "app-store", "library", "settings-dialog", "app-uninstall",
+    "labels", "app-store", "library", "device-settings", "settings-dialog", "app-uninstall",
     "cast-uninstall", "dialog",
   ]);
+}
+
+async function testAboutSettingsTabRendersFetchedVersion() {
+  const translations = JSON.parse(fs.readFileSync("www/i18n.json", "utf8"));
+  assert.equal(translations.zh.about, "关于");
+  assert.equal(translations.en.about, "About");
+  const document = testDocument();
+  const settingsGrid = document.createElement("div");
+  const requests = [];
+  const context = load(
+    "let settingsSection='about',settings={},legacySettings={};" +
+      "let t={device:'设备',network:'网络',integrations:'集成',auth:'账号',files:'文件',about:'关于',firmwareVersion:'固件版本',loadingSettings:'加载中...',versionLoadFailed:'无法加载固件版本'};" +
+      source("settings-tabs-labels.js") + source("settings-tabs-render.js") +
+      source("settings-render-about.js") + source("settings-render-wifi.js") +
+      "\nthis.render=renderDeviceSettings;",
+    {
+      document,
+      E: {
+        settingsGrid,
+        settingsEmpty: { style: {} },
+        settingsStatus: {},
+        saveDeviceSettings: { style: {} },
+        filesPanel: { classList: { contains: () => false } },
+      },
+      deviceSettingGroups: () => ({}),
+      legacySettingGroups: () => ({}),
+      fetch: async (url, options) => {
+        requests.push({ url, options });
+        return { ok: true, text: async () => "<b>0.98.1-light</b>" };
+      },
+      setStatus(element, message, error) {
+        element.textContent = message;
+        element.className = error ? "status error" : "status";
+      },
+    },
+  );
+
+  context.render();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.deepEqual(
+    settingsGrid.querySelectorAll(".settings-tab").map((tab) => tab.textContent),
+    ["设备", "网络", "集成", "账号", "文件", "关于"],
+  );
+  assert.equal(requests.length, 1);
+  assert.equal(requests[0].url, "/version");
+  assert.equal(requests[0].options.cache, "no-store");
+  const card = settingsGrid.querySelector(".settings-card");
+  assert.equal(card.querySelector("label").textContent, "固件版本");
+  assert.equal(card.querySelector("output").textContent, "<b>0.98.1-light</b>");
+  assert.equal(card.children.length, 3, "version text is assigned without parsing markup");
+  assert.equal(context.E.saveDeviceSettings.style.display, "none");
+}
+
+async function testAboutVersionRequestSurvivesRerendersAndSwitches() {
+  const document = testDocument();
+  const settingsGrid = document.createElement("div");
+  const versionRequest = deferred();
+  const requests = [];
+  const settingsPanel = { classList: { contains: () => true } };
+  const filesPanel = { classList: { contains: () => false } };
+  const context = load(
+    "let settingsSection='about',settings={},legacySettings={};" +
+      "let t={device:'Device',network:'Network',integrations:'Integrations',auth:'Accounts',files:'Files',about:'About',firmwareVersion:'Firmware version',loadingSettings:'Loading...',versionLoadFailed:'Unable to load firmware version'};" +
+      source("settings-tabs-labels.js") + source("settings-tabs-render.js") +
+      source("settings-render-about.js") + source("settings-render-wifi.js") +
+      "\nthis.api={render:renderDeviceSettings,languageRerender:()=>{t={device:'Device',network:'Network',integrations:'Integrations',auth:'Accounts',files:'Files',about:'About',firmwareVersion:'Firmware version',loadingSettings:'Loading...',versionLoadFailed:'Unable to load firmware version'};renderDeviceSettings()},switch:(section)=>{settingsSection=section;renderDeviceSettings();}};",
+    {
+      document,
+      E: {
+        settingsGrid,
+        settingsEmpty: { style: {} },
+        settingsStatus: {},
+        saveDeviceSettings: { style: {} },
+        settingsPanel,
+        filesPanel,
+      },
+      deviceSettingGroups: () => ({}),
+      legacySettingGroups: () => ({}),
+      fetch(url, options) {
+        requests.push({ url, options });
+        return requests.length === 1
+          ? versionRequest.promise
+          : Promise.resolve({ ok: true, text: async () => "0.98.2-light" });
+      },
+      setStatus(element, message, error) {
+        element.textContent = message;
+        element.className = error ? "status error" : "status";
+      },
+    },
+  );
+
+  const cards = [];
+  context.api.render();
+  cards.push(settingsGrid.querySelector(".settings-card"));
+  context.api.render();
+  cards.push(settingsGrid.querySelector(".settings-card"));
+  context.api.languageRerender();
+  cards.push(settingsGrid.querySelector(".settings-card"));
+  assert.equal(requests.length, 1, "settings and language rerenders share one in-flight version request");
+  assert.equal(requests[0].url, "/version");
+  assert.equal(requests[0].options.cache, "no-store");
+
+  context.api.switch("device");
+  versionRequest.reject(Error("version failed"));
+  await new Promise((resolve) => setImmediate(resolve));
+  cards.forEach((card) => {
+    assert.equal(card.querySelector("output").textContent, "Loading...", "detached About cards are not updated");
+    assert.equal(card.querySelector(".status").textContent, "", "detached About cards show no stale failure");
+  });
+
+  context.api.switch("about");
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(requests.length, 2, "a new About visit fetches after the shared request settles");
+  assert.equal(settingsGrid.querySelector("output").textContent, "0.98.2-light");
+}
+
+async function testAboutVersionLoadFailureUsesLocalizedStatus() {
+  const document = testDocument();
+  const settingsGrid = document.createElement("div");
+  const context = load(
+    "let settingsSection='about',t={about:'About',firmwareVersion:'Firmware version',loadingSettings:'Loading...',versionLoadFailed:'Unable to load firmware version'};" +
+      source("settings-render-about.js") + "\nthis.render=renderAboutCard;",
+    {
+      document,
+      E: { settingsGrid },
+      fetch: async () => ({ ok: false, text: async () => "not found" }),
+      setStatus(element, message, error) {
+        element.textContent = message;
+        element.className = error ? "status error" : "status";
+      },
+    },
+  );
+
+  context.render();
+  await new Promise((resolve) => setImmediate(resolve));
+  const card = settingsGrid.querySelector(".settings-card");
+  assert.equal(card.querySelector(".status").textContent, "Unable to load firmware version");
+  assert.equal(card.querySelector(".status").className, "status error");
 }
 
 function testStoreSearchPlaceholderRelabelsWithoutChangingValue() {
@@ -947,6 +1087,9 @@ async function run() {
   testRegularCatalogDescriptionsMatchManifests();
   testStoreAndInstalledLabels();
   testLanguageRerenderDispatch();
+  await testAboutSettingsTabRendersFetchedVersion();
+  await testAboutVersionRequestSurvivesRerendersAndSwitches();
+  await testAboutVersionLoadFailureUsesLocalizedStatus();
   testStoreSearchPlaceholderRelabelsWithoutChangingValue();
   testInstallMergeLocalization();
   testLegacyLiveDialogRerender();

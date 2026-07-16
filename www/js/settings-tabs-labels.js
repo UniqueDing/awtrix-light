@@ -6,5 +6,6 @@ function settingTabLabels() {
     integrations: t.integrations,
     auth: t.auth,
     files: t.files,
+    about: t.about,
   };
 }
