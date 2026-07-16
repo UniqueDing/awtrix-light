@@ -64,6 +64,7 @@ build_app_js() {
     settings-tabs-render.js
     settings-field.js
     settings-render-wifi.js
+    settings-render-about.js
     settings-load-save.js
     settings-collect.js
     legacy-save.js
