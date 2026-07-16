@@ -111,7 +111,7 @@ build_app_js() {
     cat "$js_dir/$file" >> "$tmp"
   done
 
-  npx terser "$tmp" --compress --mangle --output "$out"
+  npx terser "$tmp" --compress passes=3 --mangle --output "$out"
   rm -f "$tmp"
   print_built "$out"
 }
@@ -188,7 +188,14 @@ embed_assets() {
     s|<script src="/www/app\.js\.min\?v=[^"]+"></script>|<script>$js</script>|;
     s|<script src="/www/app\.js\.min"></script>|<script>$js</script>|;
   ' "$css" "$js" "$html" > "$tmp_html"
-  gzip -n -9 -c "$tmp_html" > "$tmp_gz"
+  python3 - "$tmp_html" "$tmp_gz" <<'PY'
+import sys
+import zlib
+
+data = open(sys.argv[1], "rb").read()
+stream = zlib.compressobj(9, zlib.DEFLATED, 31, memLevel=6)
+open(sys.argv[2], "wb").write(stream.compress(data) + stream.flush())
+PY
 
   {
     printf '#pragma once\n#include <Arduino.h>\n\n'
