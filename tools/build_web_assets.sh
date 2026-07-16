@@ -205,8 +205,14 @@ PY
     od -An -tx1 -v "$tmp_gz" | while read -r line; do
       [ -z "$line" ] && continue
       printf '  '
-      for byte in $line; do printf '0x%s, ' "$byte"; done
-      printf '\n'
+       first=1
+       for byte in $line; do
+         if [ "$first" -eq 0 ]; then printf ', '; fi
+         printf '0x%s' "$byte"
+         first=0
+       done
+       printf ','
+       printf '\n'
     done
     printf '};\n'
     printf 'static const size_t app_html_gz_len = sizeof(app_html_gz);\n'
