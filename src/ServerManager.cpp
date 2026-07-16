@@ -3,7 +3,6 @@
 #include <WebServer.h>
 #include <esp-fs-webserver.h>
 #include <Update.h>
-#include <ESPmDNS.h>
 #include <LittleFS.h>
 #include <WiFi.h>
 #include "DisplayManager.h"
@@ -120,6 +119,98 @@ static void uninstallCustomApp()
     }
 
     mws.webserver->send(200, F("application/json"), F("{\"success\":true}"));
+}
+
+static void sendIntegrationResult(int status, const char *body)
+{
+    mws.webserver->send(status, "application/json", body);
+}
+
+static bool integrationString(JsonDocument &doc, const char *key, String &value, size_t maximum)
+{
+    if (!doc[key].is<const char *>())
+        return false;
+    value = doc[key].as<String>();
+    value.trim();
+    return value.length() > 0 && value.length() <= maximum;
+}
+
+static void testHaIntegration()
+{
+    StaticJsonDocument<768> doc;
+    if (deserializeJson(doc, mws.webserver->arg("plain")) != DeserializationError::Ok)
+    {
+        sendIntegrationResult(400, "{\"ok\":false,\"error\":\"json\"}");
+        return;
+    }
+
+    String baseUrl;
+    String token;
+    if (!integrationString(doc, "HA Base URL", baseUrl, 160) || !integrationString(doc, "HA Token", token, 512))
+    {
+        sendIntegrationResult(400, "{\"ok\":false,\"error\":\"ha\"}");
+        return;
+    }
+    while (baseUrl.endsWith("/"))
+        baseUrl.remove(baseUrl.length() - 1);
+    if (!baseUrl.startsWith("http://"))
+    {
+        sendIntegrationResult(400, "{\"ok\":false,\"error\":\"url\"}");
+        return;
+    }
+
+    HTTPClient http;
+    WiFiClient client;
+    if (!http.begin(client, baseUrl + "/api/"))
+    {
+        sendIntegrationResult(502, "{\"ok\":false,\"error\":\"ha net\"}");
+        return;
+    }
+    http.setTimeout(5000);
+    http.addHeader("Authorization", "Bearer " + token);
+    http.addHeader("Accept", "application/json");
+    int code = http.GET();
+    http.end();
+    if (code == HTTP_CODE_OK)
+        sendIntegrationResult(200, "{\"ok\":true,\"error\":\"\"}");
+    else if (code < 0)
+        sendIntegrationResult(504, "{\"ok\":false,\"error\":\"ha timeout\"}");
+    else
+        sendIntegrationResult(502, "{\"ok\":false,\"error\":\"ha rejected\"}");
+}
+
+static void testMqttIntegration()
+{
+    StaticJsonDocument<512> doc;
+    if (deserializeJson(doc, mws.webserver->arg("plain")) != DeserializationError::Ok)
+    {
+        sendIntegrationResult(400, "{\"ok\":false,\"error\":\"json\"}");
+        return;
+    }
+
+    String broker;
+    if (!integrationString(doc, "Broker", broker, 128) || !doc["Username"].is<const char *>() ||
+        !doc["Password"].is<const char *>() || !doc["Port"].is<uint16_t>())
+    {
+        sendIntegrationResult(400, "{\"ok\":false,\"error\":\"mqtt\"}");
+        return;
+    }
+    const char *username = doc["Username"].as<const char *>();
+    const char *password = doc["Password"].as<const char *>();
+    uint16_t port = doc["Port"].as<uint16_t>();
+    if (strlen(username) > 128 || strlen(password) > 128 || port == 0)
+    {
+        sendIntegrationResult(400, "{\"ok\":false,\"error\":\"mqtt\"}");
+        return;
+    }
+
+    WiFiClient probeClient;
+    bool connected = probeClient.connect(broker.c_str(), port, 5000);
+    probeClient.stop();
+    if (connected)
+        sendIntegrationResult(200, "{\"ok\":true,\"error\":\"\"}");
+    else
+        sendIntegrationResult(502, "{\"ok\":false,\"error\":\"mqtt net\"}");
 }
 
 static String jsonEscape(const String &value)
@@ -341,6 +432,10 @@ void addHandler()
                    { DisplayManager.updateAppVector(mws.webserver->arg("plain").c_str()); mws.webserver->send(200,F("text/plain"),F("OK")); });
     mws.addHandler("/api/apps/uninstall", HTTP_POST, []()
                    { uninstallCustomApp(); });
+    mws.addHandler("/api/integrations/test-ha", HTTP_POST, []()
+                   { testHaIntegration(); });
+    mws.addHandler("/api/integrations/test-mqtt", HTTP_POST, []()
+                   { testMqttIntegration(); });
     mws.addHandler(
         "/api/switch", HTTP_POST, []()
         {
@@ -492,20 +587,6 @@ void ServerManager_::setup()
     mws.addHandler("/version", HTTP_GET, versionHandler);
     mws.begin(WEB_PORT);
     beginAwtrixLightRuntime();
-
-    if (!MDNS.begin(HOSTNAME))
-    {
-        if (DEBUG_MODE)
-            DEBUG_PRINTLN(F("Error starting mDNS"));
-    }
-    else
-    {
-        MDNS.addService("http", "tcp", 80);
-        MDNS.addService("awtrix", "tcp", 80);
-        MDNS.addServiceTxt("awtrix", "tcp", "id", uniqueID);
-        MDNS.addServiceTxt("awtrix", "tcp", "name", HOSTNAME.c_str());
-        MDNS.addServiceTxt("awtrix", "tcp", "type", "awtrix3");
-    }
 
     configTzTime(NTP_TZ.c_str(), NTP_SERVER.c_str());
     tm timeInfo;
