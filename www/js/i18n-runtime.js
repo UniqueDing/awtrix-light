@@ -52,22 +52,11 @@ function showStartup(msg) {
   if ($("startupGate")) $("startupGate").style.display = "grid";
   startup(msg);
 }
-const UI_DEBUG_BUILD = "DBG-20260701-2052";
-function showDebugBuildBadge() {
-  let el = document.getElementById("debugBuildBadge");
-  if (!el) {
-    el = document.createElement("div");
-    el.id = "debugBuildBadge";
-    document.body.appendChild(el);
-  }
-  el.textContent = UI_DEBUG_BUILD;
-}
 function startApp() {
   dbg("startApp");
   startup(t.startupReady);
   applyTheme();
   applyLang();
-  showDebugBuildBadge();
   activate(
     location.pathname === "/settings"
       ? "settings"

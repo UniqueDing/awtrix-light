@@ -237,12 +237,6 @@ body.dark .array-row select {
   animation: spin 0.8s linear infinite;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(1turn);
-  }
-}
-
 .file-path {
   font-weight: 800;
   color: var(--muted);

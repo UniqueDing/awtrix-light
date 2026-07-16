@@ -410,10 +410,6 @@
 
                                                                                 .handle{
 
-                                                                                  grid-row:auto;
-
-                                                                                  flex-direction:row;
-
                                                                                   gap:4px}
 
                                                                                   .handle .icon-btn{
@@ -428,7 +424,7 @@
 
                                                                                       align-items:stretch}
 
-                                                                                      .sheet{
+                                                                                       .sheet{
 
                                                                                         align-self:end;
 
@@ -493,10 +489,6 @@
 
                                                                                                       flex-wrap:wrap}
 
-                                                                                                      .preview-actions{
-
-                                                                                                        margin-top:8px}
-
                                                                                                         .preview-actions .tonal{
 
                                                                                                           padding:7px 14px;
@@ -517,7 +509,6 @@
 
                                                                                                                 display:grid;
 
-                                                                                                                gap:12px;
 
                                                                                                                 background:var(--surface);
 
@@ -525,9 +516,7 @@
 
                                                                                                                 box-shadow:var(--shadow);
 
-                                                                                                                padding:18px;
-
-                                                                                                                margin-bottom:14px}
+                                                                                                                }
 
                                                                                                                 .live-card h3{
 
@@ -553,15 +542,7 @@
 
                                                                                                                       display:grid;
 
-                                                                                                                      gap:14px}
-
-                                                                                                                      .row.store-app-row{
-
-                                                                                                                        grid-template-columns:42px 1fr auto}
-
-                                                                                                                        .row.store-cast-row{
-
-                                                                                                                          grid-template-columns:42px 1fr auto}
+                                                                                                                      }
 
                                                                                                                           .row.store-app-row.installed,
                                                                                                                           .row.store-cast-row.installed{
@@ -606,5 +587,3 @@
                                                                                                                                             margin-top:2px}
 
                                                                                                                                           }
-
-
