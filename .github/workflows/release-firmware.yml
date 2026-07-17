@@ -1,0 +1,59 @@
+name: Release firmware
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag (vMAJOR.MINOR.PATCH-light)
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ env.RELEASE_TAG }}
+      - name: Validate release tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-light$ ]]
+      - name: Initialize AWTRIX3 source
+        run: git submodule update --init awtrix3
+      - uses: cachix/install-nix-action@v31
+      - name: Run project tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          nix-shell shell.nix --run 'node tests/app_localization_test.js'
+          nix-shell shell.nix --run 'node tests/runtime_transport_test.js'
+          nix-shell shell.nix --run 'node tests/cast_tools_stopwatch_test.js'
+          nix-shell shell.nix --run 'python3 tests/runtime_protocol_fixture.py'
+           nix-shell shell.nix --run 'python3 tests/integrations_test_routes.py'
+           nix-shell shell.nix --run 'python3 tests/discovery_regression_test.py'
+           nix-shell shell.nix --run 'python3 tests/ota_release_contract_test.py'
+           nix-shell shell.nix --run 'python3 tests/ota_routes_test.py'
+           nix-shell shell.nix --run 'python3 tests/release_firmware_contract_test.py'
+      - name: Build and validate release artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          tools/release_firmware.sh --tag "$RELEASE_TAG" --dist dist/release
+      - name: Publish GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          GH_TOKEN="$GITHUB_TOKEN" gh release create "$RELEASE_TAG" dist/release/* --repo uniqueding/awtrix-light --title "$RELEASE_TAG" --generate-notes
