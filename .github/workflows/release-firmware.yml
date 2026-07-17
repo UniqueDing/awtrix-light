@@ -2,6 +2,8 @@ name: Release firmware
 
 on:
   push:
+    branches:
+      - '**'
     tags:
       - 'v*'
   workflow_dispatch:
@@ -11,26 +13,37 @@ on:
         required: true
         type: string
 
-permissions:
-  contents: write
-
 jobs:
-  release:
+  validation:
     runs-on: ubuntu-latest
-    env:
-      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+    permissions:
+      contents: read
+    outputs:
+      release_tag: ${{ steps.release-tag.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ env.RELEASE_TAG }}
-      - name: Validate release tag
+          ref: ${{ github.event_name == 'push' && github.ref_type == 'branch' && github.sha || (github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name) }}
+      - name: Initialize AWTRIX3 source
+        run: git submodule update --init awtrix3
+      - name: Determine release tag
+        id: release-tag
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_TYPE: ${{ github.ref_type }}
+          TRIGGER_RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
         shell: bash
         run: |
           set -euo pipefail
+          if [[ "$EVENT_NAME" == 'push' && "$REF_TYPE" == 'branch' ]]; then
+            RELEASE_TAG="v$(tr -d '[:space:]' < awtrix3/version)"
+          else
+            RELEASE_TAG="$TRIGGER_RELEASE_TAG"
+          fi
           [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-light$ ]]
-      - name: Initialize AWTRIX3 source
-        run: git submodule update --init awtrix3
+          printf 'RELEASE_TAG=%s\n' "$RELEASE_TAG" >> "$GITHUB_ENV"
+          printf 'tag=%s\n' "$RELEASE_TAG" >> "$GITHUB_OUTPUT"
       - uses: cachix/install-nix-action@v31
       - name: Run project tests
         shell: bash
@@ -40,19 +53,38 @@ jobs:
           nix-shell shell.nix --run 'node tests/runtime_transport_test.js'
           nix-shell shell.nix --run 'node tests/cast_tools_stopwatch_test.js'
           nix-shell shell.nix --run 'python3 tests/runtime_protocol_fixture.py'
-           nix-shell shell.nix --run 'python3 tests/integrations_test_routes.py'
-           nix-shell shell.nix --run 'python3 tests/discovery_regression_test.py'
-           nix-shell shell.nix --run 'python3 tests/ota_release_contract_test.py'
-           nix-shell shell.nix --run 'python3 tests/ota_routes_test.py'
-           nix-shell shell.nix --run 'python3 tests/release_firmware_contract_test.py'
+          nix-shell shell.nix --run 'python3 tests/integrations_test_routes.py'
+          nix-shell shell.nix --run 'python3 tests/discovery_regression_test.py'
+          nix-shell shell.nix --run 'python3 tests/ota_release_contract_test.py'
+          nix-shell shell.nix --run 'python3 tests/ota_routes_test.py'
+          nix-shell shell.nix --run 'python3 tests/release_firmware_contract_test.py'
       - name: Build and validate release artifacts
         shell: bash
         run: |
           set -euo pipefail
           tools/release_firmware.sh --tag "$RELEASE_TAG" --dist dist/release
+      - name: Upload validated release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-firmware
+          path: dist/release
+
+  publishing:
+    needs: validation
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref_type == 'tag') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download validated release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-firmware
+          path: dist/release
       - name: Publish GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ needs.validation.outputs.release_tag }}
         shell: bash
         run: |
           set -euo pipefail
