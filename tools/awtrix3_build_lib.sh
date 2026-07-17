@@ -59,6 +59,10 @@ awtrix3_patch_already_applied() {
         grep -Fq 'src_filter = +<*> -<AwtrixLightRuntime.cpp> -<AwtrixLightWebSocket.cpp>' "$awtrix3_dir/platformio.ini" && \
         ! grep -Fq 'board_build.partitions' "$awtrix3_dir/platformio.ini"
       ;;
+    013-webserver-upload-handler.patch)
+      grep -Fq 'void addHandler(const Uri &uri, HTTPMethod method, WebServerClass::THandlerFunction fn, WebServerClass::THandlerFunction uploadFn);' "$awtrix3_dir/lib/webserver/esp-fs-webserver.h" && \
+        grep -Fq 'webserver->on(uri, method, authMiddleware(fn), authMiddleware(uploadFn));' "$awtrix3_dir/lib/webserver/esp-fs-webserver.cpp"
+      ;;
     *)
       return 1
       ;;

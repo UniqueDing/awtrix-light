@@ -71,7 +71,8 @@ awtrix3_apply_patches "$DIR" "$A3" \
   "$DIR/patches/008-awtrix2-trim-games-web.patch" \
   "$DIR/patches/009-awtrix2-trim-effects.patch" \
   "$DIR/patches/011-runtime-display-ownership.patch" \
-  "$DIR/patches/012-runtime-websockets-platformio.patch"
+  "$DIR/patches/012-runtime-websockets-platformio.patch" \
+  "$DIR/patches/013-webserver-upload-handler.patch"
 echo "  done"
 
 echo "=== Step 3: Copy wrapper-owned source ==="

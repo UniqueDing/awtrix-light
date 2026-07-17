@@ -69,6 +69,126 @@ static bool validCustomAppName(const String &name)
     return true;
 }
 
+#if defined(ULANZI) && defined(awtrix2_upgrade)
+#error "Exactly one OTA target must be selected"
+#elif defined(ULANZI)
+static const char *const manualFirmwareTarget = "ulanzi";
+#elif defined(awtrix2_upgrade)
+static const char *const manualFirmwareTarget = "awtrix2-upgrade";
+#else
+#error "Unsupported OTA target"
+#endif
+
+static const uint32_t manualFirmwareImageLimit = 1310720;
+
+struct ManualFirmwareUpload
+{
+    uint32_t bytes = 0;
+    uint8_t files = 0;
+    bool updateStarted = false;
+    bool failed = false;
+    bool fileComplete = false;
+};
+
+static ManualFirmwareUpload manualFirmwareUpload;
+
+static bool validManualFirmwareVersion(const String &version)
+{
+    size_t offset = 0;
+    for (uint8_t part = 0; part < 3; part++)
+    {
+        size_t start = offset;
+        while (offset < version.length() && version[offset] >= '0' && version[offset] <= '9')
+            offset++;
+        if (offset == start)
+            return false;
+        if (part < 2 && (offset >= version.length() || version[offset++] != '.'))
+            return false;
+    }
+    return version.substring(offset) == "-light";
+}
+
+static bool validManualFirmwareFilename(const String &filename)
+{
+    const String prefix = "awtrix-light-";
+    const String suffix = String("-") + manualFirmwareTarget + ".bin";
+    if (!filename.startsWith(prefix) || !filename.endsWith(suffix))
+        return false;
+    return validManualFirmwareVersion(filename.substring(prefix.length(), filename.length() - suffix.length()));
+}
+
+static void failManualFirmwareUpload()
+{
+    manualFirmwareUpload.failed = true;
+    if (manualFirmwareUpload.updateStarted)
+    {
+        Update.abort();
+        manualFirmwareUpload.updateStarted = false;
+    }
+}
+
+static void handleManualFirmwareUpload()
+{
+    HTTPUpload &upload = mws.webserver->upload();
+    if (upload.status == UPLOAD_FILE_START)
+    {
+        manualFirmwareUpload.files++;
+        if (manualFirmwareUpload.files != 1 || upload.name != "firmware" || !validManualFirmwareFilename(upload.filename))
+        {
+            failManualFirmwareUpload();
+            return;
+        }
+        if (!Update.begin(manualFirmwareImageLimit, U_FLASH))
+        {
+            failManualFirmwareUpload();
+            return;
+        }
+        manualFirmwareUpload.updateStarted = true;
+        return;
+    }
+
+    if (upload.status == UPLOAD_FILE_WRITE)
+    {
+        if (manualFirmwareUpload.failed || !manualFirmwareUpload.updateStarted || Update.hasError() || upload.currentSize > manualFirmwareImageLimit - manualFirmwareUpload.bytes ||
+            Update.write(upload.buf, upload.currentSize) != upload.currentSize)
+            failManualFirmwareUpload();
+        else
+            manualFirmwareUpload.bytes += upload.currentSize;
+        return;
+    }
+
+    if (upload.status == UPLOAD_FILE_END)
+    {
+        if (manualFirmwareUpload.failed || !manualFirmwareUpload.updateStarted || Update.hasError() || manualFirmwareUpload.bytes == 0)
+            failManualFirmwareUpload();
+        else
+            manualFirmwareUpload.fileComplete = true;
+        return;
+    }
+
+    if (upload.status == UPLOAD_FILE_ABORTED)
+        failManualFirmwareUpload();
+}
+
+static void finishManualFirmwareUpload()
+{
+    if (manualFirmwareUpload.files != 1 || !manualFirmwareUpload.fileComplete || manualFirmwareUpload.failed || !manualFirmwareUpload.updateStarted || Update.hasError() ||
+        !Update.end(true))
+    {
+        failManualFirmwareUpload();
+        mws.webserver->send(400, F("application/json"), F("{\"ok\":false,\"error\":\"firmware upload failed\"}"));
+        manualFirmwareUpload = ManualFirmwareUpload();
+        return;
+    }
+
+    manualFirmwareUpload.updateStarted = false;
+    mws.webserver->client().setNoDelay(true);
+    mws.webserver->send(202, F("application/json"), F("{\"ok\":true,\"status\":\"accepted\"}"));
+    manualFirmwareUpload = ManualFirmwareUpload();
+    delay(200);
+    ESP.restart();
+}
+
 static void refreshCustomApp()
 {
     String name = mws.webserver->arg("name");
@@ -525,14 +645,29 @@ void addHandler()
                     }else{
                          mws.webserver->send(500,F("text/plain"),F("ErrorParsingJson")); 
                     } });
+    mws.addHandler("/api/update", HTTP_GET, []()
+                   {
+                    UpdateManager.checkUpdate(false);
+                    mws.webserver->send(200, F("application/json"), UpdateManager.statusJson());
+                   });
+    mws.addHandler("/api/update/target", HTTP_GET, []()
+                   {
+                    String response = String(F("{\"ok\":true,\"target\":\"")) + manualFirmwareTarget + F("\"}");
+                    mws.webserver->send(200, F("application/json"), response);
+                   });
     mws.addHandler("/api/doupdate", HTTP_POST, []()
-                   { 
-                    if (UpdateManager.checkUpdate(true)){
-                        mws.webserver->send(200,F("text/plain"),F("OK"));
-                        UpdateManager.updateFirmware();
-                    }else{
-                        mws.webserver->send(404,F("text/plain"),"NoUpdateFound");    
-                    } });
+                   {
+                    if (!UpdateManager.hasCandidate())
+                    {
+                        mws.webserver->send(409, F("application/json"), F("{\"ok\":false,\"error\":\"candidate absent\"}"));
+                        return;
+                    }
+                    mws.webserver->send(202, F("application/json"), F("{\"ok\":true,\"status\":\"starting\"}"));
+                    UpdateManager.updateFirmware();
+                   });
+    mws.addHandler("/api/update/upload", HTTP_POST, []()
+                   { finishManualFirmwareUpload(); }, []()
+                   { handleManualFirmwareUpload(); });
     mws.addHandler("/api/r2d2", HTTP_POST, []()
                    { PeripheryManager.r2d2(mws.webserver->arg("plain").c_str()); mws.webserver->send(200,F("text/plain"),F("OK")); });
     setupAwtrixLightWebRoutes(mws);
