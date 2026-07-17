@@ -280,7 +280,7 @@ async function testAboutSettingsTabRendersFetchedVersion() {
   const requests = [];
   const context = load(
     "let settingsSection='about',settings={},legacySettings={};" +
-      "let t={device:'设备',network:'网络',integrations:'集成',auth:'账号',files:'文件',about:'关于',firmwareVersion:'固件版本',loadingSettings:'加载中...',versionLoadFailed:'无法加载固件版本'};" +
+      "let t={device:'设备',network:'网络',integrations:'集成',auth:'账号',files:'文件',about:'关于',update:'更新',firmwareVersion:'固件版本',loadingSettings:'加载中...',versionLoadFailed:'无法加载固件版本'};" +
       source("settings-tabs-labels.js") + source("settings-tabs-render.js") +
       source("settings-render-about.js") + source("settings-render-wifi.js") +
       "\nthis.render=renderDeviceSettings;",
@@ -297,6 +297,8 @@ async function testAboutSettingsTabRendersFetchedVersion() {
       legacySettingGroups: () => ({}),
       fetch: async (url, options) => {
         requests.push({ url, options });
+        if (url === "/api/update/target")
+          return { ok: true, json: async () => ({ ok: true, target: "ulanzi" }) };
         return { ok: true, text: async () => "<b>0.98.1-light</b>" };
       },
       setStatus(element, message, error) {
@@ -312,13 +314,17 @@ async function testAboutSettingsTabRendersFetchedVersion() {
     settingsGrid.querySelectorAll(".settings-tab").map((tab) => tab.textContent),
     ["设备", "网络", "集成", "账号", "文件", "关于"],
   );
-  assert.equal(requests.length, 1);
-  assert.equal(requests[0].url, "/version");
-  assert.equal(requests[0].options.cache, "no-store");
-  const card = settingsGrid.querySelector(".settings-card");
-  assert.equal(card.querySelector("label").textContent, "固件版本");
-  assert.equal(card.querySelector("output").textContent, "<b>0.98.1-light</b>");
-  assert.equal(card.children.length, 3, "version text is assigned without parsing markup");
+  assert.deepEqual(requests.map((request) => request.url), ["/api/update/target", "/version"]);
+  requests.forEach((request) => assert.equal(request.options.cache, "no-store"));
+  const cards = settingsGrid.querySelectorAll(".settings-card");
+  const updateCard = cards[0];
+  const versionCard = cards[1];
+  assert.equal(cards.length, 2, "About separates identity from firmware update controls");
+  assert.equal(versionCard.querySelector("label").textContent, "固件版本");
+  assert.equal(versionCard.querySelector("output").textContent, "<b>0.98.1-light</b>");
+  assert.equal(versionCard.children.length, 3, "version identity stays isolated from update actions");
+  assert.equal(updateCard.children[0].textContent, "更新");
+  assert.equal(updateCard.children.length, 5, "firmware update card contains all update controls");
   assert.equal(context.E.saveDeviceSettings.style.display, "none");
 }
 
@@ -326,15 +332,17 @@ async function testAboutVersionRequestSurvivesRerendersAndSwitches() {
   const document = testDocument();
   const settingsGrid = document.createElement("div");
   const versionRequest = deferred();
+  const targetRequest = deferred();
   const requests = [];
+  let versionRequestCount = 0;
   const settingsPanel = { classList: { contains: () => true } };
   const filesPanel = { classList: { contains: () => false } };
   const context = load(
     "let settingsSection='about',settings={},legacySettings={};" +
-      "let t={device:'Device',network:'Network',integrations:'Integrations',auth:'Accounts',files:'Files',about:'About',firmwareVersion:'Firmware version',loadingSettings:'Loading...',versionLoadFailed:'Unable to load firmware version'};" +
+      "let t={device:'Device',network:'Network',integrations:'Integrations',auth:'Accounts',files:'Files',about:'About',update:'Update',firmwareVersion:'Firmware version',loadingSettings:'Loading...',versionLoadFailed:'Unable to load firmware version'};" +
       source("settings-tabs-labels.js") + source("settings-tabs-render.js") +
       source("settings-render-about.js") + source("settings-render-wifi.js") +
-      "\nthis.api={render:renderDeviceSettings,languageRerender:()=>{t={device:'Device',network:'Network',integrations:'Integrations',auth:'Accounts',files:'Files',about:'About',firmwareVersion:'Firmware version',loadingSettings:'Loading...',versionLoadFailed:'Unable to load firmware version'};renderDeviceSettings()},switch:(section)=>{settingsSection=section;renderDeviceSettings();}};",
+      "\nthis.api={render:renderDeviceSettings,languageRerender:()=>{t={device:'Device',network:'Network',integrations:'Integrations',auth:'Accounts',files:'Files',about:'About',update:'Update',firmwareVersion:'Firmware version',loadingSettings:'Loading...',versionLoadFailed:'Unable to load firmware version'};renderDeviceSettings()},switch:(section)=>{settingsSection=section;renderDeviceSettings();}};",
     {
       document,
       E: {
@@ -349,7 +357,8 @@ async function testAboutVersionRequestSurvivesRerendersAndSwitches() {
       legacySettingGroups: () => ({}),
       fetch(url, options) {
         requests.push({ url, options });
-        return requests.length === 1
+        if (url === "/api/update/target") return targetRequest.promise;
+        return ++versionRequestCount === 1
           ? versionRequest.promise
           : Promise.resolve({ ok: true, text: async () => "0.98.2-light" });
       },
@@ -362,16 +371,16 @@ async function testAboutVersionRequestSurvivesRerendersAndSwitches() {
 
   const cards = [];
   context.api.render();
-  cards.push(settingsGrid.querySelector(".settings-card"));
+  cards.push(settingsGrid.querySelectorAll(".settings-card")[1]);
   context.api.render();
-  cards.push(settingsGrid.querySelector(".settings-card"));
+  cards.push(settingsGrid.querySelectorAll(".settings-card")[1]);
   context.api.languageRerender();
-  cards.push(settingsGrid.querySelector(".settings-card"));
-  assert.equal(requests.length, 1, "settings and language rerenders share one in-flight version request");
-  assert.equal(requests[0].url, "/version");
-  assert.equal(requests[0].options.cache, "no-store");
+  cards.push(settingsGrid.querySelectorAll(".settings-card")[1]);
+  assert.deepEqual(requests.map((request) => request.url), ["/api/update/target", "/version"], "settings and language rerenders share in-flight local and version requests");
+  requests.forEach((request) => assert.equal(request.options.cache, "no-store"));
 
   context.api.switch("device");
+  targetRequest.reject(Error("target failed"));
   versionRequest.reject(Error("version failed"));
   await new Promise((resolve) => setImmediate(resolve));
   cards.forEach((card) => {
@@ -381,15 +390,15 @@ async function testAboutVersionRequestSurvivesRerendersAndSwitches() {
 
   context.api.switch("about");
   await new Promise((resolve) => setImmediate(resolve));
-  assert.equal(requests.length, 2, "a new About visit fetches after the shared request settles");
-  assert.equal(settingsGrid.querySelector("output").textContent, "0.98.2-light");
+  assert.deepEqual(requests.map((request) => request.url), ["/api/update/target", "/version", "/api/update/target", "/version"], "a new About visit fetches after shared local and version requests settle");
+  assert.equal(settingsGrid.querySelectorAll(".settings-card")[1].querySelector("output").textContent, "0.98.2-light");
 }
 
 async function testAboutVersionLoadFailureUsesLocalizedStatus() {
   const document = testDocument();
   const settingsGrid = document.createElement("div");
   const context = load(
-    "let settingsSection='about',t={about:'About',firmwareVersion:'Firmware version',loadingSettings:'Loading...',versionLoadFailed:'Unable to load firmware version'};" +
+    "let settingsSection='about',t={about:'About',update:'Update',firmwareVersion:'Firmware version',loadingSettings:'Loading...',versionLoadFailed:'Unable to load firmware version'};" +
       source("settings-render-about.js") + "\nthis.render=renderAboutCard;",
     {
       document,
@@ -404,9 +413,394 @@ async function testAboutVersionLoadFailureUsesLocalizedStatus() {
 
   context.render();
   await new Promise((resolve) => setImmediate(resolve));
-  const card = settingsGrid.querySelector(".settings-card");
+  const card = settingsGrid.querySelectorAll(".settings-card")[1];
   assert.equal(card.querySelector(".status").textContent, "Unable to load firmware version");
   assert.equal(card.querySelector(".status").className, "status error");
+}
+
+async function testAboutUpdateInteraction() {
+  const translations = JSON.parse(fs.readFileSync("www/i18n.json", "utf8"));
+  for (const language of ["zh", "en"])
+    [
+      "checkForUpdates", "checkingForUpdates", "noUpdateAvailable", "updateAvailable",
+      "availableFirmwareVersion", "installUpdate", "installingUpdate", "updateRestarting",
+      "updateWarning", "updateCheckFailed", "updateInstallFailed", "manualUpdate",
+      "manualUpdateExpectedName", "manualUpdateTarget",
+      "manualUpdateAcknowledge", "manualUpdateUpload", "manualUpdateInvalidFile",
+      "manualUpdateUploading", "manualUpdateRestarting", "manualUpdateFailed",
+    ].forEach((key) => assert.equal(typeof translations[language][key], "string", `${language}.${key}`));
+  for (const language of ["zh", "en"])
+    assert.equal(translations[language].manualUpdateTargetUnavailable, undefined, `${language} omits obsolete target-unavailable copy`);
+
+  const document = testDocument();
+  const settingsGrid = document.createElement("div");
+  const requests = [];
+  const check = deferred();
+  const context = load(
+    "let settingsSection='about',t={about:'About',update:'Update',firmwareVersion:'Firmware version',loadingSettings:'Loading...',versionLoadFailed:'Unable to load firmware version',checkForUpdates:'Check for updates',checkingForUpdates:'Checking for updates...',noUpdateAvailable:'Your firmware is up to date',updateAvailable:'A firmware update is available',availableFirmwareVersion:'Available firmware version',installUpdate:'Install update',installingUpdate:'Starting update...',updateRestarting:'Update accepted. The device is restarting. Do not power it off.',updateWarning:'Installing an update restarts the device. Do not power it off during the update.',updateCheckFailed:'Unable to check for updates. Please try again.',updateInstallFailed:'Unable to start the update. Please try again.'};" +
+      source("settings-render-about.js") + "\nthis.api={render:renderAboutCard};",
+    {
+      document,
+      E: { settingsGrid },
+      fetch(url, options) {
+        requests.push({ url, options });
+        if (url === "/version") return Promise.resolve({ ok: true, text: async () => "1.0.0" });
+        if (url === "/api/update/target") return Promise.resolve({ ok: true, json: async () => ({ ok: true, target: "ulanzi" }) });
+        if (url === "/api/update") return check.promise;
+        if (url === "/api/doupdate") return Promise.resolve({ status: 202 });
+        throw Error(`unexpected request ${url}`);
+      },
+      setStatus(element, message, error) {
+        element.textContent = message;
+        element.className = error ? "status error" : "status";
+      },
+    },
+  );
+
+  context.api.render();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.deepEqual(requests.map((request) => request.url), ["/api/update/target", "/version"], "opening About loads the local target and version without checking online updates");
+  const cards = settingsGrid.querySelectorAll(".settings-card");
+  const card = cards[0];
+  const versionCard = cards[1];
+  assert.equal(versionCard.querySelectorAll("button").length, 0, "version card contains no firmware update actions");
+  const buttons = card.querySelectorAll("button");
+  const checkButton = buttons[0];
+  const installButton = buttons[1];
+  checkButton.onclick();
+  checkButton.onclick();
+  assert.equal(requests.filter((request) => request.url === "/api/update").length, 1, "duplicate checks share one request");
+  assert.equal(requests[1].options.cache, "no-store");
+  assert.equal(checkButton.disabled, true);
+  check.resolve({
+    ok: true,
+    json: async () => ({ ok: true, updateAvailable: true, currentVersion: "1.0.0", availableVersion: "<b>2.0.0</b>", target: "ulanzi", error: "" }),
+  });
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(card.querySelector("output").textContent, "<b>2.0.0</b>", "update version is rendered as text");
+  assert.equal(card.querySelectorAll("select").length, 0, "the OTA target is never exposed as a selector");
+  assert.equal(installButton.disabled, false);
+  installButton.onclick();
+  installButton.onclick();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(requests.filter((request) => request.url === "/api/doupdate").length, 1, "duplicate installs submit once");
+  const installRequest = requests.find((request) => request.url === "/api/doupdate");
+  assert.equal(installRequest.options.method, "POST");
+  assert.equal("body" in installRequest.options, false, "install uses the exact bodyless POST contract");
+  assert.equal(card.querySelectorAll(".status")[0].textContent, "Update accepted. The device is restarting. Do not power it off.");
+}
+
+async function testAboutUpdateErrorsNoUpdateAndDetachedSafety() {
+  const document = testDocument();
+  const settingsGrid = document.createElement("div");
+  const checks = [
+    Promise.resolve({ ok: true, json: async () => ({ ok: true, updateAvailable: false }) }),
+    Promise.resolve({ ok: true, json: async () => ({ ok: true, updateAvailable: true, availableVersion: "2.0", target: "unsupported" }) }),
+    Promise.resolve({ ok: true, json: async () => ({ ok: true, updateAvailable: true, availableVersion: "2.0", target: "awtrix2-upgrade" }) }),
+    deferred(),
+  ];
+  let checkIndex = 0;
+  const context = load(
+    "let settingsSection='about',t={about:'About',update:'Update',firmwareVersion:'Firmware version',loadingSettings:'Loading...',versionLoadFailed:'Unable to load firmware version',checkForUpdates:'Check for updates',checkingForUpdates:'Checking for updates...',noUpdateAvailable:'Up to date',updateAvailable:'Update available',availableFirmwareVersion:'Available version',installUpdate:'Install update',installingUpdate:'Starting update...',updateRestarting:'Accepted',updateWarning:'Do not power off',updateCheckFailed:'Check failed',updateInstallFailed:'Install failed'};" +
+      source("settings-render-about.js") + "\nthis.api={render:renderAboutCard,rerender:()=>{E.settingsGrid.innerHTML='';renderAboutCard()}};",
+    {
+      document,
+      E: { settingsGrid },
+      fetch(url) {
+        if (url === "/version") return Promise.resolve({ ok: true, text: async () => "1.0" });
+        if (url === "/api/update/target") return Promise.resolve({ ok: true, json: async () => ({ ok: true, target: "ulanzi" }) });
+        if (url === "/api/update") return checks[checkIndex++];
+        if (url === "/api/doupdate") return Promise.resolve({ status: 500 });
+        throw Error("unexpected request");
+      },
+      setStatus(element, message, error) {
+        element.textContent = message;
+        element.className = error ? "status error" : "status";
+      },
+    },
+  );
+
+  context.api.render();
+  let card = settingsGrid.querySelectorAll(".settings-card")[0];
+  card.querySelector("button").onclick();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(card.querySelectorAll(".status")[0].textContent, "Up to date");
+  card.querySelector("button").onclick();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(card.querySelectorAll(".status")[0].textContent, "Update available", "manifest targets do not override the local target");
+  card.querySelector("button").onclick();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(card.querySelectorAll(".status")[0].textContent, "Update available");
+  const installButton = card.querySelectorAll("button")[1];
+  installButton.onclick();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(card.querySelectorAll(".status")[0].textContent, "Install failed", "install failures use a generic localized error");
+  assert.equal(installButton.disabled, false, "an install failure recovers the action");
+  card.querySelector("button").onclick();
+  context.api.rerender();
+  const rerenderedCard = settingsGrid.querySelectorAll(".settings-card")[0];
+  checks[3].resolve({ ok: false, json: async () => ({}) });
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(card.querySelectorAll(".status")[0].textContent, "Checking for updates...", "detached cards do not receive stale update results");
+  assert.equal(rerenderedCard.querySelectorAll(".status")[0].textContent, "Check failed", "the active rerendered card receives the current result");
+}
+
+function testManualFirmwareUpdateNarrowLayoutContract() {
+  const aboutRenderer = source("settings-render-about.js");
+  const settingsStyles = fs.readFileSync("www/css/settings.css", "utf8");
+
+  assert.match(aboutRenderer, /manualDetails\.className = "field manual-update-details"/);
+  assert.match(aboutRenderer, /acknowledgementRow\.className = "manual-update-acknowledgement"/);
+  assert.match(aboutRenderer, /acknowledgementRow\.appendChild\(acknowledgement\);/);
+  assert.match(aboutRenderer, /acknowledgementRow\.appendChild\(acknowledgementLabel\);/);
+  assert.match(aboutRenderer, /manualDetails\.appendChild\(acknowledgementRow\);/);
+  assert.match(settingsStyles, /\.manual-update-details,\s*\.manual-update-details > \*\s*\{\s*min-width: 0;/);
+  assert.match(settingsStyles, /\.manual-update-details input\[type=file\]\s*\{\s*max-width: 100%;\s*min-width: 0;/);
+  assert.match(settingsStyles, /\.manual-update-acknowledgement\s*\{\s*display: grid;\s*grid-template-columns: auto minmax\(0, 1fr\);/);
+  assert.match(settingsStyles, /\.manual-update-details > output,[\s\S]*?\.manual-update-acknowledgement label\s*\{\s*overflow-wrap: anywhere;/);
+}
+
+function testSettingsCheckboxToggleFieldLayout() {
+  const document = testDocument();
+  const card = document.createElement("section");
+  const context = load(
+    "let settings={MATP:true,BRI:42},legacySettings={};" +
+      "function boolOptions(){return [['on','On'],['off','Off']]}" +
+      "function hex(value){return value}" +
+      source("settings-field.js") +
+      "\nthis.add=addSettingsField;",
+    { document },
+  );
+
+  context.add(card, ["MATP", "Matrix power", "checkbox"], "api");
+  context.add(card, ["BRI", "Brightness", "number"], "api");
+
+  const toggleField = card.children[0];
+  const regularField = card.children[1];
+  const hiddenInput = toggleField.children[1];
+  const segmented = toggleField.children[2];
+  assert.equal(toggleField.className, "field toggle-field");
+  assert.equal(toggleField.children[0].tagName, "LABEL");
+  assert.equal(hiddenInput.type, "hidden");
+  assert.equal(hiddenInput.dataset.key, "MATP");
+  assert.equal(hiddenInput.dataset.type, "checkbox");
+  assert.equal(hiddenInput.dataset.source, "api");
+  assert.equal(segmented.className, "segmented");
+  assert.equal(segmented.parentNode, toggleField, "label and segmented control share the toggle wrapper");
+  segmented.children[1].onclick();
+  assert.equal(hiddenInput.value, "off", "segmented clicks retain checkbox state updates");
+  assert.equal(regularField.className, "field", "non-checkbox fields keep their existing wrapper");
+
+  const settingsStyles = fs.readFileSync("www/css/settings.css", "utf8");
+  assert.match(settingsStyles, /\.field\.toggle-field\s*\{\s*display: grid;\s*grid-template-columns: minmax\(0, 1fr\) auto;/);
+  assert.match(settingsStyles, /\.field\.toggle-field label\s*\{\s*min-width: 0;\s*overflow-wrap: anywhere;/);
+  assert.match(settingsStyles, /@media \(max-width: 420px\)\s*\{\s*\.field\.toggle-field\s*\{\s*grid-template-columns: 1fr;/);
+  assert.doesNotMatch(settingsStyles, /\.field:has\(\.segmented\)/);
+}
+
+async function testManualFirmwareUploadInteraction() {
+  const document = testDocument();
+  const settingsGrid = document.createElement("div");
+  const requests = [];
+  const uploads = [deferred(), deferred()];
+  let uploadIndex = 0;
+  const formDataEntries = [];
+  const context = load(
+    "let settingsSection='about',t={about:'About',update:'Update',firmwareVersion:'Firmware version',loadingSettings:'Loading...',versionLoadFailed:'Version failed',checkForUpdates:'Check',checkingForUpdates:'Checking',noUpdateAvailable:'Up to date',updateAvailable:'Available',availableFirmwareVersion:'Available version',installUpdate:'Install',installingUpdate:'Installing',updateRestarting:'Restarting',updateWarning:'Do not power off',updateCheckFailed:'Check failed',updateInstallFailed:'Install failed',manualUpdate:'Manual firmware update',manualUpdateExpectedName:'Filename format',manualUpdateTarget:'Device target',manualUpdateAcknowledge:'I acknowledge the file must match this device and the update restarts it.',manualUpdateUpload:'Upload and update',manualUpdateInvalidFile:'Invalid file',manualUpdateUploading:'Uploading',manualUpdateRestarting:'Upload accepted; restarting',manualUpdateFailed:'Upload failed'};" +
+      source("settings-render-about.js") + "\nthis.api={render:renderAboutCard,rerender:()=>{E.settingsGrid.innerHTML='';renderAboutCard()}};",
+    {
+      document,
+      E: { settingsGrid },
+      FormData: class {
+        append(name, value) { formDataEntries.push([name, value]); }
+      },
+      fetch(url, options) {
+        requests.push({ url, options });
+        if (url === "/version") return Promise.resolve({ ok: true, text: async () => "1.0.0" });
+        if (url === "/api/update/target") return Promise.resolve({ ok: true, json: async () => ({ ok: true, target: "ulanzi" }) });
+        if (url === "/api/update/upload") return uploads[uploadIndex++].promise;
+        throw Error(`unexpected request ${url}`);
+      },
+      setStatus(element, message, error) {
+        element.textContent = message;
+        element.className = error ? "status error" : "status";
+      },
+    },
+  );
+
+  context.api.render();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.deepEqual(requests.map((request) => request.url), ["/api/update/target", "/version"], "opening About loads only local device data without checking updates");
+  const cards = settingsGrid.querySelectorAll(".settings-card");
+  const card = cards[0];
+  const versionCard = cards[1];
+  const manual = card.children[4];
+  assert.equal(versionCard.querySelectorAll("input").length, 0, "version card contains no manual update controls");
+  const inputs = manual.querySelectorAll("input");
+  const file = inputs[0];
+  const acknowledgement = inputs[1];
+  const uploadButton = manual.querySelector("button");
+  assert.equal(file.type, "file");
+  assert.equal(file.accept, ".bin,application/octet-stream");
+  assert.equal(uploadButton.disabled, true, "an acknowledgement and valid file are both required");
+
+  assert.equal(manual.children[2].textContent, "awtrix-light-X.Y.Z-light-ulanzi.bin");
+  assert.equal(manual.children[3].textContent, "Device target: ulanzi");
+
+  file.files = [{ name: "not-a-firmware.bin" }];
+  acknowledgement.checked = true;
+  file.onchange();
+  acknowledgement.onchange();
+  assert.equal(uploadButton.disabled, true, "invalid filenames cannot be uploaded");
+  uploadButton.onclick();
+  assert.equal(manual.querySelector(".status").textContent, "Invalid file");
+  assert.equal(requests.filter((request) => request.url === "/api/update/upload").length, 0, "invalid filenames never reach the device");
+
+  file.files = [{ name: "awtrix-light-1.2.3-light-awtrix2-upgrade.bin" }];
+  file.onchange();
+  assert.equal(uploadButton.disabled, true, "known targets reject a different target filename");
+
+  const firmware = { name: "awtrix-light-1.2.3-light-ulanzi.bin" };
+  file.files = [firmware];
+  file.onchange();
+  assert.equal(uploadButton.disabled, false, "official filename shape remains usable before a target check");
+  uploadButton.onclick();
+  uploadButton.onclick();
+  assert.equal(requests.filter((request) => request.url === "/api/update/upload").length, 1, "busy uploads submit once");
+  const request = requests.find((entry) => entry.url === "/api/update/upload");
+  assert.equal(request.options.method, "POST");
+  assert.equal("headers" in request.options, false, "multipart requests do not manually set Content-Type");
+  assert.equal(request.options.body.constructor.name, "FormData");
+  assert.deepEqual(formDataEntries, [["firmware", firmware]], "multipart body has only the firmware field");
+  assert.equal(file.disabled, true);
+  assert.equal(acknowledgement.disabled, true);
+  assert.equal(manual.querySelector(".status").textContent, "Uploading");
+
+  uploads[0].resolve({ status: 500 });
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(manual.querySelector(".status").textContent, "Upload failed", "upload failures use a localized generic status");
+  assert.equal(file.disabled, false, "a failed upload can be retried");
+  uploadButton.onclick();
+  assert.equal(requests.filter((request) => request.url === "/api/update/upload").length, 2, "a failed upload permits one retry");
+
+  context.api.rerender();
+  const rerenderedManual = settingsGrid.querySelectorAll(".settings-card")[0].children[4];
+  uploads[1].resolve({ status: 202 });
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(manual.querySelector(".status").textContent, "Uploading", "detached cards do not receive stale upload results");
+  assert.equal(rerenderedManual.querySelector(".status").textContent, "Upload accepted; restarting", "active rerendered card reflects accepted restart state");
+}
+
+async function testManualFirmwareTargetSurvivesFailedUpdateCheck() {
+  const document = testDocument();
+  const settingsGrid = document.createElement("div");
+  const context = load(
+    "let settingsSection='about',t={about:'About',update:'Update',firmwareVersion:'Firmware version',loadingSettings:'Loading...',versionLoadFailed:'Version failed',checkForUpdates:'Check',checkingForUpdates:'Checking',noUpdateAvailable:'Up to date',updateAvailable:'Available',availableFirmwareVersion:'Available version',installUpdate:'Install',installingUpdate:'Installing',updateRestarting:'Restarting',updateWarning:'Do not power off',updateCheckFailed:'Check failed',updateInstallFailed:'Install failed',manualUpdate:'Manual firmware update',manualUpdateExpectedName:'Filename format',manualUpdateTarget:'Device target',manualUpdateAcknowledge:'I acknowledge the file must match this device and the update restarts it.',manualUpdateUpload:'Upload and update',manualUpdateInvalidFile:'Invalid file',manualUpdateUploading:'Uploading',manualUpdateRestarting:'Upload accepted; restarting',manualUpdateFailed:'Upload failed'};" +
+      source("settings-render-about.js") + "\nthis.api={render:renderAboutCard};",
+    {
+      document,
+      E: { settingsGrid },
+      fetch(url) {
+        if (url === "/version") return Promise.resolve({ ok: true, text: async () => "1.0.0" });
+        if (url === "/api/update/target")
+          return Promise.resolve({ ok: true, json: async () => ({ ok: true, target: "awtrix2-upgrade" }) });
+        if (url === "/api/update")
+          return Promise.resolve({ ok: true, json: async () => ({ ok: false, error: "manifest http" }) });
+        throw Error(`unexpected request ${url}`);
+      },
+      setStatus(element, message, error) {
+        element.textContent = message;
+        element.className = error ? "status error" : "status";
+      },
+    },
+  );
+
+  context.api.render();
+  const card = settingsGrid.querySelectorAll(".settings-card")[0];
+  const manual = card.children[4];
+  const inputs = manual.querySelectorAll("input");
+  const file = inputs[0];
+  const acknowledgement = inputs[1];
+  const uploadButton = manual.querySelector("button");
+  card.querySelector("button").onclick();
+  await new Promise((resolve) => setImmediate(resolve));
+
+  assert.equal(card.querySelectorAll(".status")[0].textContent, "Check failed");
+  assert.equal(card.querySelectorAll(".status")[0].className, "status error");
+  assert.equal(manual.children[2].textContent, "awtrix-light-X.Y.Z-light-awtrix2-upgrade.bin");
+  assert.equal(manual.children[3].textContent, "Device target: awtrix2-upgrade");
+  acknowledgement.checked = true;
+  file.files = [{ name: "awtrix-light-1.2.3-light-ulanzi.bin" }];
+  file.onchange();
+  acknowledgement.onchange();
+  assert.equal(uploadButton.disabled, true, "a cross-target filename remains disabled");
+  file.files = [{ name: "awtrix-light-1.2.3-light-awtrix2-upgrade.bin" }];
+  file.onchange();
+  assert.equal(uploadButton.disabled, false, "the returned target filename remains usable");
+}
+
+async function testManualFirmwareTargetFailureHasNoUnavailableStatus() {
+  const document = testDocument();
+  const settingsGrid = document.createElement("div");
+  const context = load(
+    "let settingsSection='about',t={about:'About',update:'Update',firmwareVersion:'Firmware version',loadingSettings:'Loading...',versionLoadFailed:'Version failed',checkForUpdates:'Check',checkingForUpdates:'Checking',noUpdateAvailable:'Up to date',updateAvailable:'Available',availableFirmwareVersion:'Available version',installUpdate:'Install',installingUpdate:'Installing',updateRestarting:'Restarting',updateWarning:'Do not power off',updateCheckFailed:'Check failed',updateInstallFailed:'Install failed',manualUpdate:'Manual firmware update',manualUpdateExpectedName:'Filename format',manualUpdateTarget:'Device target',manualUpdateAcknowledge:'I acknowledge the file must match this device and the update restarts it.',manualUpdateUpload:'Upload and update',manualUpdateInvalidFile:'Invalid file',manualUpdateUploading:'Uploading',manualUpdateRestarting:'Upload accepted; restarting',manualUpdateFailed:'Upload failed'};" +
+      source("settings-render-about.js") + "\nthis.api={render:renderAboutCard};",
+    {
+      document,
+      E: { settingsGrid },
+      fetch(url) {
+        if (url === "/version") return Promise.resolve({ ok: true, text: async () => "1.0.0" });
+        if (url === "/api/update/target") return Promise.resolve({ ok: false });
+        throw Error(`unexpected request ${url}`);
+      },
+      setStatus(element, message, error) {
+        element.textContent = message;
+        element.className = error ? "status error" : "status";
+      },
+    },
+  );
+
+  context.api.render();
+  await new Promise((resolve) => setImmediate(resolve));
+  const manual = settingsGrid.querySelectorAll(".settings-card")[0].children[4];
+  assert.equal(manual.children[2].textContent, "awtrix-light-X.Y.Z-light-<target>.bin");
+  assert.equal(manual.children[3].style.display, "none");
+  assert.equal(manual.querySelector(".status").textContent, "", "a missing local target has no obsolete unavailable status");
+}
+
+async function testManualFirmwareTargetRequestSharesAndGuardsRerenders() {
+  const document = testDocument();
+  const settingsGrid = document.createElement("div");
+  const targetRequest = deferred();
+  const requests = [];
+  const context = load(
+    "let settingsSection='about',t={about:'About',update:'Update',firmwareVersion:'Firmware version',loadingSettings:'Loading...',versionLoadFailed:'Version failed',checkForUpdates:'Check',checkingForUpdates:'Checking',noUpdateAvailable:'Up to date',updateAvailable:'Available',availableFirmwareVersion:'Available version',installUpdate:'Install',installingUpdate:'Installing',updateRestarting:'Restarting',updateWarning:'Do not power off',updateCheckFailed:'Check failed',updateInstallFailed:'Install failed',manualUpdate:'Manual firmware update',manualUpdateExpectedName:'Filename format',manualUpdateTarget:'Device target',manualUpdateAcknowledge:'I acknowledge the file must match this device and the update restarts it.',manualUpdateUpload:'Upload and update',manualUpdateInvalidFile:'Invalid file',manualUpdateUploading:'Uploading',manualUpdateRestarting:'Upload accepted; restarting',manualUpdateFailed:'Upload failed'};" +
+      source("settings-render-about.js") + "\nthis.api={render:renderAboutCard,rerender:()=>{E.settingsGrid.innerHTML='';renderAboutCard()}};",
+    {
+      document,
+      E: { settingsGrid },
+      fetch(url) {
+        requests.push(url);
+        if (url === "/version") return Promise.resolve({ ok: true, text: async () => "1.0.0" });
+        if (url === "/api/update/target") return targetRequest.promise;
+        throw Error(`unexpected request ${url}`);
+      },
+      setStatus(element, message, error) {
+        element.textContent = message;
+        element.className = error ? "status error" : "status";
+      },
+    },
+  );
+
+  context.api.render();
+  const detachedManual = settingsGrid.querySelectorAll(".settings-card")[0].children[4];
+  context.api.rerender();
+  assert.equal(requests.filter((url) => url === "/api/update/target").length, 1, "rerenders share one local target request");
+  targetRequest.resolve({ ok: true, json: async () => ({ ok: true, target: "ulanzi" }) });
+  await new Promise((resolve) => setImmediate(resolve));
+  const activeManual = settingsGrid.querySelectorAll(".settings-card")[0].children[4];
+  assert.equal(detachedManual.children[2].textContent, "awtrix-light-X.Y.Z-light-<target>.bin", "detached manual controls are not updated");
+  assert.equal(activeManual.children[2].textContent, "awtrix-light-X.Y.Z-light-ulanzi.bin", "active rerendered controls receive the local target");
 }
 
 function testStoreSearchPlaceholderRelabelsWithoutChangingValue() {
@@ -1090,6 +1484,14 @@ async function run() {
   await testAboutSettingsTabRendersFetchedVersion();
   await testAboutVersionRequestSurvivesRerendersAndSwitches();
   await testAboutVersionLoadFailureUsesLocalizedStatus();
+  await testAboutUpdateInteraction();
+  await testAboutUpdateErrorsNoUpdateAndDetachedSafety();
+  testManualFirmwareUpdateNarrowLayoutContract();
+  testSettingsCheckboxToggleFieldLayout();
+  await testManualFirmwareUploadInteraction();
+  await testManualFirmwareTargetSurvivesFailedUpdateCheck();
+  await testManualFirmwareTargetFailureHasNoUnavailableStatus();
+  await testManualFirmwareTargetRequestSharesAndGuardsRerenders();
   testStoreSearchPlaceholderRelabelsWithoutChangingValue();
   testInstallMergeLocalization();
   testLegacyLiveDialogRerender();

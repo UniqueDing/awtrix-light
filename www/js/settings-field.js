@@ -2,7 +2,7 @@ function addSettingsField(card, f, source) {
   let data = source === "legacy" ? legacySettings : settings;
   if (data[f[0]] === undefined && source === "api") return;
   let wrap = document.createElement("div");
-  wrap.className = "field";
+  wrap.className = f[2] === "checkbox" ? "field toggle-field" : "field";
   let val = data[f[0]],
     input;
   if (val === undefined || val === null) val = "";

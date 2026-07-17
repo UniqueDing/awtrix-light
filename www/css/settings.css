@@ -45,6 +45,36 @@
   font-size: 18px;
 }
 
+.manual-update-details,
+.manual-update-details > * {
+  min-width: 0;
+}
+
+.manual-update-details > label,
+.manual-update-details > output,
+.manual-update-details > .hint,
+.manual-update-details > .status,
+.manual-update-acknowledgement label {
+  overflow-wrap: anywhere;
+}
+
+.manual-update-details input[type=file] {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.manual-update-acknowledgement {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 7px;
+  align-items: start;
+  min-width: 0;
+}
+
+.manual-update-acknowledgement input[type=checkbox] {
+  min-width: 0;
+}
+
 .legacy-card {
   align-content: start;
 }
@@ -189,6 +219,22 @@ body.dark .settings-card input[type=password] {
   justify-content: space-between;
   gap: 12px;
   margin: 0 0 14px;
+}
+
+.field.toggle-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.field.toggle-field label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.field.toggle-field .segmented {
+  justify-self: end;
 }
 
 .segmented {
@@ -367,11 +413,11 @@ body.dark .settings-card input[type=password] {
 }
 
 @media (max-width: 420px) {
-  .field:has(.segmented) {
+  .field.toggle-field {
     grid-template-columns: 1fr;
   }
 
-  .segmented {
+  .field.toggle-field .segmented {
     justify-self: stretch;
     grid-auto-columns: 1fr;
   }
