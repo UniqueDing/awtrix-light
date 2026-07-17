@@ -4,11 +4,11 @@ index 5a6e576..d10e49d 100644
 +++ b/lib/webserver/esp-fs-webserver.h
 @@ -78,6 +78,7 @@ public:
      void onNotFound(WebServerClass::THandlerFunction fn);
- 
+
      void addHandler(const Uri &uri, HTTPMethod method, WebServerClass::THandlerFunction fn);
 +    void addHandler(const Uri &uri, HTTPMethod method, WebServerClass::THandlerFunction fn, WebServerClass::THandlerFunction uploadFn);
      void addHandler(const Uri &uri, WebServerClass::THandlerFunction handler);
- 
+
      void setCaptiveWebage(const char *url);
 diff --git a/lib/webserver/esp-fs-webserver.cpp b/lib/webserver/esp-fs-webserver.cpp
 index 16aa224..ce7be5c 100644
@@ -17,7 +17,7 @@ index 16aa224..ce7be5c 100644
 @@ -33,6 +33,11 @@ void FSWebServer::addHandler(const Uri &uri, HTTPMethod method, WebServerClass:
      webserver->on(uri, method, authMiddleware(fn));
  }
- 
+
 +void FSWebServer::addHandler(const Uri &uri, HTTPMethod method, WebServerClass::THandlerFunction fn, WebServerClass::THandlerFunction uploadFn)
 +{
 +    webserver->on(uri, method, authMiddleware(fn), authMiddleware(uploadFn));
