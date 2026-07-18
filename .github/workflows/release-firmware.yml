@@ -37,7 +37,7 @@ jobs:
         run: |
           set -euo pipefail
           if [[ "$EVENT_NAME" == 'push' && "$REF_TYPE" == 'branch' ]]; then
-            RELEASE_TAG="v$(tr -d '[:space:]' < awtrix3/version)"
+            RELEASE_TAG="v$(tr -d '\r\n' < version)"
           else
             RELEASE_TAG="$TRIGGER_RELEASE_TAG"
           fi

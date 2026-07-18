@@ -50,9 +50,16 @@ if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-light$ ]]; then
 fi
 VERSION="${TAG#v}"
 
-parent_version_file="$AWTRIX3_DIR/version"
+parent_version_file="$ROOT/version"
 [ -f "$parent_version_file" ] || die "missing parent version file: $parent_version_file"
-PARENT_VERSION="$(tr -d '\r\n' < "$parent_version_file")"
+PARENT_VERSION="$(python3 - "$parent_version_file" <<'PY'
+import sys
+from pathlib import Path
+
+print(Path(sys.argv[1]).read_text(encoding="utf-8").rstrip("\r\n"))
+PY
+)"
+[[ "$PARENT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+-light$ ]] || die "invalid parent version: $PARENT_VERSION"
 [ "$PARENT_VERSION" = "$VERSION" ] || die "tag version $VERSION does not match parent version $PARENT_VERSION"
 
 . "$ROOT/tools/awtrix3_build_lib.sh"
@@ -62,33 +69,36 @@ printf '%s\n' '=== Build web assets ==='
 awtrix3_build_web "$ROOT"
 printf '%s\n' '=== Apply source patches ==='
 awtrix3_apply_patches "$ROOT" "$AWTRIX3_DIR" \
-  "$ROOT/patches/002-webserver-auth.patch" \
-  "$ROOT/patches/003-servermanager-hooks.patch" \
-  "$ROOT/patches/004-displaymanager-install-helper.patch" \
-  "$ROOT/patches/006-displaymanager-flow-refresh-uninstall.patch" \
-  "$ROOT/patches/007-displaymanager-reenable-custom-apps.patch" \
-  "$ROOT/patches/010-displaymanager-reenable-existing-custom-apps.patch" \
-  "$ROOT/patches/008-awtrix2-trim-games-web.patch" \
-  "$ROOT/patches/009-awtrix2-trim-effects.patch" \
-  "$ROOT/patches/011-runtime-display-ownership.patch" \
-  "$ROOT/patches/012-runtime-websockets-platformio.patch" \
-  "$ROOT/patches/013-webserver-upload-handler.patch"
+  "$ROOT/patches/014-awtrix-light-upstream-overlay.patch"
 printf '%s\n' '=== Copy wrapper source and web UI ==='
 awtrix3_copy_wrapper_source "$ROOT" "$AWTRIX3_DIR"
 awtrix3_copy_web_ui "$ROOT" "$AWTRIX3_DIR"
 awtrix3_embed_web_assets "$ROOT" "$AWTRIX3_DIR"
+printf '%s\n' '=== Apply parent version overlay ==='
+awtrix3_apply_version "$ROOT" "$AWTRIX3_DIR"
 
-COMPILED_VERSION="$(python3 - "$AWTRIX3_DIR/src/Globals.cpp" <<'PY'
+printf '%s\n' '=== Verify release version ==='
+readarray -t OVERLAID_VERSIONS < <(python3 - "$AWTRIX3_DIR/version" "$AWTRIX3_DIR/src/Globals.cpp" <<'PY'
 import re
 import sys
+from pathlib import Path
 
-source = open(sys.argv[1], encoding="utf-8").read()
-match = re.search(r'const char \*VERSION\s*=\s*"([^"]+)"\s*;', source)
-if not match:
-    raise SystemExit("compiled VERSION declaration not found")
-print(match.group(1))
+overlaid_version = Path(sys.argv[1]).read_text(encoding="utf-8").rstrip("\r\n")
+source = Path(sys.argv[2]).read_text(encoding="utf-8")
+matches = re.findall(
+    r'^[ \t]*const[ \t]+char[ \t]*\*[ \t]*VERSION[ \t]*=[ \t]*"([^"\r\n]*)"[ \t]*;[ \t]*$',
+    source,
+    re.MULTILINE,
+)
+if len(matches) != 1:
+    raise SystemExit(f"expected exactly one compiled VERSION declaration, found {len(matches)}")
+print(overlaid_version)
+print(matches[0])
 PY
-)"
+)
+OVERLAID_VERSION="${OVERLAID_VERSIONS[0]:-}"
+COMPILED_VERSION="${OVERLAID_VERSIONS[1]:-}"
+[ "$OVERLAID_VERSION" = "$VERSION" ] || die "tag version $VERSION does not match overlaid awtrix3 version $OVERLAID_VERSION"
 [ "$COMPILED_VERSION" = "$VERSION" ] || die "tag version $VERSION does not match compiled version $COMPILED_VERSION"
 
 for target in "${TARGETS[@]}"; do

@@ -1,12 +1,33 @@
 #!/usr/bin/env python3
 
 from pathlib import Path
+import io
+import subprocess
+import tarfile
+import tempfile
 
 
 root = Path(__file__).resolve().parents[1]
 workflow = (root / ".github/workflows/release-firmware.yml").read_text()
 tool = (root / "tools/release_firmware.sh").read_text()
+build_lib = (root / "tools/awtrix3_build_lib.sh").read_text()
+local_build = (root / "build.sh").read_text()
+gitmodules = (root / ".gitmodules").read_text()
+overlay_patch_path = root / "patches/014-awtrix-light-upstream-overlay.patch"
+overlay_patch = overlay_patch_path.read_text()
+server_manager = (root / "src/ServerManager.cpp").read_text()
 validation, publishing = workflow.split("  publishing:\n", 1)
+
+gitlink = subprocess.run(
+    ["git", "ls-files", "--stage", "awtrix3"],
+    cwd=root,
+    check=True,
+    capture_output=True,
+    text=True,
+).stdout.split()
+assert gitlink == ["160000", "723e8c7a44ea70ac661217be0674b743d212317c", "0", "awtrix3"]
+assert 'url = https://github.com/Blueforcer/awtrix3.git' in gitmodules
+assert (root / "version").read_bytes() == b"0.98.1-light\n"
 
 assert "tags:" in workflow
 assert "- 'v*'" in workflow
@@ -26,10 +47,11 @@ assert "contents: read" not in publishing
 assert "github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref_type == 'tag')" in publishing
 assert "github.event_name == 'push' && github.ref_type == 'branch' && github.sha" in validation
 assert "github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name" in validation
-assert "tr -d '[:space:]' < awtrix3/version" in validation
-assert 'RELEASE_TAG="v$(tr -d \'[:space:]\' < awtrix3/version)"' in validation
+assert "awtrix3/version" not in validation
+assert "tr -d '\\r\\n' < version" in validation
+assert 'RELEASE_TAG="v$(tr -d \'\\r\\n\' < version)"' in validation
 assert '[[ "$RELEASE_TAG" =~ ^v[0-9]+\\.[0-9]+\\.[0-9]+-light$ ]]' in validation
-assert validation.index("git submodule update --init awtrix3") < validation.index("tr -d '[:space:]' < awtrix3/version")
+assert validation.index("git submodule update --init awtrix3") < validation.index("tr -d '\\r\\n' < version")
 assert "git submodule update --init awtrix3" in validation
 assert "--recursive" not in workflow
 assert validation.index("python3 tests/ota_release_contract_test.py") < validation.index("python3 tests/ota_routes_test.py")
@@ -49,14 +71,50 @@ assert "dist/release/*" in publishing
 
 assert '[[ ! "$TAG" =~ ^v[0-9]+\\.[0-9]+\\.[0-9]+-light$ ]]' in tool
 assert 'VERSION="${TAG#v}"' in tool
-assert 'parent_version_file="$AWTRIX3_DIR/version"' in tool
+assert 'parent_version_file="$ROOT/version"' in tool
+assert 'parent_version_file="$AWTRIX3_DIR/version"' not in tool
+assert '[[ "$PARENT_VERSION" =~ ^[0-9]+\\.[0-9]+\\.[0-9]+-light$ ]]' in tool
 assert 'COMPILED_VERSION=' in tool
 assert 'awtrix3_build_web "$ROOT"' in tool
 assert 'awtrix3_apply_patches "$ROOT" "$AWTRIX3_DIR"' in tool
 assert 'awtrix3_copy_wrapper_source "$ROOT" "$AWTRIX3_DIR"' in tool
 assert 'awtrix3_copy_web_ui "$ROOT" "$AWTRIX3_DIR"' in tool
 assert 'awtrix3_embed_web_assets "$ROOT" "$AWTRIX3_DIR"' in tool
-for patch in (
+assert 'awtrix3_apply_version "$ROOT" "$AWTRIX3_DIR"' in tool
+assert 'awtrix3_apply_version "$DIR" "$A3"' in local_build
+assert 'version = parent_version_path.read_text(encoding="utf-8").rstrip("\\r\\n")' in build_lib
+assert 're.fullmatch(r"[0-9]+\\.[0-9]+\\.[0-9]+-light", version)' in build_lib
+assert 'if replacements != 1:' in build_lib
+assert 'globals_path.write_text(updated_source, encoding="utf-8")' in build_lib
+assert 'awtrix3_version_path.write_text(f"{version}\\n", encoding="utf-8")' in build_lib
+assert 'git apply --check --recount --ignore-whitespace' in build_lib
+assert 'git apply --recount --ignore-whitespace' in build_lib
+assert 'awtrix3_die "failed to apply patch: $patch_file"' in build_lib
+assert 'awtrix3_die "patch markers missing after apply: $patch_file"' in build_lib
+assert '/usr/bin/patch' not in build_lib
+assert '-F 3' not in build_lib
+assert '006-displaymanager-flow-refresh-uninstall.patch' not in build_lib
+assert 'expected exactly one custom app install anchor' not in build_lib
+assert 'expected exactly one custom app declaration anchor' not in build_lib
+assert 'cp -a "$root/src/." "$awtrix3_dir/src/"' in build_lib
+assert (root / "src/UpdateManager.cpp").is_file()
+assert (root / "src/UpdateManager.h").is_file()
+assert tool.count("014-awtrix-light-upstream-overlay.patch") == 1
+assert local_build.count("014-awtrix-light-upstream-overlay.patch") == 1
+assert tool.index('"$ROOT/patches/014-awtrix-light-upstream-overlay.patch"') < tool.index('awtrix3_copy_wrapper_source "$ROOT" "$AWTRIX3_DIR"')
+assert tool.index('awtrix3_copy_wrapper_source "$ROOT" "$AWTRIX3_DIR"') < tool.index('awtrix3_copy_web_ui "$ROOT" "$AWTRIX3_DIR"')
+assert tool.index('awtrix3_copy_web_ui "$ROOT" "$AWTRIX3_DIR"') < tool.index('awtrix3_embed_web_assets "$ROOT" "$AWTRIX3_DIR"')
+assert tool.index('awtrix3_embed_web_assets "$ROOT" "$AWTRIX3_DIR"') < tool.index('awtrix3_apply_version "$ROOT" "$AWTRIX3_DIR"')
+assert tool.index('awtrix3_apply_version "$ROOT" "$AWTRIX3_DIR"') < tool.index('COMPILED_VERSION=')
+assert tool.index('COMPILED_VERSION=') < tool.index('for target in "${TARGETS[@]}"; do')
+assert local_build.index('"$DIR/patches/014-awtrix-light-upstream-overlay.patch"') < local_build.index('awtrix3_copy_wrapper_source "$DIR" "$A3"')
+assert local_build.index('awtrix3_copy_wrapper_source "$DIR" "$A3"') < local_build.index('awtrix3_copy_web_ui "$DIR" "$A3"')
+assert local_build.index('awtrix3_copy_web_ui "$DIR" "$A3"') < local_build.index('awtrix3_embed_web_assets "$DIR" "$A3"')
+assert local_build.index('awtrix3_embed_web_assets "$DIR" "$A3"') < local_build.index('awtrix3_apply_version "$DIR" "$A3"')
+assert local_build.index('awtrix3_apply_version "$DIR" "$A3"') < local_build.index('awtrix3_platformio_upload "$DIR" "$A3"')
+assert '[ "$OVERLAID_VERSION" = "$VERSION" ]' in tool
+assert '[ "$COMPILED_VERSION" = "$VERSION" ]' in tool
+for obsolete_patch in (
     "002-webserver-auth.patch",
     "003-servermanager-hooks.patch",
     "004-displaymanager-install-helper.patch",
@@ -69,7 +127,86 @@ for patch in (
     "012-runtime-websockets-platformio.patch",
     "013-webserver-upload-handler.patch",
 ):
-    assert patch in tool
+    assert obsolete_patch not in tool
+    assert obsolete_patch not in local_build
+
+expected_overlay_paths = {
+    "docs/ulanzi_flasher/firmware/manifest.json",
+    "lib/webserver/esp-fs-webserver.cpp",
+    "lib/webserver/esp-fs-webserver.h",
+    "platformio.ini",
+    "src/Apps.cpp",
+    "src/Apps.h",
+    "src/DisplayManager.cpp",
+    "src/DisplayManager.h",
+    "src/Games/AwtrixSays.cpp",
+    "src/Games/AwtrixSays.h",
+    "src/Games/GameManager.cpp",
+    "src/Games/GameManager.h",
+    "src/Games/SlotMachine.cpp",
+    "src/Games/SlotMachine.h",
+    "src/Globals.cpp",
+    "src/Globals.h",
+    "src/PeripheryManager.cpp",
+    "src/effects.h",
+}
+overlay_paths = {
+    line.removeprefix("diff --git a/").split(" b/", 1)[0]
+    for line in overlay_patch.splitlines()
+    if line.startswith("diff --git a/")
+}
+assert overlay_paths == expected_overlay_paths
+for forbidden_path in (
+    "src/ServerManager.cpp",
+    "src/ServerManager.h",
+    "src/UpdateManager.cpp",
+    "src/UpdateManager.h",
+    "src/AppStore.cpp",
+    "src/AppStore.h",
+    "src/AwtrixLightRuntime.cpp",
+    "src/AwtrixLightRuntime.h",
+    "src/AwtrixLightWeb.cpp",
+    "src/AwtrixLightWeb.h",
+    "src/AwtrixLightWebSocket.cpp",
+    "src/AwtrixLightWebSocket.h",
+    "src/effects_stub.cpp",
+    "src/web_assets.h",
+    "version",
+):
+    assert forbidden_path not in overlay_paths
+
+for marker in (
+    "String flowApplyInputs(JsonObject doc, String value)",
+    "void fetchFlowHttpSource(JsonObject app, JsonObject source, DynamicJsonDocument &sourceValues)",
+    "void fetchFlowHaSource(JsonObject app, JsonObject source, DynamicJsonDocument &sourceValues)",
+    "uint32_t flowRefreshInterval(JsonObject doc)",
+    "uint32_t flowRefreshInterval = 0;",
+    'HA_BASE_URL = doc["ha_base_url"].as<String>();',
+    'HA_TOKEN = doc["ha_token"].as<String>();',
+    'String HA_BASE_URL = "";',
+    'String HA_TOKEN = "";',
+    "extern String HA_BASE_URL;",
+    "extern String HA_TOKEN;",
+    "void addHandler(const Uri &uri, HTTPMethod method, WebServerClass::THandlerFunction fn, WebServerClass::THandlerFunction uploadFn);",
+    "webserver->on(uri, method, authMiddleware(fn), authMiddleware(uploadFn));",
+    "src_filter = +<*> -<Games/*> -<effects.cpp>",
+    "const int numOfEffects = 0;",
+    "void GameManager_::setup() {}",
+    "void GameManager_::sendPoints(int) {}",
+    "void DisplayManager_::showRuntime()",
+    "uint32_t DisplayManager_::runtimeSequence() const",
+):
+    assert marker in overlay_patch
+    assert marker in build_lib
+for marker in (
+    'mws.addOption("HA Prefix", HA_PREFIX);',
+    'mws.addOption("HA Base URL", HA_BASE_URL);',
+    'mws.addOption("HA Token", HA_TOKEN);',
+    'HA_PREFIX = doc["HA Prefix"].as<String>();',
+    'HA_BASE_URL = doc["HA Base URL"].as<String>();',
+    'HA_TOKEN = doc["HA Token"].as<String>();',
+):
+    assert marker in server_manager
 assert 'TARGETS=(ulanzi awtrix2_upgrade)' in tool
 assert 'nix-shell "$ROOT/shell.nix" --run "platformio run -e $target"' in tool
 assert 'MAX_FIRMWARE_BYTES=1310720' in tool
@@ -85,5 +222,137 @@ assert "git tag" not in tool
 assert "git push" not in tool
 assert "gh release" not in tool
 assert "platformio run -e $target -t upload" not in tool
+
+
+def run_upstream_overlay():
+    with tempfile.TemporaryDirectory() as temp_dir:
+        fixture_root = Path(temp_dir)
+        fixture_awtrix3 = fixture_root / "awtrix3"
+        fixture_awtrix3.mkdir()
+        archive = subprocess.run(
+            ["git", "-C", str(root / "awtrix3"), "archive", "723e8c7a44ea70ac661217be0674b743d212317c"],
+            check=True,
+            capture_output=True,
+        ).stdout
+        with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
+            tar.extractall(fixture_awtrix3, filter="data")
+
+        command = [
+            "bash",
+            "-c",
+            'source "$1"; awtrix3_apply_patches "$2" "$3" "$4"',
+            "bash",
+            str(root / "tools/awtrix3_build_lib.sh"),
+            str(fixture_root),
+            str(fixture_awtrix3),
+            str(overlay_patch_path),
+        ]
+        first = subprocess.run(command, capture_output=True, text=True)
+        assert first.returncode == 0, first.stderr
+        assert "already applied" not in first.stdout
+        for path, marker in (
+            ("src/DisplayManager.cpp", "String flowApplyInputs(JsonObject doc, String value)"),
+            ("src/DisplayManager.cpp", "void fetchFlowHttpSource(JsonObject app, JsonObject source, DynamicJsonDocument &sourceValues)"),
+            ("src/DisplayManager.cpp", "void fetchFlowHaSource(JsonObject app, JsonObject source, DynamicJsonDocument &sourceValues)"),
+            ("src/Globals.cpp", 'HA_BASE_URL = doc["ha_base_url"].as<String>();'),
+            ("src/Globals.cpp", 'HA_TOKEN = doc["ha_token"].as<String>();'),
+        ):
+            assert marker in (fixture_awtrix3 / path).read_text()
+
+        second = subprocess.run(command, capture_output=True, text=True)
+        assert second.returncode == 0, second.stderr
+        assert "already applied: 014-awtrix-light-upstream-overlay.patch" in second.stdout
+
+        display_manager = fixture_awtrix3 / "src/DisplayManager.cpp"
+        source = display_manager.read_text()
+        display_manager.write_text(source.replace("String flowApplyInputs(JsonObject doc, String value)", "String removedFlowMarker(JsonObject doc, String value)", 1))
+        incomplete = subprocess.run(command, capture_output=True, text=True)
+        assert incomplete.returncode != 0
+        assert "failed to apply patch" in incomplete.stderr
+
+        display_manager.write_text(source)
+        archived_game = subprocess.run(
+            ["git", "-C", str(root / "awtrix3"), "show", "723e8c7a44ea70ac661217be0674b743d212317c:src/Games/AwtrixSays.cpp"],
+            check=True,
+            capture_output=True,
+        ).stdout
+        (fixture_awtrix3 / "src/Games/AwtrixSays.cpp").write_bytes(archived_game)
+        restored_game = subprocess.run(command, capture_output=True, text=True)
+        assert restored_game.returncode != 0
+        assert "failed to apply patch" in restored_game.stderr
+
+        (fixture_awtrix3 / "src/Games/AwtrixSays.cpp").unlink()
+        webserver_path = fixture_awtrix3 / "lib/webserver/esp-fs-webserver.cpp"
+        webserver_source = webserver_path.read_text()
+        webserver_path.write_text(webserver_source.replace('    if (filename.indexOf("..") != -1)\n    {\n        error += PSTR(" !! PARENT_PATH !! ");\n    }\n', "", 1))
+        missing_path_guard = subprocess.run(command, capture_output=True, text=True)
+        assert missing_path_guard.returncode != 0
+        assert "failed to apply patch" in missing_path_guard.stderr
+
+
+run_upstream_overlay()
+
+
+def run_overlay(parent_version, declarations):
+    with tempfile.TemporaryDirectory() as temp_dir:
+        fixture_root = Path(temp_dir)
+        fixture_awtrix3 = fixture_root / "awtrix3"
+        (fixture_awtrix3 / "src").mkdir(parents=True)
+        (fixture_root / "version").write_bytes(parent_version)
+        globals_path = fixture_awtrix3 / "src/Globals.cpp"
+        original = "before\n" + "\n".join(declarations) + "\nafter\n"
+        globals_path.write_text(original)
+        result = subprocess.run(
+            [
+                "bash",
+                "-c",
+                'source "$1"; awtrix3_apply_version "$2" "$3"',
+                "bash",
+                str(root / "tools/awtrix3_build_lib.sh"),
+                str(fixture_root),
+                str(fixture_awtrix3),
+            ],
+            capture_output=True,
+            text=True,
+        )
+        overlaid_version = (fixture_awtrix3 / "version").read_bytes() if (fixture_awtrix3 / "version").exists() else None
+        return result, original, globals_path.read_text(), overlaid_version
+
+
+result, original, updated, overlaid_version = run_overlay(
+    b"0.98.1-light\r\n",
+    ['extern const char *VERSION;', 'const char *VERSION = "0.98";', 'const char *OTHER = "unchanged";'],
+)
+assert result.returncode == 0, result.stderr
+assert updated == original.replace('const char *VERSION = "0.98";', 'const char *VERSION = "0.98.1-light";')
+assert overlaid_version == b"0.98.1-light\n"
+
+result, original, updated, overlaid_version = run_overlay(
+    b"0.98.1-light",
+    ['  const char* VERSION = "0.98" ;  '],
+)
+assert result.returncode == 0, result.stderr
+assert updated == original.replace('"0.98"', '"0.98.1-light"')
+assert overlaid_version == b"0.98.1-light\n"
+
+result, _, first_update, _ = run_overlay(b"0.98.1-light\n", ['const char *VERSION = "0.98.1-light";'])
+assert result.returncode == 0, result.stderr
+assert first_update == 'before\nconst char *VERSION = "0.98.1-light";\nafter\n'
+
+for invalid_version in (b"0.98-light\n", b"0.98.1\n", b" 0.98.1-light\n", b"0.98.1-light \n"):
+    result, original, updated, overlaid_version = run_overlay(invalid_version, ['const char *VERSION = "0.98";'])
+    assert result.returncode != 0
+    assert updated == original
+    assert overlaid_version is None
+
+for declarations in (
+    [],
+    ['extern const char *VERSION;'],
+    ['const char *VERSION = "one";', 'const char *VERSION = "two";'],
+):
+    result, original, updated, overlaid_version = run_overlay(b"0.98.1-light\n", declarations)
+    assert result.returncode != 0
+    assert updated == original
+    assert overlaid_version is None
 
 print("release firmware contract: ok")
