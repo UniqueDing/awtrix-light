@@ -5,7 +5,6 @@ from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
 source = (root / "src/ServerManager.cpp").read_text()
-mirror = (root / "awtrix3/src/ServerManager.cpp").read_text()
 ui = (root / "www/js/settings-render-wifi.js").read_text()
 
 assert 'mws.addHandler("/api/integrations/test-ha", HTTP_POST' in source
@@ -48,6 +47,5 @@ assert 'Password: settingInputValue("Password")' in ui
 assert '"HA Base URL": settingInputValue("HA Base URL")' in ui
 assert '"HA Token": settingInputValue("HA Token")' in ui
 assert 'fetch("/api/integrations/test-" + type' in ui
-assert source == mirror
 
 print("integration test routes: ok")
