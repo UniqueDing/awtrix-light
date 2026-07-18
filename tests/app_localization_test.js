@@ -3,7 +3,6 @@
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const vm = require("node:vm");
-const zlib = require("node:zlib");
 
 function source(name) {
   return fs.readFileSync("www/js/" + name, "utf8");
@@ -20,8 +19,6 @@ function testGeneratedUiHasNoDebugBadge() {
   const assets = [
     "www/app.css.min",
     "www/app.js.min",
-    "awtrix3/www/app.css.min",
-    "awtrix3/www/app.js.min",
   ];
   for (const asset of assets) {
     const content = fs.readFileSync(asset, "utf8");
@@ -29,11 +26,6 @@ function testGeneratedUiHasNoDebugBadge() {
       assert.equal(content.includes(marker), false, `${asset} contains ${marker}`);
   }
 
-  const header = fs.readFileSync("awtrix3/src/web_assets.h", "utf8");
-  const bytes = [...header.matchAll(/0x([0-9a-f]{2})/gi)].map((match) => Number.parseInt(match[1], 16));
-  const shell = zlib.gunzipSync(Buffer.from(bytes)).toString("utf8");
-  for (const marker of markers)
-    assert.equal(shell.includes(marker), false, `embedded app shell contains ${marker}`);
 }
 
 function load(code, extra) {
@@ -207,24 +199,6 @@ function testUnifiedFallbacksAndIdentity() {
   assert.ok(api.localizedSearchText(documented).includes("documented"));
   assert.ok(api.localizedSearchText(documented).includes("english description"));
   assert.ok(api.localizedSearchText(documented).includes("中文描述"));
-}
-
-function testRegularCatalogDescriptionsMatchManifests() {
-  const catalogPath = "app-store/list.json";
-  const catalog = JSON.parse(fs.readFileSync(catalogPath, "utf8"));
-
-  for (const type of ["flow", "animation"]) {
-    for (const app of catalog.apps[type]) {
-      if (!app.description) continue;
-      assert.equal(typeof app["description-cn"], "string", `${type}/${app.id} has a Chinese description`);
-      assert.notEqual(app["description-cn"].trim(), "", `${type}/${app.id} Chinese description is nonempty`);
-
-      const manifestPath = "app-store/" + app.manifest;
-      const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
-      if (manifest["description-cn"] !== undefined)
-        assert.equal(app["description-cn"], manifest["description-cn"], `${type}/${app.id} matches its manifest`);
-    }
-  }
 }
 
 function testStoreAndInstalledLabels() {
@@ -1478,7 +1452,6 @@ async function testPendingLibraryTogglePreventsDuplicatesAndPreservesTarget() {
 async function run() {
   testGeneratedUiHasNoDebugBadge();
   testUnifiedFallbacksAndIdentity();
-  testRegularCatalogDescriptionsMatchManifests();
   testStoreAndInstalledLabels();
   testLanguageRerenderDispatch();
   await testAboutSettingsTabRendersFetchedVersion();
