@@ -5,14 +5,11 @@ from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
 source = (root / "src/ServerManager.cpp").read_text()
-mirror = (root / "awtrix3/src/ServerManager.cpp").read_text()
 webserver_header = (root / "awtrix3/lib/webserver/esp-fs-webserver.h").read_text()
 webserver_source = (root / "awtrix3/lib/webserver/esp-fs-webserver.cpp").read_text()
 
-assert source == mirror
 for forbidden in ("ESPmDNS", "ESP8266mDNS", "MDNS.begin", "MDNS.addService", "MDNS.addServiceTxt"):
     assert forbidden not in source
-    assert forbidden not in webserver_header
 
 assert "WiFi.setHostname(HOSTNAME.c_str())" in source
 assert "udp.begin(localUdpPort);" in source

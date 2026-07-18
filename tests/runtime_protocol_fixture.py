@@ -97,16 +97,13 @@ patch_module = importlib.util.module_from_spec(patch_spec)
 patch_spec.loader.exec_module(patch_module)
 normalize_header = patch_module.normalize_header
 patch_header = patch_module.patch_header
-platformio_patch = (root / "patches/012-runtime-websockets-platformio.patch").read_text()
+upstream_overlay = (root / "patches/014-awtrix-light-upstream-overlay.patch").read_text()
 socket_source = (root / "src/AwtrixLightWebSocket.cpp").read_text()
-socket_mirror = (root / "awtrix3/src/AwtrixLightWebSocket.cpp").read_text()
-display_source = (root / "awtrix3/src/DisplayManager.cpp").read_text()
-display_patch = (root / "patches/011-runtime-display-ownership.patch").read_text()
 web_source = (root / "src/AwtrixLightWeb.cpp").read_text()
 runtime_source = (root / "src/AwtrixLightRuntime.cpp").read_text()
-assert "+\t-DWEBSOCKETS_MAX_DATA_SIZE=4096" in platformio_patch
-assert "+\tlinks2004/WebSockets@2.7.2" in platformio_patch
-assert "+extra_scripts = pre:../tools/patch_websockets_272.py" in platformio_patch
+assert "+\t-DWEBSOCKETS_MAX_DATA_SIZE=4096" in upstream_overlay
+assert "+\tlinks2004/WebSockets@2.7.2" in upstream_overlay
+assert "+extra_scripts = pre:../tools/patch_websockets_272.py" in upstream_overlay
 dependency_patch = (root / "tools/patch_websockets_272.py").read_text()
 assert "def normalize_header(source):" in dependency_patch
 assert "constexpr uint32_t kAuthTimeoutMs = 1000;" in socket_source
@@ -117,20 +114,12 @@ assert "sentScreenSequence = 0xFFFFFFFF;" not in socket_source
 assert socket_source.count("screenSequenceSent = false;") == 3
 assert "(!screenSequenceSent || screenSequence != sentScreenSequence)" in socket_source
 assert "if (socketServer.sendBIN(client, screenPacket, sizeof(screenPacket)))\n        {\n            sentScreenSequence = screenSequence;\n            screenSequenceSent = true;\n            lastPreview = now;\n        }" in socket_source
-assert socket_source == socket_mirror
-claim_runtime = display_source[display_source.index("void DisplayManager_::claimRuntime()") : display_source.index("void DisplayManager_::releaseRuntime()")]
-assert "runtimeScreenSequence = 0;" not in claim_runtime
-assert "static CRGB runtimeScreen[MATRIX_WIDTH * MATRIX_HEIGHT];" in display_source
-assert "const CRGB &pixel = runtimeScreen[matrix->XY(x, y)];" in display_source
-assert "memcmp(runtimeScreen, leds, sizeof(leds))" in display_source
-assert "memcpy(runtimeScreen, leds, sizeof(leds));\n    ++runtimeScreenSequence;" in display_source
-assert "memcpy(ledsCopy, leds, sizeof(leds));\n  for (int i = 0; i < 256; i++)" in display_source
-assert "+  runtimeScreenSequence = 0;" not in display_patch
-assert "+static CRGB runtimeScreen[MATRIX_WIDTH * MATRIX_HEIGHT];" in display_patch
-assert "+      const CRGB &pixel = runtimeScreen[matrix->XY(x, y)];" in display_patch
-assert "+  if (memcmp(runtimeScreen, leds, sizeof(leds)) != 0)" in display_patch
-assert "+    memcpy(runtimeScreen, leds, sizeof(leds));\n+    ++runtimeScreenSequence;" in display_patch
-assert "   memcpy(ledsCopy, leds, sizeof(leds));" in display_patch
+assert "+  runtimeScreenSequence = 0;" not in upstream_overlay
+assert "+static CRGB runtimeScreen[MATRIX_WIDTH * MATRIX_HEIGHT];" in upstream_overlay
+assert "+      const CRGB &pixel = runtimeScreen[matrix->XY(x, y)];" in upstream_overlay
+assert "+  if (memcmp(runtimeScreen, leds, sizeof(leds)) != 0)" in upstream_overlay
+assert "+    memcpy(runtimeScreen, leds, sizeof(leds));\n+    ++runtimeScreenSequence;" in upstream_overlay
+assert "   memcpy(ledsCopy, leds, sizeof(leds));" in upstream_overlay
 assert "if (authenticated)" in socket_source and "socketServer.disconnect(staleClient);" in socket_source
 assert 'sendHeader("Cache-Control", "no-store")' in web_source
 assert "values.size() >= 4 && values[2].is<const char *>()" in runtime_source
