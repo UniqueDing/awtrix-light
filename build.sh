@@ -62,17 +62,7 @@ echo "  done"
 
 echo "=== Step 2: Apply source patches ==="
 awtrix3_apply_patches "$DIR" "$A3" \
-  "$DIR/patches/002-webserver-auth.patch" \
-  "$DIR/patches/003-servermanager-hooks.patch" \
-  "$DIR/patches/004-displaymanager-install-helper.patch" \
-  "$DIR/patches/006-displaymanager-flow-refresh-uninstall.patch" \
-  "$DIR/patches/007-displaymanager-reenable-custom-apps.patch" \
-  "$DIR/patches/010-displaymanager-reenable-existing-custom-apps.patch" \
-  "$DIR/patches/008-awtrix2-trim-games-web.patch" \
-  "$DIR/patches/009-awtrix2-trim-effects.patch" \
-  "$DIR/patches/011-runtime-display-ownership.patch" \
-  "$DIR/patches/012-runtime-websockets-platformio.patch" \
-  "$DIR/patches/013-webserver-upload-handler.patch"
+  "$DIR/patches/014-awtrix-light-upstream-overlay.patch"
 echo "  done"
 
 echo "=== Step 3: Copy wrapper-owned source ==="
@@ -87,5 +77,9 @@ echo "=== Step 5: Generate web assets ==="
 awtrix3_embed_web_assets "$DIR" "$A3"
 echo "  done"
 
-echo "=== Step 6: Upload firmware ==="
+echo "=== Step 6: Apply parent version overlay ==="
+awtrix3_apply_version "$DIR" "$A3"
+echo "  done"
+
+echo "=== Step 7: Upload firmware ==="
 awtrix3_platformio_upload "$DIR" "$A3" "$ENV_NAME" "$PORT" "$USE_NIX"

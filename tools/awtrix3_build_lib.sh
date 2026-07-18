@@ -10,58 +10,40 @@ awtrix3_patch_already_applied() {
   local awtrix3_dir="$2"
 
   case "$(basename "$patch_file")" in
-    002-webserver-auth.patch)
-      grep -Fq '/api/auth/status' "$awtrix3_dir/lib/webserver/esp-fs-webserver.cpp"
-      ;;
-    003-servermanager-hooks.patch)
-      grep -Fq '#include "AwtrixLightWeb.h"' "$awtrix3_dir/src/ServerManager.cpp" && \
-        grep -Fq 'setupAwtrixLightWebRoutes(mws);' "$awtrix3_dir/src/ServerManager.cpp" && \
-        grep -Fq 'setAwtrixLightRuntimeButton(btn, state);' "$awtrix3_dir/src/ServerManager.cpp"
-      ;;
-    004-displaymanager-install-helper.patch)
-      grep -Fq 'enum CustomAppInstallResult' "$awtrix3_dir/src/DisplayManager.h" && \
-        grep -Fq 'installCustomAppFromJson' "$awtrix3_dir/src/DisplayManager.cpp"
-      ;;
-    006-displaymanager-flow-refresh-uninstall.patch)
-      grep -Fq 'refreshFlowApp' "$awtrix3_dir/src/DisplayManager.h" && \
-        grep -Fq 'uninstallCustomApp' "$awtrix3_dir/src/DisplayManager.h" && \
-        grep -Fq 'DisplayManager_::refreshFlowApp' "$awtrix3_dir/src/DisplayManager.cpp" && \
-        grep -Fq 'DisplayManager_::uninstallCustomApp' "$awtrix3_dir/src/DisplayManager.cpp"
-      ;;
-    007-displaymanager-reenable-custom-apps.patch)
-      grep -Fq 'pushCustomApp(appName, position);' "$awtrix3_dir/src/DisplayManager.cpp"
-      ;;
-    010-displaymanager-reenable-existing-custom-apps.patch)
-      grep -Fq 'existingApp != Apps.end()' "$awtrix3_dir/src/DisplayManager.cpp"
-      ;;
-    008-awtrix2-trim-games-web.patch)
-      grep -Fq -- '-<Games/*>' "$awtrix3_dir/platformio.ini" && \
-        grep -Fq '#ifndef awtrix2_upgrade' "$awtrix3_dir/src/DisplayManager.cpp" && \
-        grep -Fq 'while (currentClient.available())' "$awtrix3_dir/src/ServerManager.cpp"
-      ;;
-    009-awtrix2-trim-effects.patch)
-      grep -Fq -- '-<effects.cpp>' "$awtrix3_dir/platformio.ini" && \
-        grep -Fq 'const int numOfEffects = 0;' "$awtrix3_dir/src/effects.h"
-      ;;
-    011-runtime-display-ownership.patch)
-      grep -Fq 'void DisplayManager_::showRuntime()' "$awtrix3_dir/src/DisplayManager.cpp" && \
-        grep -Fq 'runtimeSequence() const' "$awtrix3_dir/src/DisplayManager.h"
-      ;;
-    012-runtime-websockets-platformio.patch)
-      grep -Fq 'fastled/FastLED@3.6.0' "$awtrix3_dir/platformio.ini" && \
-        ! grep -Fq 'fastled/FastLED@^3.6.0' "$awtrix3_dir/platformio.ini" && \
-        grep -Fq 'links2004/WebSockets@2.7.2' "$awtrix3_dir/platformio.ini" && \
-        grep -Fq -- '-DWEBSOCKETS_SERVER_CLIENT_MAX=1' "$awtrix3_dir/platformio.ini" && \
-        grep -Fq -- '-DWEBSOCKETS_MAX_DATA_SIZE=4096' "$awtrix3_dir/platformio.ini" && \
-        grep -Fq -- '-DNODEBUG_WEBSOCKETS' "$awtrix3_dir/platformio.ini" && \
-        grep -Fq -- '-DWEBSOCKETS_TCP_TIMEOUT=1000' "$awtrix3_dir/platformio.ini" && \
-        grep -Fq 'extra_scripts = pre:../tools/patch_websockets_272.py' "$awtrix3_dir/platformio.ini" && \
-        grep -Fq 'src_filter = +<*> -<AwtrixLightRuntime.cpp> -<AwtrixLightWebSocket.cpp>' "$awtrix3_dir/platformio.ini" && \
-        ! grep -Fq 'board_build.partitions' "$awtrix3_dir/platformio.ini"
-      ;;
-    013-webserver-upload-handler.patch)
-      grep -Fq 'void addHandler(const Uri &uri, HTTPMethod method, WebServerClass::THandlerFunction fn, WebServerClass::THandlerFunction uploadFn);' "$awtrix3_dir/lib/webserver/esp-fs-webserver.h" && \
-        grep -Fq 'webserver->on(uri, method, authMiddleware(fn), authMiddleware(uploadFn));' "$awtrix3_dir/lib/webserver/esp-fs-webserver.cpp"
+    014-awtrix-light-upstream-overlay.patch)
+      grep -Fq 'String flowApplyInputs(JsonObject doc, String value)' "$awtrix3_dir/src/DisplayManager.cpp" && \
+        grep -Fq 'void fetchFlowHttpSource(JsonObject app, JsonObject source, DynamicJsonDocument &sourceValues)' "$awtrix3_dir/src/DisplayManager.cpp" && \
+        grep -Fq 'void fetchFlowHaSource(JsonObject app, JsonObject source, DynamicJsonDocument &sourceValues)' "$awtrix3_dir/src/DisplayManager.cpp" && \
+        grep -Fq 'uint32_t flowRefreshInterval(JsonObject doc)' "$awtrix3_dir/src/DisplayManager.cpp" && \
+        grep -Fq 'uint32_t flowRefreshInterval = 0;' "$awtrix3_dir/src/Apps.h" && \
+        grep -Fq 'ca->flowRefreshInterval' "$awtrix3_dir/src/Apps.cpp" && \
+        grep -Fq 'extern String HA_BASE_URL;' "$awtrix3_dir/src/Globals.h" && \
+        grep -Fq 'extern String HA_TOKEN;' "$awtrix3_dir/src/Globals.h" && \
+        grep -Fq 'HA_BASE_URL = doc["ha_base_url"].as<String>();' "$awtrix3_dir/src/Globals.cpp" && \
+        grep -Fq 'HA_TOKEN = doc["ha_token"].as<String>();' "$awtrix3_dir/src/Globals.cpp" && \
+        grep -Fq 'String HA_BASE_URL = "";' "$awtrix3_dir/src/Globals.cpp" && \
+        grep -Fq 'String HA_TOKEN = "";' "$awtrix3_dir/src/Globals.cpp" && \
+        grep -Fq 'void addHandler(const Uri &uri, HTTPMethod method, WebServerClass::THandlerFunction fn, WebServerClass::THandlerFunction uploadFn);' "$awtrix3_dir/lib/webserver/esp-fs-webserver.h" && \
+        grep -Fq 'webserver->on(uri, method, authMiddleware(fn), authMiddleware(uploadFn));' "$awtrix3_dir/lib/webserver/esp-fs-webserver.cpp" && \
+        grep -Fq 'if (filename.indexOf("..") != -1)' "$awtrix3_dir/lib/webserver/esp-fs-webserver.cpp" && \
+        grep -Fq "if (filename.indexOf('\\\\') != -1)" "$awtrix3_dir/lib/webserver/esp-fs-webserver.cpp" && \
+        grep -Fq '"version": "0.98.1-light"' "$awtrix3_dir/docs/ulanzi_flasher/firmware/manifest.json" && \
+        grep -Fq 'src_filter = +<*> -<Games/*> -<effects.cpp>' "$awtrix3_dir/platformio.ini" && \
+        grep -Fq 'const int numOfEffects = 0;' "$awtrix3_dir/src/effects.h" && \
+        [ ! -e "$awtrix3_dir/src/Games/AwtrixSays.cpp" ] && \
+        [ ! -e "$awtrix3_dir/src/Games/AwtrixSays.h" ] && \
+        [ ! -e "$awtrix3_dir/src/Games/SlotMachine.cpp" ] && \
+        [ ! -e "$awtrix3_dir/src/Games/SlotMachine.h" ] && \
+        grep -Fq 'void GameManager_::setup() {}' "$awtrix3_dir/src/Games/GameManager.cpp" && \
+        grep -Fq 'void GameManager_::sendPoints(int) {}' "$awtrix3_dir/src/Games/GameManager.cpp" && \
+        grep -Fq 'setAwtrixLightRuntimeButton(0, false);' "$awtrix3_dir/src/PeripheryManager.cpp" && \
+        grep -Fq 'setAwtrixLightRuntimeButton(2, false);' "$awtrix3_dir/src/PeripheryManager.cpp" && \
+        grep -Fq 'if (existingApp != Apps.end())' "$awtrix3_dir/src/DisplayManager.cpp" && \
+        grep -Fq 'if (LittleFS.exists("/CUSTOMAPPS/" + name + ".json"))' "$awtrix3_dir/src/DisplayManager.cpp" && \
+        grep -Fq 'void DisplayManager_::showRuntime()' "$awtrix3_dir/src/DisplayManager.cpp" && \
+        grep -Fq 'uint32_t DisplayManager_::runtimeSequence() const' "$awtrix3_dir/src/DisplayManager.cpp" && \
+        grep -Fq 'void showRuntime();' "$awtrix3_dir/src/DisplayManager.h" && \
+        grep -Fq 'uint32_t runtimeSequence() const;' "$awtrix3_dir/src/DisplayManager.h"
       ;;
     *)
       return 1
@@ -89,19 +71,21 @@ awtrix3_apply_patches() {
 
   local patch_file
   for patch_file in "$@"; do
+    [ "$(basename "$patch_file")" = "014-awtrix-light-upstream-overlay.patch" ] || \
+      awtrix3_die "unsupported AWTRIX3 patch input: $patch_file"
+
     if awtrix3_patch_already_applied "$patch_file" "$awtrix3_dir"; then
       printf '  already applied: %s\n' "$(basename "$patch_file")"
-    elif [ "$(basename "$patch_file")" = "008-awtrix2-trim-games-web.patch" ] || [ "$(basename "$patch_file")" = "009-awtrix2-trim-effects.patch" ]; then
-      local awtrix3_rel="${awtrix3_dir#$root/}"
-      if (cd "$root" && git apply --check --ignore-whitespace --directory="$awtrix3_rel" "$patch_file"); then
-        (cd "$root" && git apply --ignore-whitespace --directory="$awtrix3_rel" "$patch_file")
-      else
+    else
+      local awtrix3_rel="${awtrix3_dir#"$root"}"
+      awtrix3_rel="${awtrix3_rel#/}"
+      if ! (cd "$root" && git apply --check --recount --ignore-whitespace --directory="$awtrix3_rel" "$patch_file"); then
         awtrix3_die "failed to apply patch: $patch_file"
       fi
-    elif /usr/bin/patch --dry-run -p1 -d "$awtrix3_dir" < "$patch_file" >/dev/null 2>&1; then
-      /usr/bin/patch -p1 -d "$awtrix3_dir" < "$patch_file"
-    else
-      awtrix3_die "failed to apply patch: $patch_file"
+      (cd "$root" && git apply --recount --ignore-whitespace --directory="$awtrix3_rel" "$patch_file") || \
+        awtrix3_die "failed to apply patch: $patch_file"
+      awtrix3_patch_already_applied "$patch_file" "$awtrix3_dir" || \
+        awtrix3_die "patch markers missing after apply: $patch_file"
     fi
   done
 }
@@ -139,6 +123,44 @@ awtrix3_embed_web_assets() {
   local root="$1"
   local awtrix3_dir="$2"
   "$root/tools/build_web_assets.sh" embed "$awtrix3_dir"
+}
+
+awtrix3_apply_version() {
+  local root="$1"
+  local awtrix3_dir="$2"
+
+  python3 - "$root/version" "$awtrix3_dir/version" "$awtrix3_dir/src/Globals.cpp" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+parent_version_path = Path(sys.argv[1])
+awtrix3_version_path = Path(sys.argv[2])
+globals_path = Path(sys.argv[3])
+
+if not parent_version_path.is_file():
+    raise SystemExit(f"missing parent version file: {parent_version_path}")
+
+version = parent_version_path.read_text(encoding="utf-8").rstrip("\r\n")
+if not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+-light", version):
+    raise SystemExit(f"invalid parent version: {version!r}")
+
+source = globals_path.read_text(encoding="utf-8")
+declaration = re.compile(
+    r'^(?P<prefix>[ \t]*const[ \t]+char[ \t]*\*[ \t]*VERSION[ \t]*=[ \t]*")'
+    r'[^"\r\n]*(?P<suffix>"[ \t]*;[ \t]*)$',
+    re.MULTILINE,
+)
+updated_source, replacements = declaration.subn(
+    lambda match: f'{match.group("prefix")}{version}{match.group("suffix")}',
+    source,
+)
+if replacements != 1:
+    raise SystemExit(f"expected exactly one compiled VERSION declaration, found {replacements}")
+
+globals_path.write_text(updated_source, encoding="utf-8")
+awtrix3_version_path.write_text(f"{version}\n", encoding="utf-8")
+PY
 }
 
 awtrix3_platformio_upload() {
