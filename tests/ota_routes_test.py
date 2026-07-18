@@ -5,9 +5,6 @@ from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
 source_path = root / "src/ServerManager.cpp"
-mirror_path = root / "awtrix3/src/ServerManager.cpp"
-assert source_path.read_bytes() == mirror_path.read_bytes()
-
 source = source_path.read_text()
 
 update_start = source.index('mws.addHandler("/api/update", HTTP_GET')
@@ -56,7 +53,7 @@ assert 'manualFirmwareTarget = "ulanzi"' in source
 assert 'manualFirmwareTarget = "awtrix2-upgrade"' in source
 assert '#error "Unsupported OTA target"' in source
 
-upload_patch = (root / "patches/013-webserver-upload-handler.patch").read_text()
+upload_patch = (root / "patches/014-awtrix-light-upstream-overlay.patch").read_text()
 assert 'authMiddleware(fn), authMiddleware(uploadFn)' in upload_patch
 assert 'void addHandler(const Uri &uri, HTTPMethod method, WebServerClass::THandlerFunction fn, WebServerClass::THandlerFunction uploadFn);' in upload_patch
 

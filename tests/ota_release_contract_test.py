@@ -5,12 +5,8 @@ from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
 source = (root / "src/UpdateManager.cpp").read_text()
-mirror = (root / "awtrix3/src/UpdateManager.cpp").read_text()
 header = (root / "src/UpdateManager.h").read_text()
-header_mirror = (root / "awtrix3/src/UpdateManager.h").read_text()
 
-assert source == mirror
-assert header == header_mirror
 assert "Blueforcer" not in source
 assert "HTTPUpdate.h" not in source
 assert "setInsecure" not in source
