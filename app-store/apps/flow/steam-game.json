@@ -1,0 +1,45 @@
+{
+  "type": "flow",
+  "name": "steam-game",
+  "name-cn": "Steam游戏",
+  "version": "1.0.0",
+  "author": "Node-RED Conversion",
+  "description": "Display current Steam game from a Home Assistant Steam sensor",
+  "description-cn": "从Home Assistant显示当前正在玩的Steam游戏",
+  "minFirmwareVersion": "0.98",
+  "icon": "49986",
+  "tags": [
+    "home-assistant",
+    "steam"
+  ],
+  "inputs": [
+    {
+      "id": "entity_id",
+      "type": "text",
+      "value": "sensor.steam_76561198282040097",
+      "label": "Home Assistant Steam Entity ID",
+      "label-cn": "HA Steam 实体ID",
+      "description": "Copy the entity_id of your Steam sensor in Home Assistant, e.g. sensor.steam_76561198282040097. Configure the global HA address and token under Settings > Integrations.",
+      "description-cn": "在 Home Assistant 中复制 Steam 传感器的 entity_id，例如 sensor.steam_76561198282040097。全局 Home Assistant 地址和 token 在设置 > 集成中配置。"
+    }
+  ],
+  "sources": [
+    {
+      "id": "steam",
+      "type": "ha",
+      "entity": "{{entity_id}}",
+      "value": "state",
+      "responseType": "json",
+      "interval": 60,
+      "timeout": 5000
+    }
+  ],
+  "display": {
+    "text": "{{steam.attributes.game}}",
+    "icon": "49986",
+    "color": "#ffffff",
+    "background": "#000000",
+    "rainbow": true,
+    "repeat": 1
+  }
+}

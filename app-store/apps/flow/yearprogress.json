@@ -1,0 +1,54 @@
+{
+  "type": "flow",
+  "name": "yearprogress",
+  "name-cn": "年度进度",
+  "version": "1.0.0",
+  "author": "Node-RED Conversion",
+  "description": "Year progress percentage converted from Node-RED",
+  "description-cn": "显示年度进度百分比",
+  "minFirmwareVersion": "0.98",
+  "icon": "2230",
+  "tags": [
+    "year",
+    "progress",
+    "node-red"
+  ],
+  "inputs": [],
+  "sources": [
+    {
+      "id": "year",
+      "type": "formula",
+      "kind": "time_progress",
+      "interval": 3600,
+      "fields": {
+        "progress": "floor(yearProgress())",
+        "text": "concat(progress, '%')",
+        "icon": "2230",
+        "dayOfYear": "dayOfYear()",
+        "daysInYear": "daysInYear()"
+      }
+    }
+  ],
+  "display": [
+    {
+      "if": {
+        "source": "year.progress",
+        "op": ">=",
+        "value": 90
+      },
+      "text": "{{year.progress}}%",
+      "icon": "2230",
+      "progress": "{{year.progress}}",
+      "color": "#ff9900",
+      "background": "#000000"
+    },
+    {
+      "default": true,
+      "text": "{{year.progress}}%",
+      "icon": "2230",
+      "progress": "{{year.progress}}",
+      "color": "#ffffff",
+      "background": "#000000"
+    }
+  ]
+}
