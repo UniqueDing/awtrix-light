@@ -1,0 +1,16 @@
+{
+  "id": "slot-machine",
+  "type": "live",
+  "name": "Slot Machine",
+  "name-cn": "老虎机",
+  "version": "1.0.0",
+  "author": "awtrix-light",
+  "description": "Auto-spinning slot machine.",
+  "description-cn": "自动旋转老虎机。",
+  "minFirmwareVersion": "0.98",
+  "icon": "2369",
+  "tags": [
+    "game"
+  ],
+  "entry": "apps/live/slot-machine.js"
+}
