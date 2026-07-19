@@ -1,0 +1,16 @@
+{
+  "id": "bounce-dot",
+  "type": "live",
+  "name": "Bounce Dot",
+  "name-cn": "弹跳点",
+  "version": "1.0.0",
+  "author": "awtrix-light",
+  "description": "Bounce dot animation controlled by browser.",
+  "description-cn": "浏览器控制弹跳点动画。",
+  "minFirmwareVersion": "0.98",
+  "icon": "2230",
+  "tags": [
+    "demo"
+  ],
+  "entry": "apps/live/bounce-dot.js"
+}

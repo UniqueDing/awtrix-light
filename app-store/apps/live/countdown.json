@@ -1,0 +1,16 @@
+{
+  "id": "countdown",
+  "type": "live",
+  "name": "Countdown",
+  "name-cn": "倒计时",
+  "version": "1.0.0",
+  "author": "awtrix-light",
+  "description": "Set duration, count down to zero.",
+  "description-cn": "设置时长，倒计时到零。",
+  "minFirmwareVersion": "0.98",
+  "icon": "1460",
+  "tags": [
+    "timer"
+  ],
+  "entry": "apps/live/countdown.js"
+}
