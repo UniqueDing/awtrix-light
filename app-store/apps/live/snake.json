@@ -1,0 +1,16 @@
+{
+  "id": "snake",
+  "type": "live",
+  "name": "Snake",
+  "name-cn": "贪吃蛇",
+  "version": "1.0.0",
+  "author": "awtrix-light",
+  "description": "Snake mini game with directional controls.",
+  "description-cn": "贪吃蛇小游戏，支持方向按钮操作。",
+  "minFirmwareVersion": "0.98",
+  "icon": "2957",
+  "tags": [
+    "game"
+  ],
+  "entry": "apps/live/snake.js"
+}
