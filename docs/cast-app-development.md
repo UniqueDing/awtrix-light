@@ -20,7 +20,7 @@ This means the installed Live list follows the AWTRIX device when you switch bro
 
 ## Manifest
 
-Live still use `castApps` and `type: "live"` internally for compatibility. User-facing UI calls them Live.
+Live entries are listed under `apps.live` in `app-store/list.json`. Their manifests use `type: "live"`.
 
 ```json
 {
@@ -171,8 +171,33 @@ The Stop or Pause button inside a Live should stop the app logic only. The displ
 
 ## Local development
 
-Place modules under `mock-app-store/cast/` and add entries under `castApps` in `mock-app-store/list.json`. Serve the mock store with CORS enabled:
+Place modules and manifests under `app-store/apps/live/`. Add each app to the `apps.live` array in `app-store/list.json`:
 
-Serve the directory with any static HTTP server that sends CORS headers.
+```json
+{
+  "apps": {
+    "live": [
+      {
+        "id": "stopwatch",
+        "type": "live",
+        "name": { "zh": "秒表", "en": "Stopwatch" },
+        "description": {
+          "zh": "正向计时，支持开始、暂停、重置。",
+          "en": "Count upward with start, pause, and reset controls."
+        },
+        "manifest": "apps/live/stopwatch.json"
+      }
+    ]
+  }
+}
+```
+
+From the repository root, start the local app store server with CORS enabled:
+
+```bash
+python3 tools/serve_app_store.py
+```
+
+Use `http://localhost:8091/list.json` as the app store URL.
 
 Open App Store > Live, install the app, then open it from My Apps > Live.

@@ -6,18 +6,22 @@ Use a Flow for fan counts, dates, weather, Home Assistant state, progress bars, 
 
 ## 1. Create the store entry
 
-Add an entry to the store list. In the mock store this is `mock-app-store/list.json` under `apps`.
+Add an entry to the `apps.flow` array in `app-store/list.json`.
 
 ```json
 {
   "id": "lunar",
   "name": "lunar",
-  "version": 2,
+  "version": "1.0.0",
   "author": "AWTRIX Mock",
   "description": "Chinese lunar date display using the new Flow sources and display API",
+  "description-cn": "显示中国农历日期，支持节日和高亮",
   "icon": "70075",
-  "manifest": "apps/lunar.json",
-  "tags": ["lunar", "calendar", "flow"]
+  "manifest": "apps/flow/lunar.json",
+  "tags": ["lunar", "calendar", "flow"],
+  "minFirmwareVersion": "0.98",
+  "name-cn": "农历",
+  "type": "flow"
 }
 ```
 
@@ -102,12 +106,14 @@ Supported condition operators include `exists`, `not_exists`, `==`, `!=`, `>`, `
 
 ## 5. Test locally
 
-Run the mock store server from the repository:
+From the repository root, run the local app store server:
 
-Serve the directory with any static HTTP server that sends CORS headers.
+```bash
+python3 tools/serve_app_store.py
+```
 
-Then point the AWTRIX app store to the mock store URL and install the Flow. After installation, check My Apps > Flow, edit inputs and intervals, and verify the live screen preview.
+Then point the AWTRIX app store to `http://localhost:8091/list.json` and install the Flow. After installation, check My Apps > Flow, edit inputs and intervals, and verify the live screen preview.
 
 ## Complete example
 
-See `mock-app-store/apps/lunar.json` for a complete Flow using `inputs`, `sources`, `interval`, and conditional `display` rules.
+See `app-store/apps/flow/lunar.json` for a complete Flow using `inputs`, `sources`, `interval`, and conditional `display` rules.
