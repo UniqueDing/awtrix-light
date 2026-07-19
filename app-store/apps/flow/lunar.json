@@ -1,0 +1,69 @@
+{
+  "type": "flow",
+  "name": "lunar",
+  "name-cn": "农历",
+  "version": "1.0.0",
+  "author": "AWTRIX Mock",
+  "description": "Chinese lunar date display using the new Flow sources and display API",
+  "description-cn": "显示中国农历日期，支持节日和高亮",
+  "minFirmwareVersion": "0.98",
+  "icon": "70075",
+  "tags": [
+    "lunar",
+    "calendar",
+    "flow"
+  ],
+  "inputs": [
+    {
+      "id": "apiUrl",
+      "type": "text",
+      "value": "https://example.com/api/lunar/today",
+      "label": "Lunar API URL",
+      "label-cn": "农历API地址",
+      "description": "HTTP endpoint returning JSON with fields such as lunarText, festival, and isHoliday.",
+      "description-cn": "返回如 lunarText、festival、isHoliday 等字段的 HTTP 接口地址"
+    }
+  ],
+  "sources": [
+    {
+      "id": "lunar",
+      "type": "http",
+      "method": "GET",
+      "url": "{{apiUrl}}",
+      "responseType": "json",
+      "interval": 3600,
+      "timeout": 8000,
+      "headers": {}
+    }
+  ],
+  "display": [
+    {
+      "if": {
+        "source": "lunar.festival",
+        "op": "exists"
+      },
+      "text": "{{lunar.festival}}",
+      "icon": "70075",
+      "color": "#ffcc00",
+      "background": "#000000"
+    },
+    {
+      "if": {
+        "source": "lunar.isHoliday",
+        "op": "==",
+        "value": true
+      },
+      "text": "{{lunar.lunarText}}",
+      "icon": "70075",
+      "color": "#00ff99",
+      "background": "#000000"
+    },
+    {
+      "default": true,
+      "text": "{{lunar.lunarText}}",
+      "icon": "70075",
+      "color": "#ffffff",
+      "background": "#000000"
+    }
+  ]
+}

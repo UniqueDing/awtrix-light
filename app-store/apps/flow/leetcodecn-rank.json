@@ -1,0 +1,55 @@
+{
+  "type": "flow",
+  "name": "leetcodecn-rank",
+  "name-cn": "力扣排名",
+  "version": "1.0.0",
+  "author": "Node-RED Conversion",
+  "description": "LeetCode CN site ranking",
+  "description-cn": "显示力扣中国站点排名",
+  "minFirmwareVersion": "0.98",
+  "icon": "70056",
+  "tags": [
+    "leetcodecn",
+    "node-red"
+  ],
+  "inputs": [
+    {
+      "id": "uid",
+      "type": "text",
+      "value": "exampleusername",
+      "label": "LeetCode CN Username",
+      "label-cn": "力扣用户名",
+      "description": "The path after leetcode.cn/u/ in your LeetCode CN profile URL is your username.",
+      "description-cn": "打开力扣中国个人主页，https://leetcode.cn/u/ 后面的路径就是用户名"
+    }
+  ],
+  "sources": [
+    {
+      "id": "profile",
+      "type": "http",
+      "method": "POST",
+      "url": "https://leetcode.cn/graphql/",
+      "responseType": "json",
+      "interval": 600,
+      "timeout": 8000,
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36",
+        "Referer": "https://leetcode.cn/u/{{uid}}",
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "operationName": "userPublicProfile",
+        "variables": {
+          "userSlug": "{{uid}}"
+        },
+        "query": "query userPublicProfile($userSlug: String!) {\n  userProfilePublicProfile(userSlug: $userSlug) {\n    siteRanking\n    submissionProgress {\n      acTotal\n    }\n  }\n}"
+      }
+    }
+  ],
+  "display": {
+    "text": "{{profile.data.userProfilePublicProfile.siteRanking}}",
+    "icon": "70056",
+    "color": "#ffffff",
+    "background": "#000000"
+  }
+}
