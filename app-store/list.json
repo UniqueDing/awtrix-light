@@ -1,0 +1,732 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-06-12T00:00:00Z",
+  "apps": {
+    "flow": [
+      {
+        "id": "bilibili-followers",
+        "name": "bilibili-followers",
+        "version": "1.0.0",
+        "author": "AWTRIX Mock",
+        "description": "test",
+        "description-cn": "显示指定B站UID的粉丝数",
+        "icon": "27106",
+        "manifest": "apps/flow/bilibili-followers.json",
+        "tags": [
+          "bilibili",
+          "followers"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "B站粉丝数",
+        "type": "flow"
+      },
+      {
+        "id": "demo-clock",
+        "name": "demo-clock",
+        "version": "1.1.0",
+        "author": "AWTRIX Mock",
+        "description": "Local mock schema app",
+        "description-cn": "本地演示时钟应用",
+        "icon": "time",
+        "manifest": "apps/flow/demo-clock.json",
+        "tags": [
+          "demo"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "演示时钟",
+        "type": "flow"
+      },
+      {
+        "id": "future-frame-test",
+        "name": "future-frame-test",
+        "version": "1.0.0",
+        "author": "AWTRIX Mock",
+        "description": "Compatibility test app that requires a newer firmware.",
+        "description-cn": "需要新固件版本的兼容性测试应用",
+        "icon": "warning",
+        "manifest": "apps/flow/future-frame-test.json",
+        "tags": [
+          "demo",
+          "compatibility"
+        ],
+        "minFirmwareVersion": "9.99",
+        "name-cn": "未来框架测试",
+        "type": "flow"
+      },
+      {
+        "id": "github-followers",
+        "name": "github-followers",
+        "version": "1.0.0",
+        "author": "Node-RED Conversion",
+        "description": "GitHub follower count",
+        "description-cn": "显示指定GitHub用户的粉丝数",
+        "icon": "70053",
+        "manifest": "apps/flow/github-followers.json",
+        "tags": [
+          "github",
+          "node-red"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "GitHub粉丝数",
+        "type": "flow"
+      },
+      {
+        "id": "leetcodecn-rank",
+        "name": "leetcodecn-rank",
+        "version": "1.0.0",
+        "author": "Node-RED Conversion",
+        "description": "LeetCode CN site ranking",
+        "description-cn": "显示力扣中国站点排名",
+        "icon": "70056",
+        "manifest": "apps/flow/leetcodecn-rank.json",
+        "tags": [
+          "leetcodecn",
+          "node-red"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "力扣排名",
+        "type": "flow"
+      },
+      {
+        "id": "leetcodecn-ac",
+        "name": "leetcodecn-ac",
+        "version": "1.0.0",
+        "author": "Node-RED Conversion",
+        "description": "LeetCode CN accepted problem count",
+        "description-cn": "显示力扣中国已通过题目数",
+        "icon": "70056",
+        "manifest": "apps/flow/leetcodecn-ac.json",
+        "tags": [
+          "leetcodecn",
+          "node-red"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "力扣通过数",
+        "type": "flow"
+      },
+      {
+        "id": "netease-cloud-music",
+        "name": "netease-cloud-music",
+        "version": "1.0.0",
+        "author": "Node-RED Conversion",
+        "description": "Netease Cloud Music listened song count",
+        "description-cn": "显示网易云音乐听歌总数",
+        "icon": "70046",
+        "manifest": "apps/flow/netease-cloud-music.json",
+        "tags": [
+          "netease",
+          "node-red"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "网易云音乐",
+        "type": "flow"
+      },
+      {
+        "id": "duolingo-streak",
+        "name": "duolingo-streak",
+        "version": "1.0.0",
+        "author": "Node-RED Conversion",
+        "description": "Duolingo streak",
+        "description-cn": "显示多邻国连续打卡天数",
+        "icon": "55815",
+        "manifest": "apps/flow/duolingo-streak.json",
+        "tags": [
+          "duolingo",
+          "node-red"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "多邻国打卡",
+        "type": "flow"
+      },
+      {
+        "id": "lunar",
+        "name": "lunar",
+        "version": "1.0.0",
+        "author": "AWTRIX Mock",
+        "description": "Chinese lunar date display using the new Flow sources and display API",
+        "description-cn": "显示中国农历日期，支持节日和高亮",
+        "icon": "70075",
+        "manifest": "apps/flow/lunar.json",
+        "tags": [
+          "lunar",
+          "calendar",
+          "flow"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "农历",
+        "type": "flow"
+      },
+      {
+        "id": "yearprogress",
+        "name": "yearprogress",
+        "version": "1.0.0",
+        "author": "Node-RED Conversion",
+        "description": "Year progress percentage converted from Node-RED",
+        "description-cn": "显示年度进度百分比",
+        "icon": "2230",
+        "manifest": "apps/flow/yearprogress.json",
+        "tags": [
+          "year",
+          "progress",
+          "node-red"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "年度进度",
+        "type": "flow"
+      },
+      {
+        "id": "steam-game",
+        "name": "steam-game",
+        "version": "1.0.0",
+        "author": "Node-RED Conversion",
+        "description": "Display current Steam game from Home Assistant",
+        "description-cn": "从Home Assistant显示当前正在玩的Steam游戏",
+        "icon": "49986",
+        "manifest": "apps/flow/steam-game.json",
+        "tags": [
+          "home-assistant",
+          "steam",
+          "node-red"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "Steam游戏",
+        "type": "flow"
+      }
+    ],
+    "animation": [
+      {
+        "id": "snake-animation",
+        "type": "animation",
+        "name": "Snake Animation",
+        "version": "1.0.0",
+        "author": "AWTRIX Mock",
+        "description": "Indexed bitmap Snake animation that plays in Flow rotation.",
+        "description-cn": "基于索引位图的贪吃蛇动画，用于Flow轮播。",
+        "icon": "snake",
+        "manifest": "apps/animation/snake-animation.json",
+        "tags": [
+          "animation",
+          "flow",
+          "indexed"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "贪吃蛇动画"
+      },
+      {
+        "id": "fade",
+        "type": "animation",
+        "name": "Fade",
+        "version": "1.0.0",
+        "author": "AWTRIX Mock",
+        "description": "Converted official Fade effect as indexed animation.",
+        "description-cn": "基于索引位图的淡入淡出效果动画。",
+        "icon": "animation",
+        "manifest": "apps/animation/fade.json",
+        "tags": [
+          "animation",
+          "effect",
+          "indexed"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "淡入淡出动画"
+      },
+      {
+        "id": "movingline",
+        "type": "animation",
+        "name": "MovingLine",
+        "version": "1.0.0",
+        "author": "AWTRIX Mock",
+        "description": "Converted official MovingLine effect as indexed animation.",
+        "description-cn": "基于索引位图的移动线条效果动画。",
+        "icon": "animation",
+        "manifest": "apps/animation/movingline.json",
+        "tags": [
+          "animation",
+          "effect",
+          "indexed"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "移动线条动画"
+      },
+      {
+        "id": "brickbreaker",
+        "type": "animation",
+        "name": "BrickBreaker",
+        "version": "1.0.0",
+        "author": "AWTRIX Mock",
+        "description": "Converted official BrickBreaker effect as indexed animation.",
+        "description-cn": "基于索引位图的打砖块效果动画。",
+        "icon": "animation",
+        "manifest": "apps/animation/brickbreaker.json",
+        "tags": [
+          "animation",
+          "effect",
+          "indexed"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "打砖块动画"
+      },
+      {
+        "id": "pingpong",
+        "type": "animation",
+        "name": "PingPong",
+        "version": "1.0.0",
+        "author": "AWTRIX Mock",
+        "description": "Converted official PingPong effect as indexed animation.",
+        "description-cn": "基于索引位图的乒乓效果动画。",
+        "icon": "animation",
+        "manifest": "apps/animation/pingpong.json",
+        "tags": [
+          "animation",
+          "effect",
+          "indexed"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "乒乓动画"
+      },
+      {
+        "id": "radar",
+        "type": "animation",
+        "name": "Radar",
+        "version": "1.0.0",
+        "author": "AWTRIX Mock",
+        "description": "Converted official Radar effect as indexed animation.",
+        "description-cn": "基于索引位图的雷达效果动画。",
+        "icon": "animation",
+        "manifest": "apps/animation/radar.json",
+        "tags": [
+          "animation",
+          "effect",
+          "indexed"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "雷达动画"
+      },
+      {
+        "id": "checkerboard",
+        "type": "animation",
+        "name": "Checkerboard",
+        "version": "1.0.0",
+        "author": "AWTRIX Mock",
+        "description": "Converted official Checkerboard effect as indexed animation.",
+        "description-cn": "基于索引位图的棋盘效果动画。",
+        "icon": "animation",
+        "manifest": "apps/animation/checkerboard.json",
+        "tags": [
+          "animation",
+          "effect",
+          "indexed"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "棋盘动画"
+      },
+      {
+        "id": "fireworks",
+        "type": "animation",
+        "name": "Fireworks",
+        "version": "1.0.0",
+        "author": "AWTRIX Mock",
+        "description": "Converted official Fireworks effect as indexed animation.",
+        "description-cn": "基于索引位图的烟花效果动画。",
+        "icon": "animation",
+        "manifest": "apps/animation/fireworks.json",
+        "tags": [
+          "animation",
+          "effect",
+          "indexed"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "烟花动画"
+      },
+      {
+        "id": "plasmacloud",
+        "type": "animation",
+        "name": "PlasmaCloud",
+        "version": "1.0.0",
+        "author": "AWTRIX Mock",
+        "description": "Converted official PlasmaCloud effect as indexed animation.",
+        "description-cn": "基于索引位图的等离子云效果动画。",
+        "icon": "animation",
+        "manifest": "apps/animation/plasmacloud.json",
+        "tags": [
+          "animation",
+          "effect",
+          "indexed"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "等离子云动画"
+      },
+      {
+        "id": "ripple",
+        "type": "animation",
+        "name": "Ripple",
+        "version": "1.0.0",
+        "author": "AWTRIX Mock",
+        "description": "Converted official Ripple effect as indexed animation.",
+        "description-cn": "基于索引位图的波纹效果动画。",
+        "icon": "animation",
+        "manifest": "apps/animation/ripple.json",
+        "tags": [
+          "animation",
+          "effect",
+          "indexed"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "波纹动画"
+      },
+      {
+        "id": "snake",
+        "type": "animation",
+        "name": "Snake",
+        "version": "1.0.0",
+        "author": "AWTRIX Mock",
+        "description": "Converted official Snake effect as indexed animation.",
+        "description-cn": "基于索引位图的贪吃蛇效果动画。",
+        "icon": "animation",
+        "manifest": "apps/animation/snake.json",
+        "tags": [
+          "animation",
+          "effect",
+          "indexed"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "贪吃蛇动画"
+      },
+      {
+        "id": "pacifica",
+        "type": "animation",
+        "name": "Pacifica",
+        "version": "1.0.0",
+        "author": "AWTRIX Mock",
+        "description": "Converted official Pacifica effect as indexed animation.",
+        "description-cn": "基于索引位图的太平洋效果动画。",
+        "icon": "animation",
+        "manifest": "apps/animation/pacifica.json",
+        "tags": [
+          "animation",
+          "effect",
+          "indexed"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "太平洋动画"
+      },
+      {
+        "id": "theaterchase",
+        "type": "animation",
+        "name": "TheaterChase",
+        "version": "1.0.0",
+        "author": "AWTRIX Mock",
+        "description": "Converted official TheaterChase effect as indexed animation.",
+        "description-cn": "基于索引位图的剧院追逐效果动画。",
+        "icon": "animation",
+        "manifest": "apps/animation/theaterchase.json",
+        "tags": [
+          "animation",
+          "effect",
+          "indexed"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "剧院追逐动画"
+      },
+      {
+        "id": "plasma",
+        "type": "animation",
+        "name": "Plasma",
+        "version": "1.0.0",
+        "author": "AWTRIX Mock",
+        "description": "Converted official Plasma effect as indexed animation.",
+        "description-cn": "基于索引位图的等离子效果动画。",
+        "icon": "animation",
+        "manifest": "apps/animation/plasma.json",
+        "tags": [
+          "animation",
+          "effect",
+          "indexed"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "等离子动画"
+      },
+      {
+        "id": "matrix",
+        "type": "animation",
+        "name": "Matrix",
+        "version": "1.0.0",
+        "author": "AWTRIX Mock",
+        "description": "Converted official Matrix effect as indexed animation.",
+        "description-cn": "基于索引位图的矩阵效果动画。",
+        "icon": "animation",
+        "manifest": "apps/animation/matrix.json",
+        "tags": [
+          "animation",
+          "effect",
+          "indexed"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "矩阵动画"
+      },
+      {
+        "id": "swirlin",
+        "type": "animation",
+        "name": "SwirlIn",
+        "version": "1.0.0",
+        "author": "AWTRIX Mock",
+        "description": "Converted official SwirlIn effect as indexed animation.",
+        "description-cn": "基于索引位图的旋入效果动画。",
+        "icon": "animation",
+        "manifest": "apps/animation/swirlin.json",
+        "tags": [
+          "animation",
+          "effect",
+          "indexed"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "旋入动画"
+      },
+      {
+        "id": "swirlout",
+        "type": "animation",
+        "name": "SwirlOut",
+        "version": "1.0.0",
+        "author": "AWTRIX Mock",
+        "description": "Converted official SwirlOut effect as indexed animation.",
+        "description-cn": "基于索引位图的旋出效果动画。",
+        "icon": "animation",
+        "manifest": "apps/animation/swirlout.json",
+        "tags": [
+          "animation",
+          "effect",
+          "indexed"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "旋出动画"
+      },
+      {
+        "id": "lookingeyes",
+        "type": "animation",
+        "name": "LookingEyes",
+        "version": "1.0.0",
+        "author": "AWTRIX Mock",
+        "description": "Converted official LookingEyes effect as indexed animation.",
+        "description-cn": "基于索引位图的注视眼效果动画。",
+        "icon": "animation",
+        "manifest": "apps/animation/lookingeyes.json",
+        "tags": [
+          "animation",
+          "effect",
+          "indexed"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "注视眼动画"
+      },
+      {
+        "id": "twinklingstars",
+        "type": "animation",
+        "name": "TwinklingStars",
+        "version": "1.0.0",
+        "author": "AWTRIX Mock",
+        "description": "Converted official TwinklingStars effect as indexed animation.",
+        "description-cn": "基于索引位图的闪烁星星效果动画。",
+        "icon": "animation",
+        "manifest": "apps/animation/twinklingstars.json",
+        "tags": [
+          "animation",
+          "effect",
+          "indexed"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "闪烁星星动画"
+      },
+      {
+        "id": "colorwaves",
+        "type": "animation",
+        "name": "ColorWaves",
+        "version": "1.0.0",
+        "author": "AWTRIX Mock",
+        "description": "Converted official ColorWaves effect as indexed animation.",
+        "description-cn": "基于索引位图的彩色波浪效果动画。",
+        "icon": "animation",
+        "manifest": "apps/animation/colorwaves.json",
+        "tags": [
+          "animation",
+          "effect",
+          "indexed"
+        ],
+        "minFirmwareVersion": "0.98",
+        "name-cn": "彩色波浪动画"
+      }
+    ],
+    "live": [
+      {
+        "id": "awtrix-says",
+        "type": "live",
+        "name": {
+          "zh": "记忆游戏",
+          "en": "AWTRIX Says"
+        },
+        "version": "1.0.0",
+        "author": "awtrix-light",
+        "description": {
+          "zh": "记忆颜色顺序的经典游戏。",
+          "en": "Classic memory game with color sequence."
+        },
+        "icon": "3359",
+        "tags": [
+          "game",
+          "memory"
+        ],
+        "manifest": "apps/live/awtrix-says.json",
+        "minFirmwareVersion": "0.98",
+        "name-cn": "记忆游戏"
+      },
+      {
+        "id": "bounce-dot",
+        "type": "live",
+        "name": {
+          "zh": "弹跳点",
+          "en": "Bounce Dot"
+        },
+        "version": "1.0.0",
+        "author": "awtrix-light",
+        "description": {
+          "zh": "浏览器控制弹跳点动画。",
+          "en": "Bounce dot animation controlled by browser."
+        },
+        "icon": "2230",
+        "tags": [
+          "demo"
+        ],
+        "manifest": "apps/live/bounce-dot.json",
+        "minFirmwareVersion": "0.98",
+        "name-cn": "弹跳点"
+      },
+      {
+        "id": "countdown",
+        "type": "live",
+        "name": {
+          "zh": "倒计时",
+          "en": "Countdown"
+        },
+        "version": "1.0.0",
+        "author": "awtrix-light",
+        "description": {
+          "zh": "设置时长，倒计时到零。",
+          "en": "Set duration, count down to zero."
+        },
+        "icon": "1460",
+        "tags": [
+          "timer"
+        ],
+        "manifest": "apps/live/countdown.json",
+        "minFirmwareVersion": "0.98",
+        "name-cn": "倒计时"
+      },
+      {
+        "id": "fireworks",
+        "type": "live",
+        "name": {
+          "zh": "烟花",
+          "en": "Fireworks"
+        },
+        "version": "1.0.0",
+        "author": "awtrix-light",
+        "description": {
+          "zh": "随机烟花动画。",
+          "en": "Random fireworks animation."
+        },
+        "icon": "2283",
+        "tags": [
+          "toy",
+          "animation"
+        ],
+        "manifest": "apps/live/fireworks.json",
+        "minFirmwareVersion": "0.98",
+        "name-cn": "烟花"
+      },
+      {
+        "id": "pixel-pad",
+        "type": "live",
+        "name": {
+          "zh": "像素板",
+          "en": "Pixel Pad"
+        },
+        "version": "1.0.0",
+        "author": "awtrix-light",
+        "description": {
+          "zh": "输入坐标点亮像素。",
+          "en": "Light pixels by entering coordinates."
+        },
+        "icon": "2423",
+        "tags": [
+          "tool",
+          "drawing"
+        ],
+        "manifest": "apps/live/pixel-pad.json",
+        "minFirmwareVersion": "0.98",
+        "name-cn": "像素板"
+      },
+      {
+        "id": "slot-machine",
+        "type": "live",
+        "name": {
+          "zh": "老虎机",
+          "en": "Slot Machine"
+        },
+        "version": "1.0.0",
+        "author": "awtrix-light",
+        "description": {
+          "zh": "自动旋转老虎机。",
+          "en": "Auto-spinning slot machine."
+        },
+        "icon": "2369",
+        "tags": [
+          "game"
+        ],
+        "manifest": "apps/live/slot-machine.json",
+        "minFirmwareVersion": "0.98",
+        "name-cn": "老虎机"
+      },
+      {
+        "id": "snake",
+        "type": "live",
+        "name": {
+          "zh": "贪吃蛇",
+          "en": "Snake"
+        },
+        "version": "1.0.0",
+        "author": "awtrix-light",
+        "description": {
+          "zh": "贪吃蛇小游戏，支持方向按钮操作。",
+          "en": "Snake mini game with directional controls."
+        },
+        "icon": "2957",
+        "tags": [
+          "game"
+        ],
+        "manifest": "apps/live/snake.json",
+        "minFirmwareVersion": "0.98",
+        "name-cn": "贪吃蛇"
+      },
+      {
+        "id": "stopwatch",
+        "type": "live",
+        "name": {
+          "zh": "秒表",
+          "en": "Stopwatch"
+        },
+        "version": "1.0.0",
+        "author": "awtrix-light",
+        "description": {
+          "zh": "正向计时，支持开始、暂停、重置。",
+          "en": "Count upward with start, pause, and reset controls."
+        },
+        "icon": "1460",
+        "tags": [
+          "timer"
+        ],
+        "manifest": "apps/live/stopwatch.json",
+        "minFirmwareVersion": "0.98",
+        "name-cn": "秒表"
+      }
+    ]
+  }
+}
