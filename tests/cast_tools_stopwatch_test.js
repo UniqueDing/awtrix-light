@@ -70,6 +70,41 @@ function loadBuiltIn(clock, runtimePost, isWebSocket = false) {
   return context.stopwatchTest;
 }
 
+function loadApp(clock, api) {
+  const context = {
+    Date: clock.Date,
+    Promise,
+    Math,
+    String,
+    setTimeout: clock.setTimeout,
+    clearTimeout: clock.clearTimeout,
+    requestAnimationFrame: () => 1,
+    cancelAnimationFrame() {},
+  };
+  vm.createContext(context);
+  const source = fs.readFileSync("app-store/apps/live/stopwatch.js", "utf8")
+    .replace("export async function main", "async function main");
+  vm.runInContext(source + "\nthis.stopwatchMain = main;", context);
+  return context.stopwatchMain(api, { name: "Stopwatch", description: "Test" });
+}
+
+function createAppApi(frame, isWebSocket = false) {
+  const api = {
+    commands: {
+      text(x, y, text, color) { return { dt: [x, y, text, color] }; },
+      clear() { throw Error("redundant clear command"); },
+    },
+    frame,
+    isWebSocket: () => isWebSocket,
+    updateDisplay() {},
+    renderDialog(desc) { api.desc = desc; },
+    claim: async () => {},
+    enableButtons() {},
+    onClose: null,
+  };
+  return api;
+}
+
 async function testBuiltInCadenceAndElapsed() {
   const clock = createClock(1000);
   const frames = [];
@@ -165,10 +200,85 @@ async function testBuiltInCoalescingAndLifecycle() {
   assert.equal(frames.length, 3, "stop emits no late frames");
 }
 
+async function testAppCadenceAndLifecycle() {
+  const clock = createClock(2000);
+  const frames = [];
+  const api = createAppApi(async (body) => { frames.push({ at: clock.Date.now(), body }); });
+  await loadApp(clock, api);
+  await tick();
+  frames.length = 0;
+  api.desc.controls.find((control) => control.id === "start").action();
+  await clock.advance(1000);
+  assert.ok(frames.length >= 15 && frames.length <= 16, `expected about 15 FPS, got ${frames.length}`);
+  api.desc.controls.find((control) => control.id === "pause").action();
+  await tick();
+  assert.equal(frameText(frames.at(-1).body), "00:01.00");
+  const pausedCount = frames.length;
+  await clock.advance(500);
+  assert.equal(frames.length, pausedCount, "app pause cancels deadlines");
+  api.desc.controls.find((control) => control.id === "reset").action();
+  await tick();
+  assert.equal(frameText(frames.at(-1).body), "00:00.00");
+  api.onClose();
+  await clock.advance(500);
+  assert.equal(frames.length, pausedCount + 1, "close prevents timer revival");
+}
+
+async function testAppWebSocketCadenceWithSlowAck() {
+  const clock = createClock(0);
+  const frames = [];
+  const ack = deferred();
+  const api = createAppApi((body) => {
+    frames.push({ at: clock.Date.now(), body });
+    return ack.promise;
+  }, true);
+  await loadApp(clock, api);
+  frames.length = 0;
+  api.desc.controls.find((control) => control.id === "start").action();
+  await clock.advance(999);
+  assert.equal(frames.length, 15, "app submits every WebSocket cadence tick despite deferred ACK");
+  ack.resolve();
+  await tick();
+}
+
+async function testAppSlowFrameCoalescing() {
+  const clock = createClock(0);
+  const frames = [];
+  let active = 0;
+  let maxActive = 0;
+  let blocked = deferred();
+  const api = createAppApi((body) => {
+    frames.push(body);
+    active++;
+    maxActive = Math.max(maxActive, active);
+    return blocked.promise.finally(() => { active--; });
+  });
+  const loading = loadApp(clock, api);
+  await tick();
+  blocked.resolve();
+  await loading;
+  await tick();
+  frames.length = 0;
+  blocked = deferred();
+  api.desc.controls.find((control) => control.id === "start").action();
+  await clock.advance(500);
+  assert.equal(frames.length, 1);
+  api.desc.controls.find((control) => control.id === "pause").action();
+  blocked.resolve();
+  await tick();
+  await tick();
+  assert.equal(maxActive, 1);
+  assert.equal(frames.length, 2);
+  assert.equal(frameText(frames[1]), "00:00.50");
+}
+
 async function run() {
   await testBuiltInCadenceAndElapsed();
   await testBuiltInWebSocketCadenceWithSlowAck();
   await testBuiltInCoalescingAndLifecycle();
+  await testAppCadenceAndLifecycle();
+  await testAppWebSocketCadenceWithSlowAck();
+  await testAppSlowFrameCoalescing();
   console.log("stopwatch pacing tests: ok");
 }
 

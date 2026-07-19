@@ -201,6 +201,25 @@ function testUnifiedFallbacksAndIdentity() {
   assert.ok(api.localizedSearchText(documented).includes("中文描述"));
 }
 
+function testRegularCatalogDescriptionsMatchManifests() {
+  const catalogPath = "app-store/list.json";
+  const catalog = JSON.parse(fs.readFileSync(catalogPath, "utf8"));
+
+  for (const type of ["flow", "animation"]) {
+    for (const app of catalog.apps[type]) {
+      if (!app.description) continue;
+      assert.equal(typeof app["description-cn"], "string", `${type}/${app.id} has a Chinese description`);
+      assert.notEqual(app["description-cn"].trim(), "", `${type}/${app.id} Chinese description is nonempty`);
+
+      const manifestPath = "app-store/" + app.manifest;
+      const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+      assert.equal(typeof manifest["description-cn"], "string", `${type}/${app.id} manifest has a Chinese description`);
+      assert.notEqual(manifest["description-cn"].trim(), "", `${type}/${app.id} manifest Chinese description is nonempty`);
+      assert.equal(app["description-cn"], manifest["description-cn"], `${type}/${app.id} matches its manifest`);
+    }
+  }
+}
+
 function testStoreAndInstalledLabels() {
   const api = helperContext();
   const regularStore = { id: "demo", name: "demo", "name-cn": "演示", description: "Demo", "description-cn": "演示描述" };
@@ -1452,6 +1471,7 @@ async function testPendingLibraryTogglePreventsDuplicatesAndPreservesTarget() {
 async function run() {
   testGeneratedUiHasNoDebugBadge();
   testUnifiedFallbacksAndIdentity();
+  testRegularCatalogDescriptionsMatchManifests();
   testStoreAndInstalledLabels();
   testLanguageRerenderDispatch();
   await testAboutSettingsTabRendersFetchedVersion();
