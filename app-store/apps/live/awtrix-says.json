@@ -1,0 +1,17 @@
+{
+  "id": "awtrix-says",
+  "type": "live",
+  "name": "AWTRIX Says",
+  "name-cn": "记忆游戏",
+  "version": "1.0.0",
+  "author": "awtrix-light",
+  "description": "Classic memory game with color sequence.",
+  "description-cn": "记忆颜色顺序的经典游戏。",
+  "minFirmwareVersion": "0.98",
+  "icon": "3359",
+  "tags": [
+    "game",
+    "memory"
+  ],
+  "entry": "apps/live/awtrix-says.js"
+}
