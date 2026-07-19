@@ -1,0 +1,16 @@
+{
+  "id": "stopwatch",
+  "type": "live",
+  "name": "Stopwatch",
+  "name-cn": "秒表",
+  "version": "1.0.0",
+  "author": "awtrix-light",
+  "description": "Count upward with start, pause, and reset controls.",
+  "description-cn": "正向计时，支持开始、暂停、重置。",
+  "minFirmwareVersion": "0.98",
+  "icon": "1460",
+  "tags": [
+    "timer"
+  ],
+  "entry": "apps/live/stopwatch.js"
+}
