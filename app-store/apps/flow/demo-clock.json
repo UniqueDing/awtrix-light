@@ -1,0 +1,22 @@
+{
+  "type": "flow",
+  "name": "demo-clock",
+  "name-cn": "演示时钟",
+  "version": "1.1.0",
+  "author": "AWTRIX Mock",
+  "description": "Local mock schema app",
+  "description-cn": "本地演示时钟应用",
+  "minFirmwareVersion": "0.98",
+  "icon": "time",
+  "tags": [
+    "demo"
+  ],
+  "inputs": [],
+  "sources": [],
+  "display": {
+    "text": "Demo Clock",
+    "icon": "time",
+    "color": "#ffffff",
+    "background": "#000000"
+  }
+}

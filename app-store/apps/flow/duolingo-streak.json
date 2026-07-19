@@ -1,0 +1,46 @@
+{
+  "type": "flow",
+  "name": "duolingo-streak",
+  "name-cn": "多邻国打卡",
+  "version": "1.0.0",
+  "author": "Node-RED Conversion",
+  "description": "Duolingo streak",
+  "description-cn": "显示多邻国连续打卡天数",
+  "minFirmwareVersion": "0.98",
+  "icon": "55815",
+  "tags": [
+    "duolingo",
+    "node-red"
+  ],
+  "inputs": [
+    {
+      "id": "uuid",
+      "type": "text",
+      "value": "uuid",
+      "label": "Duolingo UUID",
+      "label-cn": "多邻国UUID",
+      "description": "Get your user UUID from the Duolingo API or from the logged_out_uuid browser cookie.",
+      "description-cn": "打开 Duolingo 登录后的接口或从 logged_out_uuid Cookie 获取用户 UUID，然后填入这里。"
+    }
+  ],
+  "sources": [
+    {
+      "id": "user",
+      "type": "http",
+      "method": "GET",
+      "url": "https://www.duolingo.cn/2017-06-30/users/{{uuid}}?fields=streak",
+      "responseType": "json",
+      "interval": 3600,
+      "timeout": 5000,
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36"
+      }
+    }
+  ],
+  "display": {
+    "text": "{{user.streak}}",
+    "icon": "55815",
+    "color": "#ffffff",
+    "background": "#000000"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "type": "flow",
+  "name": "bilibili-followers",
+  "name-cn": "B站粉丝数",
+  "version": "1.0.0",
+  "author": "AWTRIX Mock",
+  "description": "Display Bilibili follower count for a given UID",
+  "description-cn": "显示指定B站UID的粉丝数",
+  "minFirmwareVersion": "0.98",
+  "icon": "27106",
+  "tags": [
+    "bilibili",
+    "followers"
+  ],
+  "inputs": [
+    {
+      "id": "uid",
+      "type": "text",
+      "value": "19445169",
+      "label": "Bilibili UID",
+      "label-cn": "B站UID",
+      "description": "Open your Bilibili profile page; the number after /space/ in the URL is your UID, e.g. https://space.bilibili.com/19445169.",
+      "description-cn": "打开 Bilibili 个人主页，URL 中 /space/ 后面的数字就是 UID，例如 https://space.bilibili.com/19445169。"
+    }
+  ],
+  "sources": [
+    {
+      "id": "relation",
+      "type": "http",
+      "method": "GET",
+      "url": "https://api.bilibili.com/x/relation/stat?vmid={{uid}}&jsonp=jsonp",
+      "responseType": "json",
+      "interval": 300,
+      "timeout": 5000,
+      "headers": {}
+    }
+  ],
+  "display": {
+    "text": "{{relation.data.follower}}",
+    "icon": "27106",
+    "color": "#ffffff",
+    "background": "#000000"
+  }
+}
