@@ -1,0 +1,17 @@
+{
+  "id": "pixel-pad",
+  "type": "live",
+  "name": "Pixel Pad",
+  "name-cn": "像素板",
+  "version": "1.0.0",
+  "author": "awtrix-light",
+  "description": "Light pixels by entering coordinates.",
+  "description-cn": "输入坐标点亮像素。",
+  "minFirmwareVersion": "0.98",
+  "icon": "2423",
+  "tags": [
+    "tool",
+    "drawing"
+  ],
+  "entry": "apps/live/pixel-pad.js"
+}

@@ -1,0 +1,17 @@
+{
+  "id": "fireworks",
+  "type": "live",
+  "name": "Fireworks",
+  "name-cn": "烟花",
+  "version": "1.0.0",
+  "author": "awtrix-light",
+  "description": "Random fireworks animation.",
+  "description-cn": "随机烟花动画。",
+  "minFirmwareVersion": "0.98",
+  "icon": "2283",
+  "tags": [
+    "toy",
+    "animation"
+  ],
+  "entry": "apps/live/fireworks.js"
+}
