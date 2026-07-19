@@ -1,0 +1,23 @@
+{
+  "type": "flow",
+  "name": "future-frame-test",
+  "name-cn": "未来框架测试",
+  "version": "1.0.0",
+  "author": "AWTRIX Mock",
+  "description": "Compatibility test app that requires a newer firmware version",
+  "description-cn": "需要新固件版本的兼容性测试应用",
+  "minFirmwareVersion": "9.99",
+  "icon": "warning",
+  "tags": [
+    "demo",
+    "compatibility"
+  ],
+  "inputs": [],
+  "sources": [],
+  "display": {
+    "text": "Future Firmware",
+    "icon": "warning",
+    "color": "#ffcc00",
+    "background": "#000000"
+  }
+}

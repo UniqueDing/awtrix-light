@@ -1,0 +1,46 @@
+{
+  "type": "flow",
+  "name": "github-followers",
+  "name-cn": "GitHub粉丝数",
+  "version": "1.0.0",
+  "author": "Node-RED Conversion",
+  "description": "GitHub follower count",
+  "description-cn": "显示指定GitHub用户的粉丝数",
+  "minFirmwareVersion": "0.98",
+  "icon": "70053",
+  "tags": [
+    "github",
+    "node-red"
+  ],
+  "inputs": [
+    {
+      "id": "username",
+      "type": "text",
+      "value": "yourusername",
+      "label": "GitHub Username",
+      "label-cn": "GitHub用户名",
+      "description": "The path after github.com/ in your GitHub profile URL is your username.",
+      "description-cn": "打开 GitHub 个人主页，https://github.com/ 后面的路径就是用户名"
+    }
+  ],
+  "sources": [
+    {
+      "id": "user",
+      "type": "http",
+      "method": "GET",
+      "url": "https://api.github.com/users/{{username}}",
+      "responseType": "json",
+      "interval": 600,
+      "timeout": 5000,
+      "headers": {
+        "User-Agent": "Mozilla/5.0"
+      }
+    }
+  ],
+  "display": {
+    "text": "{{user.followers}}",
+    "icon": "70053",
+    "color": "#ffffff",
+    "background": "#000000"
+  }
+}
