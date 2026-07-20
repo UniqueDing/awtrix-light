@@ -18,12 +18,17 @@
   the generated `awtrix3/.pio/build/ulanzi/firmware.bin` byte length.
 - Reject an image larger than `1310720` bytes. Keep meaningful headroom when
   possible; the current verified image is `1284016` bytes.
-- Build Ulanzi through the project Nix shell:
+- Build Ulanzi directly with PlatformIO Core 6.1.18. The GitHub Actions release
+  path uses Node.js 22 and Python 3.13, and does not require Nix:
 
   ```bash
-  nix-shell ../shell.nix --run "platformio run -e ulanzi"
+  cd awtrix3
+  python3 -m platformio run -e ulanzi
   stat -c '%s' .pio/build/ulanzi/firmware.bin
   ```
+- `shell.nix` remains an optional local development environment for VSCodium,
+  Wokwi, and PlatformIO helpers. Local flashing can use `./build.sh --nix`; the
+  default `./build.sh` path invokes the locally installed PlatformIO directly.
 
 ## Flashing
 
@@ -55,4 +60,7 @@ node tests/cast_tools_stopwatch_test.js
 python3 tests/runtime_protocol_fixture.py
 python3 tests/integrations_test_routes.py
 python3 tests/discovery_regression_test.py
+python3 tests/ota_release_contract_test.py
+python3 tests/ota_routes_test.py
+python3 tests/release_firmware_contract_test.py
 ```
