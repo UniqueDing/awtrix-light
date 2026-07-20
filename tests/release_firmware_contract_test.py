@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import io
+import re
 import subprocess
 import tarfile
 import tempfile
@@ -16,7 +17,9 @@ gitmodules = (root / ".gitmodules").read_text()
 overlay_patch_path = root / "patches/014-awtrix-light-upstream-overlay.patch"
 overlay_patch = overlay_patch_path.read_text()
 server_manager = (root / "src/ServerManager.cpp").read_text()
+update_manager = (root / "src/UpdateManager.cpp").read_text()
 validation, publishing = workflow.split("  publishing:\n", 1)
+platformio_version = "6.1.18"  # Pinned release used with the workflow's Python 3.13 toolchain.
 
 gitlink = subprocess.run(
     ["git", "ls-files", "--stage", "awtrix3"],
@@ -54,8 +57,27 @@ assert '[[ "$RELEASE_TAG" =~ ^v[0-9]+\\.[0-9]+\\.[0-9]+-light$ ]]' in validation
 assert validation.index("git submodule update --init awtrix3") < validation.index("tr -d '\\r\\n' < version")
 assert "git submodule update --init awtrix3" in validation
 assert "--recursive" not in workflow
-assert validation.index("python3 tests/ota_release_contract_test.py") < validation.index("python3 tests/ota_routes_test.py")
-assert validation.index("python3 tests/ota_routes_test.py") < validation.index("python3 tests/release_firmware_contract_test.py")
+assert "actions/setup-node@v4" in validation
+assert "node-version: '22'" in validation
+assert "actions/setup-python@v5" in validation
+assert "python-version: '3.13'" in validation
+assert f"python3 -m pip install --disable-pip-version-check platformio=={platformio_version}" in validation
+test_commands = (
+    "node tests/app_localization_test.js",
+    "node tests/runtime_transport_test.js",
+    "node tests/cast_tools_stopwatch_test.js",
+    "python3 tests/runtime_protocol_fixture.py",
+    "python3 tests/integrations_test_routes.py",
+    "python3 tests/discovery_regression_test.py",
+    "python3 tests/ota_release_contract_test.py",
+    "python3 tests/ota_routes_test.py",
+    "python3 tests/release_firmware_contract_test.py",
+)
+test_positions = [validation.index(command) for command in test_commands]
+assert test_positions == sorted(test_positions)
+for forbidden_nix_dependency in ("install-nix-action", "nix-shell", "NIX_PATH", "<nixpkgs>"):
+    assert forbidden_nix_dependency not in workflow
+    assert forbidden_nix_dependency not in tool
 assert "tools/release_firmware.sh --tag" in validation
 assert "actions/upload-artifact@v4" in validation
 assert "name: release-firmware" in validation
@@ -82,6 +104,10 @@ assert 'awtrix3_copy_web_ui "$ROOT" "$AWTRIX3_DIR"' in tool
 assert 'awtrix3_embed_web_assets "$ROOT" "$AWTRIX3_DIR"' in tool
 assert 'awtrix3_apply_version "$ROOT" "$AWTRIX3_DIR"' in tool
 assert 'awtrix3_apply_version "$DIR" "$A3"' in local_build
+assert (root / "shell.nix").is_file()
+assert "usage: ./build.sh [--nix]" in local_build
+assert 'nix-shell "$root/shell.nix"' in build_lib
+assert 'platformio run -e "$env_name" -t upload' in build_lib
 assert 'version = parent_version_path.read_text(encoding="utf-8").rstrip("\\r\\n")' in build_lib
 assert 're.fullmatch(r"[0-9]+\\.[0-9]+\\.[0-9]+-light", version)' in build_lib
 assert 'if replacements != 1:' in build_lib
@@ -208,7 +234,12 @@ for marker in (
 ):
     assert marker in server_manager
 assert 'TARGETS=(ulanzi awtrix2_upgrade)' in tool
-assert 'nix-shell "$ROOT/shell.nix" --run "platformio run -e $target"' in tool
+assert 'python3 -m platformio run -e "$target"' in tool
+manifest_targets = set(re.findall(r'^\s*\("([^"]+)", f"awtrix-light-\{version\}-[^"]+\.bin"\),$', tool, re.MULTILINE))
+firmware_targets = set(re.findall(r'otaTarget = "([^"]+)"', update_manager))
+assert manifest_targets == {"ulanzi", "awtrix2-upgrade"}
+assert "awtrix2_upgrade" not in manifest_targets
+assert manifest_targets == firmware_targets
 assert 'MAX_FIRMWARE_BYTES=1310720' in tool
 assert 'stat -c \'%s\' "$source_image"' in tool
 assert 'artifact="awtrix-light-$VERSION-$artifact_target.bin"' in tool

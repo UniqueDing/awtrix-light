@@ -103,7 +103,7 @@ COMPILED_VERSION="${OVERLAID_VERSIONS[1]:-}"
 
 for target in "${TARGETS[@]}"; do
   printf '=== Build %s ===\n' "$target"
-  (cd "$AWTRIX3_DIR" && nix-shell "$ROOT/shell.nix" --run "platformio run -e $target")
+  (cd "$AWTRIX3_DIR" && python3 -m platformio run -e "$target")
 done
 
 rm -rf "$DIST_DIR"
@@ -133,7 +133,7 @@ version = sys.argv[2]
 max_firmware_bytes = int(sys.argv[3])
 targets = (
     ("ulanzi", f"awtrix-light-{version}-ulanzi.bin"),
-    ("awtrix2_upgrade", f"awtrix-light-{version}-awtrix2-upgrade.bin"),
+    ("awtrix2-upgrade", f"awtrix-light-{version}-awtrix2-upgrade.bin"),
 )
 manifest_targets = []
 for target, filename in targets:
