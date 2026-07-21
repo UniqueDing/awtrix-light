@@ -1,6 +1,6 @@
 const DEFAULT_STORE_SOURCE = {
   name: "awtrix-light",
-  url: "http://192.168.31.7:8091/list.json",
+  url: "https://raw.githubusercontent.com/UniqueDing/awtrix-light/master/app-store/list.json",
 };
 const STORE_SOURCES_KEY = "awtrixStoreSourcesV2";
 const STORE_SELECTED_KEY = "awtrixStoreUrlV2";

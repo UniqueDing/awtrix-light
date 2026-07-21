@@ -238,6 +238,35 @@ function testStoreAndInstalledLabels() {
   assert.equal(api.castAppName(installedLive), "Stopwatch");
 }
 
+function testDefaultStoreSourceResolvesRawCatalogPaths() {
+  const context = load(
+    source("app-store-core.js") +
+      "\nthis.api={defaultSource:DEFAULT_STORE_SOURCE,storeManifestUrl,storeBase,resolveStoreUrl};",
+    {
+      URL,
+      location: {
+        href: "http://awtrix.local/",
+        origin: "http://awtrix.local",
+      },
+    },
+  );
+  const catalogUrl =
+    "https://raw.githubusercontent.com/UniqueDing/awtrix-light/master/app-store/list.json";
+  const catalogBase =
+    "https://raw.githubusercontent.com/UniqueDing/awtrix-light/master/app-store/";
+
+  assert.equal(context.api.defaultSource.url, catalogUrl);
+  assert.equal(context.api.storeManifestUrl(catalogUrl), catalogUrl);
+  assert.equal(context.api.storeBase(context.api.defaultSource.url), catalogBase);
+  assert.equal(
+    context.api.resolveStoreUrl(
+      "apps/live/stopwatch.json",
+      context.api.storeBase(context.api.defaultSource.url),
+    ),
+    catalogBase + "apps/live/stopwatch.json",
+  );
+}
+
 function testLanguageRerenderDispatch() {
   const calls = [];
   const context = load(
@@ -1473,6 +1502,7 @@ async function run() {
   testUnifiedFallbacksAndIdentity();
   testRegularCatalogDescriptionsMatchManifests();
   testStoreAndInstalledLabels();
+  testDefaultStoreSourceResolvesRawCatalogPaths();
   testLanguageRerenderDispatch();
   await testAboutSettingsTabRendersFetchedVersion();
   await testAboutVersionRequestSurvivesRerendersAndSwitches();
