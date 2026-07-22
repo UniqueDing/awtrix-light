@@ -1036,7 +1036,7 @@ function animationInstallContext(options) {
   const errors = [];
   const warnings = [];
   const manifestUrl = "https://store.example/apps/animation/stable-id.json";
-  const assetUrl = "https://store.example/assets/animation/stable-id.gif";
+  const assetUrl = "https://store.example/apps/animation/stable-id.gif";
   const gifBytes = Buffer.alloc(14);
   gifBytes.write("GIF89a", 0, "ascii");
   gifBytes.writeUInt16LE(32, 6);
@@ -1067,7 +1067,7 @@ function animationInstallContext(options) {
               type: "animation",
               name: "downloaded-name",
               icon: "legacy-icon",
-              animationAsset: options.animationAsset || "../../assets/animation/stable-id.gif",
+              animationAsset: options.animationAsset || "./stable-id.gif",
               displayDuration: 12,
               display: { icon: "compatibility-icon" },
             }),
@@ -1249,6 +1249,10 @@ async function testAnimationAssetInstallsBeforeStablePayload() {
     ["DELETE", "/edit?path=%2FICONS%2Fstable-id.jpg"],
     ["POST", "/api/custom?name=stable-id&save=1"],
   ]);
+  assert.deepEqual(Object.entries(run.requests[1].options), [
+    ["cache", "no-store"],
+    ["redirect", "error"],
+  ]);
   assert.equal(run.uploads.length, 1);
   assert.equal(run.uploads[0].name, "file");
   assert.equal(run.uploads[0].filename, "ICONS/stable-id.gif");
@@ -1267,6 +1271,7 @@ async function testAnimationAssetFailuresAbortCustomInstall() {
   const failures = [
     animationInstallContext({ assetResponse: { ok: false } }),
     animationInstallContext({ assetResponse: { ok: true, blob: async () => new Blob(["not-gif"], { type: "image/gif" }) } }),
+    animationInstallContext({ responseUrl: "https://evil.example/apps/animation/stable-id.gif" }),
     animationInstallContext({ uploadResponse: { ok: false } }),
     animationInstallContext({ cleanupResponse: { ok: false, status: 500 } }),
   ];
@@ -1274,7 +1279,7 @@ async function testAnimationAssetFailuresAbortCustomInstall() {
     assert.equal(await run.context.install({ id: "stable-id", manifestUrl: run.manifestUrl }, null, "fallback", true), false);
     assert.equal(run.requests.some((request) => request.url.startsWith("/api/custom")), false);
   }
-  const cleanupFailure = failures[3];
+  const cleanupFailure = failures[4];
   assert.ok(
     cleanupFailure.requests.findIndex((request) => request.url === "/edit") <
       cleanupFailure.requests.findIndex((request) => request.url.startsWith("/edit?path=")),
@@ -1354,19 +1359,62 @@ async function testAnimationAssetUrlAndGifValidation() {
       fetch: async () => ({ ok: false, status: 404 }),
     },
   );
-  const manifest = "https://store.example/apps/animation/demo.json";
-  assert.equal(
-    context.api.url("../../assets/animation/stable-id.gif", manifest, "stable-id"),
-    "https://store.example/assets/animation/stable-id.gif",
-  );
+  const githubManifest =
+    "https://raw.githubusercontent.com/UniqueDing/awtrix-light/master/app-store/apps/animation/stable-id.json";
+  const localManifest =
+    "http://localhost:8091/apps/animation/stable-id.json";
+  for (const [manifest, assetUrl] of [
+    [
+      githubManifest,
+      "https://raw.githubusercontent.com/UniqueDing/awtrix-light/master/app-store/apps/animation/stable-id.gif",
+    ],
+    [localManifest, "http://localhost:8091/apps/animation/stable-id.gif"],
+  ])
+    assert.equal(context.api.url("./stable-id.gif", manifest, "stable-id"), assetUrl);
+
   for (const asset of [
-    "https://evil.example/assets/animation/stable-id.gif",
+    "../../assets/animation/stable-id.gif",
+    "https://evil.example/apps/animation/stable-id.gif",
+    "https://user:pass@raw.githubusercontent.com/UniqueDing/awtrix-light/master/app-store/apps/animation/stable-id.gif",
+    "https://raw.githubusercontent.com/UniqueDing/awtrix-light/master/app-store/apps/animation/stable-id.gif",
+    "//evil.example/apps/animation/stable-id.gif",
+    "stable-id.gif",
+    "../animation/stable-id.gif",
+    "./other.gif",
+    "./stable-id.GIF",
+    "./stable-id.gif?download=1",
+    "./stable-id.gif#fragment",
+    "./%73table-id.gif",
+    ".\\stable-id.gif",
     "../../assets/animation/other.gif",
-    "../../assets/animation/stable-id.gif?download=1",
-    "../../assets/animation/stable-id.gif#fragment",
     "../../assets/animation/%2e%2e/stable-id.gif",
   ])
-    assert.throws(() => context.api.url(asset, manifest, "stable-id"));
+    assert.throws(
+      () => context.api.url(asset, githubManifest, "stable-id"),
+      /invalid animation asset URL/,
+      asset,
+    );
+
+  for (const manifest of [
+    "https://user:pass@raw.githubusercontent.com/UniqueDing/awtrix-light/master/app-store/apps/animation/stable-id.json",
+    githubManifest + "?download=1",
+    githubManifest + "#fragment",
+    "https://raw.githubusercontent.com/UniqueDing/awtrix-light/master/app-store/apps/animation/%2e%2e/stable-id.json",
+    "https://raw.githubusercontent.com/UniqueDing/awtrix-light/master/app-store/apps/animation/other.json",
+    "https://raw.githubusercontent.com/UniqueDing/awtrix-light/master/app-store/apps/flow/stable-id.json",
+  ])
+    assert.throws(
+      () => context.api.url("./stable-id.gif", manifest, "stable-id"),
+      /invalid animation asset URL/,
+      manifest,
+    );
+
+  for (const id of ["", "other", "../stable-id", "stable-id%2fother", " stable-id"])
+    assert.throws(
+      () => context.api.url("./stable-id.gif", githubManifest, id),
+      /invalid animation asset URL/,
+      id,
+    );
 
   const oversized = new Blob([Buffer.alloc(128 * 1024 + 1)], { type: "image/gif" });
   await assert.rejects(() => context.api.gif({

@@ -45,27 +45,27 @@ const MAX_ANIMATION_SNAPSHOT_BYTES = 256 * 1024;
 
 function animationAssetUrl(asset, manifestUrl, icon) {
   let value = String(asset || ""),
-    manifest = new URL(manifestUrl, location.href);
+    id = String(icon || ""),
+    manifestValue = String(manifestUrl || "");
   if (
-    !value ||
-    value.startsWith("//") ||
-    /[\\#]/.test(value) ||
-    /%(?:2e|2f|5c)/i.test(value)
+    safeIconName(id) !== id ||
+    value !== "./" + id + ".gif" ||
+    /[\\?#]/.test(manifestValue) ||
+    /%(?:2e|2f|5c)/i.test(manifestValue)
   )
     throw Error("invalid animation asset URL");
-  let marker = "/apps/animation/",
-    markerAt = manifest.pathname.lastIndexOf(marker);
-  if (markerAt < 0) throw Error("invalid animation manifest URL");
-  let expected = new URL(
-      manifest.pathname.slice(0, markerAt) +
-        "/assets/animation/" +
-        encodeURIComponent(icon) +
-        ".gif",
-      manifest.origin,
-    ),
+  let manifest = new URL(manifestValue, location.href),
+    manifestPath =
+      "/apps/animation/" + encodeURIComponent(id) + ".json",
+    expected = new URL("./" + encodeURIComponent(id) + ".gif", manifest),
     resolved = new URL(value, manifest);
   if (
     !/^https?:$/.test(manifest.protocol) ||
+    manifest.username ||
+    manifest.password ||
+    manifest.search ||
+    manifest.hash ||
+    !manifest.pathname.endsWith(manifestPath) ||
     resolved.origin !== manifest.origin ||
     resolved.username ||
     resolved.password ||
@@ -193,7 +193,7 @@ async function installAnimationAsset(payload, item, manifestUrl, installName) {
   let icon = safeIconName((item && item.id) || installName);
   if (!icon) throw Error("invalid animation asset name");
   let url = animationAssetUrl(payload.animationAsset, manifestUrl, icon),
-    response = await rawFetch(url, { cache: "no-store" });
+    response = await rawFetch(url, { cache: "no-store", redirect: "error" });
   if (!response.ok) throw Error("animation asset download failed");
   validateAnimationResponseUrl(response, url);
   let blob = await validateAnimationGif(response),

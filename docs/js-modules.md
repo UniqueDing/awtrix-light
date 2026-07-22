@@ -206,7 +206,7 @@ Shared app settings/display field schemas and compatibility helpers.
 
 Shared icon lookup, fallback rendering, store icon download, and device icon upload helpers.
 
-- Defines icon rendering/upload helpers plus strict same-origin GIF animation asset validation, bounded download checks, and safe stable-ID cleanup helpers.
+- Defines icon rendering/upload helpers plus exact colocated `./<id>.gif` animation asset validation, bounded download checks, and safe stable-ID cleanup helpers.
 
 ## app-store-compat.js
 

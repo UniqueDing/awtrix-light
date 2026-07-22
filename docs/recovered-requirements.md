@@ -176,7 +176,7 @@ Recovered legacy notes described animation settings with these fields:
 - `animation_repeat`
 - `displayDuration`
 
-Those names describe an earlier indexed animation source and should not be treated as current runtime firmware settings. In the current GIF-backed model, the regular Animation custom app definition persists as `/CUSTOMAPPS/{name}.json`, its GIF asset lives at `/ICONS/{name}.gif`, and settings expose top-level `duration`. Source FPS and repeat values belong to GIF generation metadata rather than runtime firmware settings.
+Those names describe an earlier indexed animation format and should not be treated as current runtime firmware settings. In the current GIF-backed model, each committed app-store GIF is colocated with its manifest, the regular Animation custom app definition persists as `/CUSTOMAPPS/{name}.json`, its installed GIF asset lives at `/ICONS/{name}.gif`, and settings expose top-level `duration`. There is no indexed source tree or asset generator.
 
 The recovered intent still applies: irrelevant display fields should not be shown for animation apps, including text/icon/alignment/scroll/rainbow/bounce/pushIcon/fadeText/blinkText style controls unless explicitly needed for a specific app type.
 
