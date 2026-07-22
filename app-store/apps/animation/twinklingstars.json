@@ -9,7 +9,7 @@
   "icon": "twinklingstars",
   "enabled": true,
   "duration": 12,
-  "animationAsset": "../../assets/animation/twinklingstars.gif",
+  "animationAsset": "./twinklingstars.gif",
   "background": "#000000",
   "save": true
 }

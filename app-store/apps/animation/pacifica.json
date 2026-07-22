@@ -9,7 +9,7 @@
   "icon": "pacifica",
   "enabled": true,
   "duration": 12,
-  "animationAsset": "../../assets/animation/pacifica.gif",
+  "animationAsset": "./pacifica.gif",
   "background": "#000000",
   "save": true
 }

@@ -9,7 +9,7 @@
   "icon": "lookingeyes",
   "enabled": true,
   "duration": 12,
-  "animationAsset": "../../assets/animation/lookingeyes.gif",
+  "animationAsset": "./lookingeyes.gif",
   "background": "#000000",
   "save": true
 }

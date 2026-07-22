@@ -9,7 +9,7 @@
   "icon": "theaterchase",
   "enabled": true,
   "duration": 12,
-  "animationAsset": "../../assets/animation/theaterchase.gif",
+  "animationAsset": "./theaterchase.gif",
   "background": "#000000",
   "save": true
 }

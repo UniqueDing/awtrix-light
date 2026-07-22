@@ -9,7 +9,7 @@
   "icon": "brickbreaker",
   "enabled": true,
   "duration": 12,
-  "animationAsset": "../../assets/animation/brickbreaker.gif",
+  "animationAsset": "./brickbreaker.gif",
   "background": "#000000",
   "save": true
 }

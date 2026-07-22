@@ -9,7 +9,7 @@
   "icon": "movingline",
   "enabled": true,
   "duration": 12,
-  "animationAsset": "../../assets/animation/movingline.gif",
+  "animationAsset": "./movingline.gif",
   "background": "#000000",
   "save": true
 }

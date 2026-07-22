@@ -9,7 +9,7 @@
   "icon": "matrix",
   "enabled": true,
   "duration": 12,
-  "animationAsset": "../../assets/animation/matrix.gif",
+  "animationAsset": "./matrix.gif",
   "background": "#000000",
   "save": true
 }

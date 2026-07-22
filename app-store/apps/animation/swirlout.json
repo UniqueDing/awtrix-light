@@ -9,7 +9,7 @@
   "icon": "swirlout",
   "enabled": true,
   "duration": 12,
-  "animationAsset": "../../assets/animation/swirlout.gif",
+  "animationAsset": "./swirlout.gif",
   "background": "#000000",
   "save": true
 }

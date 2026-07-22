@@ -9,7 +9,7 @@
   "icon": "swirlin",
   "enabled": true,
   "duration": 12,
-  "animationAsset": "../../assets/animation/swirlin.gif",
+  "animationAsset": "./swirlin.gif",
   "background": "#000000",
   "save": true
 }

@@ -9,7 +9,7 @@
   "icon": "plasmacloud",
   "enabled": true,
   "duration": 12,
-  "animationAsset": "../../assets/animation/plasmacloud.gif",
+  "animationAsset": "./plasmacloud.gif",
   "background": "#000000",
   "save": true
 }

@@ -9,7 +9,7 @@
   "icon": "colorwaves",
   "enabled": true,
   "duration": 12,
-  "animationAsset": "../../assets/animation/colorwaves.gif",
+  "animationAsset": "./colorwaves.gif",
   "background": "#000000",
   "save": true
 }

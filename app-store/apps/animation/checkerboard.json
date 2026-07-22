@@ -9,7 +9,7 @@
   "icon": "checkerboard",
   "enabled": true,
   "duration": 12,
-  "animationAsset": "../../assets/animation/checkerboard.gif",
+  "animationAsset": "./checkerboard.gif",
   "background": "#000000",
   "save": true
 }

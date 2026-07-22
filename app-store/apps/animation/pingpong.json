@@ -9,7 +9,7 @@
   "icon": "pingpong",
   "enabled": true,
   "duration": 12,
-  "animationAsset": "../../assets/animation/pingpong.gif",
+  "animationAsset": "./pingpong.gif",
   "background": "#000000",
   "save": true
 }

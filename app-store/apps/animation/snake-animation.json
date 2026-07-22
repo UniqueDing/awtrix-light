@@ -9,7 +9,7 @@
   "icon": "snake-animation",
   "enabled": true,
   "duration": 20,
-  "animationAsset": "../../assets/animation/snake-animation.gif",
+  "animationAsset": "./snake-animation.gif",
   "background": "#000000",
   "save": true
 }
