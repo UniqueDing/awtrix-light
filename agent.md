@@ -59,7 +59,9 @@ node tests/runtime_transport_test.js
 node tests/cast_tools_stopwatch_test.js
 python3 tests/runtime_protocol_fixture.py
 python3 tests/integrations_test_routes.py
+python3 tests/custom_app_uninstall_contract_test.py
 python3 tests/discovery_regression_test.py
+python3 tests/animation_assets_test.py
 python3 tests/ota_release_contract_test.py
 python3 tests/ota_routes_test.py
 python3 tests/release_firmware_contract_test.py

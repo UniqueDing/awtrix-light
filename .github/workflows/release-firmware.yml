@@ -54,6 +54,8 @@ jobs:
           python-version: '3.13'
       - name: Install PlatformIO Core 6.1.18
         run: python3 -m pip install --disable-pip-version-check platformio==6.1.18
+      - name: Install animation asset dependencies
+        run: python3 -m pip install --disable-pip-version-check -r tools/animation-assets-requirements.txt
       - name: Run project tests
         shell: bash
         run: |
@@ -63,7 +65,9 @@ jobs:
           node tests/cast_tools_stopwatch_test.js
           python3 tests/runtime_protocol_fixture.py
           python3 tests/integrations_test_routes.py
+          python3 tests/custom_app_uninstall_contract_test.py
           python3 tests/discovery_regression_test.py
+          python3 tests/animation_assets_test.py
           python3 tests/ota_release_contract_test.py
           python3 tests/ota_routes_test.py
           python3 tests/release_firmware_contract_test.py
