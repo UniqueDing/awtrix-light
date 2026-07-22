@@ -60,12 +60,9 @@ async function loadStore() {
       regularStoreSourceKey = sourceKey;
     }
     let installedList = Array.isArray(installed) ? installed : [],
+      installedVersions = await loadInstalledStoreVersions(installedList, list),
       sourceLabel = source.name || loadedUrl,
-      installedNames = new Set(installedList.map((a) => a && a.name)),
-      installedMap = {};
-    installedList.forEach((a) => {
-      if (a && a.name) installedMap[a.name] = a;
-    });
+      installedNames = new Set(installedList.map((a) => a && a.name));
     E.storeGrid.innerHTML = "";
     E.storeGrid.className = "store-table";
     renderStoreSourceBar();
@@ -93,8 +90,8 @@ async function loadStore() {
           ff = ff.filter((i) => (i.tags || []).includes(tag));
           aa = aa.filter((i) => (i.tags || []).includes(tag));
         }
-        renderStoreSection(t.flowAppSection, ff, compact);
-        renderStoreSection(t.animationAppSection, aa, compact);
+        renderStoreSection(t.flowAppSection, ff, compact, "flow");
+        renderStoreSection(t.animationAppSection, aa, compact, "animation");
       } else {
         if (filter) items = items.filter((i) => matchStoreFilter(i, filter));
         if (tag !== "all")
@@ -182,7 +179,7 @@ async function loadStore() {
     };
     let inp = $("storeSearchInput");
     if (inp) inp.oninput = doStoreRender;
-    let appendItems = (target, items) => {
+    let appendItems = (target, items, storeType) => {
       items.forEach((item) => {
         let row = document.createElement("article");
         let name = appName(item, 0),
@@ -201,14 +198,20 @@ async function loadStore() {
         row.querySelector(".meta").textContent =
           appDisplayDescription(item) || t.localJson;
         let btn = row.querySelector("button"),
-          installedVersion = installedAppVersion(installedMap, id, name),
+          installedVersion = installedAppVersion(installedVersions, id, name),
+          needsReinstall = installedAppNeedsReinstall(
+            installedVersions,
+            id,
+            name,
+          ),
           compatible = isCompatibleVersion(item, storeFirmwareVersion),
           hasUpdate =
             compatible &&
             isInstalled &&
-            item.version &&
-            installedVersion &&
-            compareVersions(item.version, installedVersion) > 0;
+            (needsReinstall ||
+              (item.version &&
+                installedVersion &&
+                compareVersions(item.version, installedVersion) > 0));
         btn.textContent = !compatible ? incompatibleText(item) : hasUpdate ? t.update : isInstalled ? t.installed : t.install;
         btn.disabled = !compatible || isInstalled && !hasUpdate;
         btn.classList.toggle("primary", compatible && (!isInstalled || hasUpdate));
@@ -217,17 +220,19 @@ async function loadStore() {
         if (compatible && (!isInstalled || hasUpdate))
           btn.onclick = () =>
             installApp(
-              Object.assign({}, item, {
-                id,
-                manifestUrl: resolveStoreUrl(manifest, base),
-              }),
+               Object.assign({}, item, {
+                 id,
+                 manifestUrl: resolveStoreUrl(manifest, base),
+                 storeBase: base,
+                 storeType: storeType || item.type,
+               }),
               btn,
               name,
             );
         target.appendChild(row);
       });
     };
-    let renderStoreSection = (title, items, compact) => {
+    let renderStoreSection = (title, items, compact, storeType) => {
       if (!items.length) return;
       let s = document.createElement("section");
       s.className = "store-section";
@@ -237,7 +242,7 @@ async function loadStore() {
         '</h3></div></div><div class="store-section-grid"></div>';
       let grid = s.querySelector(".store-section-grid");
       grid.classList.toggle("store-grid-compact", !!compact && items.length);
-      appendItems(grid, items);
+      appendItems(grid, items, storeType);
       E.storeGrid.appendChild(s);
     };
     rerenderRegularStore = () => {
@@ -262,7 +267,8 @@ async function loadStore() {
 
 async function installApp(item, btn, name, quiet) {
   let originalText = btn ? btn.textContent : "",
-    done = false;
+    done = false,
+    installedAnimationAsset = null;
   if (btn) {
     btn.disabled = true;
     btn.textContent = t.installing || originalText;
@@ -274,8 +280,14 @@ async function installApp(item, btn, name, quiet) {
       throw Error(incompatibleText(item));
     let manifestUrl = item.manifestUrl || item.manifest || item.url;
     if (!manifestUrl) throw Error("missing app manifest");
-    let appRes = await rawFetch(manifestUrl, { cache: "no-store" });
+    let secureAnimationManifest = item.storeType === "animation";
+    if (secureAnimationManifest) manifestUrl = animationManifestUrl(item);
+    let manifestOptions = { cache: "no-store" };
+    if (secureAnimationManifest) manifestOptions.redirect = "error";
+    let appRes = await rawFetch(manifestUrl, manifestOptions);
     if (!appRes.ok) throw Error("download failed");
+    if (secureAnimationManifest)
+      validateAnimationManifestResponseUrl(appRes, manifestUrl);
     let payload = await appRes.json(),
       installName =
         item.id ||
@@ -286,9 +298,23 @@ async function installApp(item, btn, name, quiet) {
     if (payload.version === undefined && item.version !== undefined)
       payload.version = item.version;
     if (!installName) throw Error("missing app name");
-    await installIconForApp(payload, item, storeBase(manifestUrl));
+    let manifestBase = storeBase(manifestUrl);
+    installedAnimationAsset = await installAnimationAsset(
+        payload,
+        item,
+        manifestUrl,
+        installName,
+      );
+    if (!installedAnimationAsset)
+      await installIconForApp(payload, item, manifestBase);
+    else {
+      if (payload.duration === undefined && payload.displayDuration !== undefined)
+        payload.duration = payload.displayDuration;
+      delete payload.animationAsset;
+    }
     payload = mergeLocalizationMetadata(payload, item);
     payload = withDisplayCompatibility(payload);
+    if (installedAnimationAsset) payload.icon = installName;
     payload.save = true;
     let r = await fetch(
       "/api/custom?name=" + encodeURIComponent(installName) + "&save=1",
@@ -313,6 +339,8 @@ async function installApp(item, btn, name, quiet) {
     libraryLoaded = false;
     return true;
   } catch (e) {
+    if (installedAnimationAsset)
+      await restoreAnimationAssets(installedAnimationAsset);
     setStatus(E.storeStatus, e.message, true);
     return false;
   } finally {

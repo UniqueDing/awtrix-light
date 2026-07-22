@@ -78,8 +78,10 @@ async function enrichInstalledApps(list) {
       next.enabled = item.enabled;
       next.type =
         saved.type === "animation" &&
-        saved.animation &&
-        typeof saved.animation === "object"
+        ((saved.animation && typeof saved.animation === "object") ||
+          (typeof saved.icon === "string" &&
+            saved.icon &&
+            saved.duration !== undefined))
           ? "animation"
           : item.type;
       if (item.icon !== undefined) next.icon = item.icon;
@@ -166,11 +168,16 @@ function renderLibrary() {
     let trash = row.querySelector(".trash");
     trash.classList.toggle(
       "hidden",
-      item.type !== "custom" && item.type !== "flow",
+      item.type !== "custom" && item.type !== "flow" && item.type !== "animation",
     );
     trash.onclick = (e) => {
       e.stopPropagation();
-      if (item.type === "custom" || item.type === "flow") uninstallApp(name);
+      if (
+        item.type === "custom" ||
+        item.type === "flow" ||
+        item.type === "animation"
+      )
+        uninstallApp(name);
     };
     let sw = row.querySelector(".switch"),
       input = row.querySelector("input");

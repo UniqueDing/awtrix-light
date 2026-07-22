@@ -127,6 +127,17 @@ function addField(f, item, parent) {
 
 let regularSettingsDialog = null;
 
+function isGifBackedAnimation(item) {
+  return !!(
+    item &&
+    item.type === "animation" &&
+    (!item.animation || typeof item.animation !== "object") &&
+    typeof item.icon === "string" &&
+    item.icon &&
+    item.duration !== undefined
+  );
+}
+
 function regularSettingsFields(name, item) {
   let fields = appSettingFields()[name] || [],
     commonFields = [];
@@ -160,11 +171,15 @@ function regularSettingsFields(name, item) {
               ["animation_repeat", t.repeatCount, "number"],
             ]
           : [];
-    commonFields = settingsDisplayFields();
-    fields =
-      item.type === "animation"
-        ? animationFields.concat([["displayDuration", t.duration, "number"]])
-        : inputFields.concat(sourceFields, animationFields);
+    if (isGifBackedAnimation(item))
+      fields = [["duration", t.duration, "number"]];
+    else {
+      commonFields = settingsDisplayFields();
+      fields =
+        item.type === "animation"
+          ? animationFields.concat([["displayDuration", t.duration, "number"]])
+          : inputFields.concat(sourceFields, animationFields);
+    }
   }
   return { fields, commonFields };
 }

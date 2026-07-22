@@ -42,6 +42,8 @@ async function uninstallApp(name) {
   E.saveSettings.onclick = async () => {
     try {
       setStatus(E.libraryStatus, "...", false);
+      let saved = await loadSavedCustomPayload(name, null),
+        removeAnimationGif = isGifBackedAnimation(saved, name);
       let response = await fetch("/api/apps/uninstall", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -50,6 +52,13 @@ async function uninstallApp(name) {
       let result = await response.json().catch(() => ({}));
       if (!response.ok || !result.success)
         throw Error(result.error || "uninstall failed");
+      if (removeAnimationGif) {
+        try {
+          await deleteAnimationIcon(name);
+        } catch (cleanupError) {
+          console.warn("Animation GIF uninstall cleanup failed", cleanupError);
+        }
+      }
 
       E.saveSettings.onclick = saveAppSettings;
       E.sheet.classList.remove("show");

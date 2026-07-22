@@ -267,6 +267,28 @@ function testDefaultStoreSourceResolvesRawCatalogPaths() {
   );
 }
 
+async function testStoreManifestPreservesLoadedResponseUrl() {
+  const responses = [
+    { ok: false, url: "https://store.example/list.json", json: async () => ({}) },
+    {
+      ok: true,
+      url: "http://localhost:8091/list.json",
+      json: async () => ({ apps: {} }),
+    },
+  ];
+  const context = load(
+    source("app-store-core.js") + "\nthis.loadManifest=loadStoreManifest;",
+    {
+      URL,
+      location: { href: "http://device/", origin: "http://device" },
+      t: { storeLoadFailed: "failed" },
+      fetch: async () => responses.shift(),
+    },
+  );
+  const loaded = await context.loadManifest("https://store.example/list.json");
+  assert.equal(loaded.url, "http://localhost:8091/list.json");
+}
+
 function testLanguageRerenderDispatch() {
   const calls = [];
   const context = load(
@@ -994,6 +1016,7 @@ async function testStableInstallId() {
       loadStoreFirmwareVersion: async () => "", isCompatibleVersion: () => true,
       storeFirmwareVersion: "",
       rawFetch: async () => ({ ok: true, json: async () => ({ name: "downloaded-name" }) }),
+      installAnimationAsset: async () => false,
       installIconForApp: async () => {}, storeBase: () => "http://store/",
       mergeLocalizationMetadata: (payload) => payload,
       withDisplayCompatibility: (payload) => payload,
@@ -1004,6 +1027,428 @@ async function testStableInstallId() {
   );
   assert.equal(await context.install({ id: "stable-id", manifestUrl: "manifest.json" }, null, "fallback", true), true, errors.join(", "));
   assert.equal(requests[0], "/api/custom?name=stable-id&save=1");
+}
+
+function animationInstallContext(options) {
+  options = options || {};
+  const requests = [];
+  const uploads = [];
+  const errors = [];
+  const warnings = [];
+  const manifestUrl = "https://store.example/apps/animation/stable-id.json";
+  const assetUrl = "https://store.example/assets/animation/stable-id.gif";
+  const gifBytes = Buffer.alloc(14);
+  gifBytes.write("GIF89a", 0, "ascii");
+  gifBytes.writeUInt16LE(32, 6);
+  gifBytes.writeUInt16LE(8, 8);
+  gifBytes[13] = 0x3b;
+  const gif = options.gif || new Blob([gifBytes], { type: options.assetType || "application/octet-stream" });
+  const context = load(
+    source("app-icons.js") + source("app-store-render.js") + "\nthis.install=installApp;",
+    {
+      E: { storeStatus: {} },
+      t: { installed: "Installed", installing: "Installing" },
+      loadStoreFirmwareVersion: async () => "",
+      isCompatibleVersion: () => true,
+      storeFirmwareVersion: "",
+      nativeIconNames: new Set(),
+      missingIconUrls: new Set(),
+      URL,
+      location: { href: "http://device/", origin: "http://device" },
+      resolveStoreUrl: (path, base) => new URL(path, base).href,
+      storeBase: (url) => new URL(".", url).href,
+      rawFetch: async (url, fetchOptions) => {
+        requests.push({ url, method: "GET", options: fetchOptions });
+        if (url === manifestUrl)
+          return {
+            ok: true,
+            url: options.manifestResponseUrl || url,
+            json: async () => ({
+              type: "animation",
+              name: "downloaded-name",
+              icon: "legacy-icon",
+              animationAsset: options.animationAsset || "../../assets/animation/stable-id.gif",
+              displayDuration: 12,
+              display: { icon: "compatibility-icon" },
+            }),
+          };
+        if (url === assetUrl)
+          return options.assetResponse || {
+            ok: true,
+            url: options.responseUrl || url,
+            headers: {
+              get: (name) => name === "content-length" ? String(gif.size) : options.assetType || "application/octet-stream",
+            },
+            blob: async () => gif,
+          };
+        throw Error(`unexpected raw request ${url}`);
+      },
+      FormData: class {
+        append(name, value, filename) { uploads.push({ name, value, filename }); }
+      },
+      fetch: async (url, requestOptions) => {
+        requests.push({ url, method: requestOptions && requestOptions.method, options: requestOptions });
+        if (url === "/ICONS/stable-id.gif")
+          return options.gifSnapshotResponse || options.existingResponse ||
+            (options.existingGif
+              ? {
+                  ok: true,
+                  status: 200,
+                  url: "http://device/ICONS/stable-id.gif",
+                  headers: { get: () => String(options.existingGif.size) },
+                  blob: async () => options.existingGif,
+                }
+              : { ok: false, status: 404 });
+        if (url === "/ICONS/stable-id.jpg")
+          return options.jpgSnapshotResponse ||
+            (options.existingJpg
+              ? {
+                  ok: true,
+                  status: 200,
+                  url: "http://device/ICONS/stable-id.jpg",
+                  headers: { get: () => String(options.existingJpg.size) },
+                  blob: async () => options.existingJpg,
+                }
+              : { ok: false, status: 404 });
+        if (url === "/edit") {
+          const uploadIndex = requests.filter((request) => request.url === "/edit").length - 1;
+          return options.uploadResponses?.[uploadIndex] || options.uploadResponse || { ok: true };
+        }
+        if (url.startsWith("/edit?path=")) {
+          if (url.includes("stable-id.gif")) return options.rollbackResponse || { ok: true };
+          return options.cleanupResponse || { ok: true };
+        }
+        if (url.startsWith("/api/custom")) return options.customResponse || { ok: true };
+        throw Error(`unexpected request ${url}`);
+      },
+      mergeLocalizationMetadata: (payload) => payload,
+      withDisplayCompatibility(payload) {
+        return Object.assign({}, payload, payload.display || {});
+      },
+      setStatus(_element, message, error) { if (error) errors.push(message); },
+      appDisplayName: () => "Animation",
+      libraryLoaded: true,
+      console: { warn(...args) { warnings.push(args); } },
+    },
+  );
+  return { context, requests, uploads, errors, warnings, manifestUrl, assetUrl };
+}
+
+function animationManifestSecurityContext() {
+  return load(
+    source("app-store-core.js") +
+      "\nthis.api={url:animationManifestUrl,validate:validateAnimationManifestResponseUrl};",
+    {
+      URL,
+      location: { href: "http://device/", origin: "http://device" },
+    },
+  ).api;
+}
+
+function testAnimationManifestUrlValidation() {
+  const api = animationManifestSecurityContext();
+  const githubBase =
+    "https://raw.githubusercontent.com/UniqueDing/awtrix-light/master/app-store/";
+  const githubManifest = githubBase + "apps/animation/stable-id.json";
+  const localBase = "http://localhost:8091/";
+  const valid = [
+    { storeBase: githubBase, manifestUrl: "apps/animation/stable-id.json" },
+    { storeBase: githubBase, manifestUrl: githubManifest },
+    { storeBase: localBase, manifestUrl: "apps/animation/stable-id.json" },
+  ];
+  for (const item of valid)
+    assert.equal(
+      api.url(Object.assign({ id: "stable-id" }, item)),
+      new URL("apps/animation/stable-id.json", item.storeBase).href,
+    );
+
+  for (const manifestUrl of [
+    "http://device/api/reboot",
+    "https://evil.example/apps/animation/stable-id.json",
+    "//evil.example/apps/animation/stable-id.json",
+    "apps/animation/stable-id.json?download=1",
+    "apps/animation/stable-id.json#fragment",
+    "apps/animation/%2e%2e/stable-id.json",
+    "apps/animation/other-id.json",
+    "apps/flow/stable-id.json",
+    "https://user:pass@raw.githubusercontent.com/UniqueDing/awtrix-light/master/app-store/apps/animation/stable-id.json",
+  ])
+    assert.throws(
+      () => api.url({ id: "stable-id", storeBase: githubBase, manifestUrl }),
+      /invalid animation manifest URL/,
+      manifestUrl,
+    );
+}
+
+async function testAnimationManifestFetchRejectsRedirects() {
+  const security = animationManifestSecurityContext();
+  const run = animationInstallContext({
+    manifestResponseUrl: "http://device/api/reboot",
+  });
+  run.context.animationManifestUrl = security.url;
+  run.context.validateAnimationManifestResponseUrl = security.validate;
+  assert.equal(
+    await run.context.install(
+      {
+        id: "stable-id",
+        storeType: "animation",
+        storeBase: "https://store.example/",
+        manifestUrl: run.manifestUrl,
+      },
+      null,
+      "fallback",
+      true,
+    ),
+    false,
+  );
+  assert.equal(run.requests[0].options.redirect, "error");
+  assert.equal(
+    run.requests.some((request) => request.url.startsWith("/api/custom")),
+    false,
+  );
+  assert.deepEqual(run.errors, ["invalid animation manifest redirect"]);
+}
+
+async function testValidAnimationManifestFetchUsesCatalogBinding() {
+  const security = animationManifestSecurityContext();
+  const run = animationInstallContext();
+  run.context.animationManifestUrl = security.url;
+  run.context.validateAnimationManifestResponseUrl = security.validate;
+  assert.equal(
+    await run.context.install(
+      {
+        id: "stable-id",
+        storeType: "animation",
+        storeBase: "https://store.example/",
+        manifestUrl: run.manifestUrl,
+      },
+      null,
+      "fallback",
+      true,
+    ),
+    true,
+    run.errors.join(", "),
+  );
+  assert.equal(run.requests[0].options.cache, "no-store");
+    assert.equal(run.requests[0].options.redirect, "error");
+}
+
+async function testAnimationAssetInstallsBeforeStablePayload() {
+  const run = animationInstallContext({ assetType: "application/octet-stream" });
+  assert.equal(
+    await run.context.install({ id: "stable-id", manifestUrl: run.manifestUrl }, null, "fallback", true),
+    true,
+    run.errors.join(", "),
+  );
+  assert.deepEqual(run.requests.map((request) => [request.method, request.url]), [
+    ["GET", run.manifestUrl],
+    ["GET", run.assetUrl],
+    [undefined, "/ICONS/stable-id.gif"],
+    [undefined, "/ICONS/stable-id.jpg"],
+    ["POST", "/edit"],
+    ["DELETE", "/edit?path=%2FICONS%2Fstable-id.jpg"],
+    ["POST", "/api/custom?name=stable-id&save=1"],
+  ]);
+  assert.equal(run.uploads.length, 1);
+  assert.equal(run.uploads[0].name, "file");
+  assert.equal(run.uploads[0].filename, "ICONS/stable-id.gif");
+  const uploadRequest = run.requests.find((request) => request.url === "/edit");
+  assert.equal("headers" in uploadRequest.options, false, "multipart upload leaves Content-Type to the browser");
+  const customRequest = run.requests.find((request) => request.url.startsWith("/api/custom"));
+  const payload = JSON.parse(customRequest.options.body);
+  assert.equal(payload.icon, "stable-id", "stable animation icon wins after display compatibility");
+  assert.equal(payload.duration, 12, "display duration maps to the runtime duration field");
+  assert.equal(payload.displayDuration, 12);
+  assert.equal(payload.animationAsset, undefined, "installer-only asset metadata is not persisted");
+  assert.equal(payload.save, true);
+}
+
+async function testAnimationAssetFailuresAbortCustomInstall() {
+  const failures = [
+    animationInstallContext({ assetResponse: { ok: false } }),
+    animationInstallContext({ assetResponse: { ok: true, blob: async () => new Blob(["not-gif"], { type: "image/gif" }) } }),
+    animationInstallContext({ uploadResponse: { ok: false } }),
+    animationInstallContext({ cleanupResponse: { ok: false, status: 500 } }),
+  ];
+  for (const run of failures) {
+    assert.equal(await run.context.install({ id: "stable-id", manifestUrl: run.manifestUrl }, null, "fallback", true), false);
+    assert.equal(run.requests.some((request) => request.url.startsWith("/api/custom")), false);
+  }
+  const cleanupFailure = failures[3];
+  assert.ok(
+    cleanupFailure.requests.findIndex((request) => request.url === "/edit") <
+      cleanupFailure.requests.findIndex((request) => request.url.startsWith("/edit?path=")),
+    "a shadowing JPG is never deleted before the GIF upload succeeds",
+  );
+}
+
+async function testAnimationFirstInstallRollbackDeletesCreatedAssets() {
+  const run = animationInstallContext({
+    customResponse: { ok: false, text: async () => "custom write failed" },
+  });
+  assert.equal(
+    await run.context.install({ id: "stable-id", manifestUrl: run.manifestUrl }, null, "fallback", true),
+    false,
+  );
+  assert.deepEqual(run.requests.slice(-3).map((request) => [request.method, request.url]), [
+    ["POST", "/api/custom?name=stable-id&save=1"],
+    ["DELETE", "/edit?path=%2FICONS%2Fstable-id.gif"],
+    ["DELETE", "/edit?path=%2FICONS%2Fstable-id.jpg"],
+  ]);
+  assert.deepEqual(run.errors, ["custom write failed"]);
+}
+
+async function testAnimationRollbackRestoresExistingGif() {
+  const oldGif = new Blob([Buffer.from("old gif bytes")], { type: "image/gif" });
+  const run = animationInstallContext({
+    existingGif: oldGif,
+    customResponse: { ok: false, text: async () => "custom write failed" },
+  });
+  assert.equal(
+    await run.context.install({ id: "stable-id", manifestUrl: run.manifestUrl }, null, "fallback", true),
+    false,
+  );
+  assert.equal(run.uploads.length, 2);
+  assert.equal(run.uploads[1].filename, "ICONS/stable-id.gif");
+  assert.deepEqual(
+    Buffer.from(await run.uploads[1].value.arrayBuffer()),
+    Buffer.from(await oldGif.arrayBuffer()),
+  );
+  assert.deepEqual(run.requests.slice(-3).map((request) => [request.method, request.url]), [
+    ["POST", "/api/custom?name=stable-id&save=1"],
+    ["POST", "/edit"],
+    ["DELETE", "/edit?path=%2FICONS%2Fstable-id.jpg"],
+  ]);
+}
+
+async function testAnimationRollbackRestoresExistingJpg() {
+  const oldJpg = new Blob([Buffer.from("old jpg bytes")], { type: "image/jpeg" });
+  const run = animationInstallContext({
+    existingJpg: oldJpg,
+    customResponse: { ok: false, text: async () => "custom write failed" },
+  });
+  assert.equal(
+    await run.context.install({ id: "stable-id", manifestUrl: run.manifestUrl }, null, "fallback", true),
+    false,
+  );
+  assert.equal(run.uploads.length, 2);
+  assert.equal(run.uploads[1].filename, "ICONS/stable-id.jpg");
+  assert.deepEqual(
+    Buffer.from(await run.uploads[1].value.arrayBuffer()),
+    Buffer.from(await oldJpg.arrayBuffer()),
+  );
+  assert.deepEqual(run.requests.slice(-3).map((request) => [request.method, request.url]), [
+    ["POST", "/api/custom?name=stable-id&save=1"],
+    ["DELETE", "/edit?path=%2FICONS%2Fstable-id.gif"],
+    ["POST", "/edit"],
+  ]);
+}
+
+async function testAnimationAssetUrlAndGifValidation() {
+  const context = load(
+    source("app-icons.js") +
+      "\nthis.api={url:animationAssetUrl,gif:validateAnimationGif,snapshot:snapshotAnimationAssets};",
+    {
+      URL,
+      location: { href: "http://device/", origin: "http://device" },
+      fetch: async () => ({ ok: false, status: 404 }),
+    },
+  );
+  const manifest = "https://store.example/apps/animation/demo.json";
+  assert.equal(
+    context.api.url("../../assets/animation/stable-id.gif", manifest, "stable-id"),
+    "https://store.example/assets/animation/stable-id.gif",
+  );
+  for (const asset of [
+    "https://evil.example/assets/animation/stable-id.gif",
+    "../../assets/animation/other.gif",
+    "../../assets/animation/stable-id.gif?download=1",
+    "../../assets/animation/stable-id.gif#fragment",
+    "../../assets/animation/%2e%2e/stable-id.gif",
+  ])
+    assert.throws(() => context.api.url(asset, manifest, "stable-id"));
+
+  const oversized = new Blob([Buffer.alloc(128 * 1024 + 1)], { type: "image/gif" });
+  await assert.rejects(() => context.api.gif({
+    headers: { get: () => String(oversized.size) },
+    blob: async () => oversized,
+  }), /too large/);
+
+  const snapshotContext = load(
+    source("app-icons.js") + "\nthis.snapshot=snapshotAnimationAssets;",
+    {
+      URL,
+      location: { href: "http://device/", origin: "http://device" },
+      fetch: async (url) => ({
+        ok: true,
+        status: 200,
+        url: "http://device" + url,
+        headers: { get: () => String(256 * 1024 + 1) },
+        blob: async () => new Blob([]),
+      }),
+    },
+  );
+  await assert.rejects(() => snapshotContext.snapshot("stable-id"), /snapshot is too large/);
+}
+
+async function testAnimationPostFailureRollsBackOnlyNewGif() {
+  const run = animationInstallContext({
+    customResponse: { ok: false, text: async () => "original custom failure" },
+    rollbackResponse: { ok: false, status: 500 },
+  });
+  assert.equal(
+    await run.context.install({ id: "stable-id", manifestUrl: run.manifestUrl }, null, "fallback", true),
+    false,
+  );
+  assert.deepEqual(run.errors, ["original custom failure"]);
+  assert.equal(run.warnings.length, 1, "rollback failure is warned once");
+  assert.equal(run.requests.some((request) => request.url.includes("stable-id.jpg")), true);
+}
+
+async function testLegacyIndexedAnimationRemainsUpdatable() {
+  const context = load(
+    source("app-store-compat.js") +
+      "\nthis.api={load:loadInstalledStoreVersions,reinstall:installedAppNeedsReinstall};",
+    {
+      loadSavedCustomPayload: async () => ({
+        type: "animation",
+        version: "1.0.0",
+        animation: { fps: 12 },
+      }),
+    },
+  );
+  const versions = await context.api.load(
+    [{ name: "stable-id" }],
+    { animation: [{ id: "stable-id", version: "1.0.0" }] },
+  );
+  assert.equal(context.api.reinstall(versions, "stable-id"), true);
+}
+
+async function testNonAnimationInstallBehaviorIsUnchanged() {
+  const requests = [];
+  let regularIconCalls = 0;
+  const context = load(
+    source("app-store-render.js") + "\nthis.install=installApp;",
+    {
+      E: { storeStatus: {} }, t: { installed: "Installed", installing: "Installing" },
+      loadStoreFirmwareVersion: async () => "", isCompatibleVersion: () => true,
+      storeFirmwareVersion: "",
+      rawFetch: async () => ({ ok: true, json: async () => ({ type: "flow", icon: "weather", displayDuration: 7 }) }),
+      installAnimationAsset: async () => false,
+      installIconForApp: async () => { regularIconCalls++; },
+      storeBase: () => "http://store/",
+      mergeLocalizationMetadata: (payload) => payload,
+      withDisplayCompatibility: (payload) => payload,
+      fetch: async (url, options) => { requests.push({ url, options }); return { ok: true }; },
+      setStatus() {}, appDisplayName: () => "Flow", libraryLoaded: true,
+    },
+  );
+  assert.equal(await context.install({ id: "flow-id", manifestUrl: "manifest.json" }, null, "fallback", true), true);
+  assert.equal(regularIconCalls, 1);
+  const payload = JSON.parse(requests[0].options.body);
+  assert.equal(payload.icon, "weather");
+  assert.equal(payload.displayDuration, 7);
+  assert.equal(payload.duration, undefined, "duration mapping is animation-asset specific");
 }
 
 async function testInstalledEnrichmentIsNarrowAndPreservesAnimation() {
@@ -1027,11 +1472,19 @@ async function testInstalledEnrichmentIsNarrowAndPreservesAnimation() {
               secret: "must-not-leak",
               otherSetting: "also-private",
             }
-          : { type: "animation", name_i18n: { en: "Not Animation" } },
+          : key === "gif-id"
+            ? {
+                type: "animation",
+                icon: "gif-id",
+                duration: 9,
+                name_i18n: { en: "GIF Animation" },
+              }
+            : { type: "animation", name_i18n: { en: "Not Animation" } },
     },
   );
   const result = await context.enrich([
     { name: "anim-id", type: "custom", enabled: true, icon: "api-icon" },
+    { name: "gif-id", type: "custom", enabled: true, icon: "gif-id" },
     { name: "no-schema", type: "custom", enabled: false },
   ]);
   assert.equal(result[0].appKey, "anim-id");
@@ -1048,8 +1501,86 @@ async function testInstalledEnrichmentIsNarrowAndPreservesAnimation() {
   assert.equal(result[0].bilibiliUid, undefined);
   assert.equal(result[0].otherSetting, undefined);
   assert.equal(result[0].name_i18n.zh, "动画");
-  assert.equal(result[1].type, "custom", "saved animation type requires animation schema");
-  assert.equal(result[1].appKey, "no-schema");
+  assert.equal(result[1].type, "animation", "stable GIF payload is enriched as animation");
+  assert.equal(result[1].appKey, "gif-id");
+  assert.equal(result[1].icon, "gif-id");
+  assert.equal(result[2].type, "custom", "saved animation type still requires a supported schema");
+  assert.equal(result[2].appKey, "no-schema");
+}
+
+function settingsDialogContext(item, fields) {
+  const document = testDocument();
+  const requests = [];
+  const E = {
+    fields: fields || document.createElement("div"),
+    sheetStatus: {},
+    sheet: { classList: { remove() {} } },
+  };
+  const context = load(
+    "let currentApp='gif-id',apps=[testItem],settings={},legacySettings={},libraryLoaded=true;" +
+      "const triBoolKeys=new Set(),triNumberKeys=new Set();" +
+      "let t={duration:'Duration',repeatCount:'Repeat',saving:'Saving',saved:'Saved'};" +
+      "function timeModeOptions(){return []} function settingsDisplayFields(){return [['displayDuration','Duration','number']]}" +
+      "function appName(item){return item.name}" +
+      "function setStatus(){} async function loadLibrary(){} async function saveLegacySettings(){}" +
+      "function withDisplayCompatibility(payload){return payload}" +
+      source("app-library.js") + source("app-settings-dialog.js") +
+      "\nthis.api={fields:()=>regularSettingsFields('gif-id',testItem),save:saveAppSettings};",
+    {
+      document,
+      E,
+      testItem: item,
+      fetch: async (url, options) => {
+        requests.push({ url, options });
+        return { ok: true, json: async () => Object.assign({}, item) };
+      },
+    },
+  );
+  return { context, document, E, requests };
+}
+
+async function testGifAnimationSettingsUseOnlyTopLevelDuration() {
+  const item = { name: "gif-id", type: "animation", icon: "gif-id", duration: 8 };
+  const run = settingsDialogContext(item);
+  const descriptors = run.context.api.fields();
+  assert.deepEqual(Array.from(descriptors.fields, (field) => Array.from(field)), [
+    ["duration", "Duration", "number"],
+  ]);
+  assert.deepEqual(Array.from(descriptors.commonFields), []);
+
+  const input = run.document.createElement("input");
+  input.dataset.key = "duration";
+  input.dataset.type = "number";
+  input.dataset.source = "api";
+  input.value = "15";
+  run.E.fields.appendChild(input);
+  await run.context.api.save();
+
+  const request = run.requests.find(
+    (entry) => entry.url.startsWith("/api/custom") && entry.options?.method === "POST",
+  );
+  const payload = JSON.parse(request.options.body);
+  assert.equal(payload.type, "animation");
+  assert.equal(payload.icon, "gif-id");
+  assert.equal(payload.duration, 15);
+  assert.equal(payload.displayDuration, undefined);
+  assert.equal(payload.animation, undefined);
+}
+
+function testLegacyAnimationSettingsRemainIndexed() {
+  const run = settingsDialogContext({
+    name: "gif-id",
+    type: "animation",
+    animation: { fps: 12, repeat: 3 },
+    displayDuration: 7,
+  });
+  const descriptors = run.context.api.fields();
+  assert.deepEqual(Array.from(descriptors.fields, (field) => field[0]), [
+    "animation_fps",
+    "animation_repeat",
+    "displayDuration",
+  ]);
+  assert.equal(descriptors.commonFields.length, 1);
 }
 
 function testRegularDialogRelabelPreservesValue() {
@@ -1101,7 +1632,7 @@ function testRegularDialogRelabelPreservesValue() {
   assert.equal(context.E.secondaryAction.textContent, "编辑");
 }
 
-function testUninstallLabelsKeepCanonicalIds() {
+async function testUninstallLabelsKeepCanonicalIds() {
   const document = testDocument();
   const regularRequests = [];
   const E = {
@@ -1118,6 +1649,8 @@ function testUninstallLabelsKeepCanonicalIds() {
       "\nthis.open=uninstallApp;this.getCurrent=()=>currentApp;",
     {
       document, E,
+      loadSavedCustomPayload: async () => null,
+      isGifBackedAnimation: () => false,
       fetch: async (url, options) => {
         regularRequests.push({ url, body: options && options.body });
         return { ok: true, json: async () => ({ success: true }) };
@@ -1129,8 +1662,75 @@ function testUninstallLabelsKeepCanonicalIds() {
   assert.equal(E.fields.children[0].children[0].textContent, "中文名称");
   assert.equal(E.secondaryAction.textContent, "取消");
   assert.equal(E.saveSettings.textContent, "卸载");
-  E.saveSettings.onclick();
+  await E.saveSettings.onclick();
   assert.equal(JSON.parse(regularRequests[0].body).name, "stable-id");
+}
+
+async function testUninstallGifCleanupIsNarrowAndPostSuccess() {
+  async function run(saved, uninstallResponse) {
+    const document = testDocument();
+    const requests = [];
+    const E = {
+      sheetTitle: { textContent: "" }, sheetStatus: { textContent: "" },
+      fields: document.createElement("div"), secondaryAction: { style: {}, textContent: "" },
+      saveSettings: { style: {}, textContent: "" },
+      sheet: { classList: { add() {}, remove() {} } }, libraryStatus: {},
+    };
+    const context = load(
+      "let lang='en',currentApp=null,apps=[{name:'stable-id',type:'animation'}],libraryLoaded=true,storeLoaded=true;" +
+        "let t={uninstallTitle:'Uninstall',uninstallConfirmText:'Confirm',cancel:'Cancel',uninstall:'Uninstall',uninstalled:'Removed '};" +
+        "function hideFooterExport(){} function saveAppSettings(){} function setStatus(){} async function loadLibrary(){} function loadStore(){}" +
+        source("app-common.js") + source("app-icons.js") + source("app-uninstall.js") +
+        "\nthis.open=uninstallApp;",
+      {
+        URL,
+        location: { href: "http://device/", origin: "http://device" },
+        document,
+        E,
+        nativeIconNames: new Set(),
+        missingIconUrls: new Set(),
+        loadSavedCustomPayload: async () => saved,
+        fetch: async (url, options) => {
+          requests.push({ url, method: options && options.method });
+          if (url === "/api/apps/uninstall")
+            return uninstallResponse || { ok: true, json: async () => ({ success: true }) };
+          if (url.includes("stable-id.gif")) return { ok: true };
+          throw Error("unexpected uninstall request " + url);
+        },
+      },
+    );
+    context.open("stable-id");
+    await E.saveSettings.onclick();
+    return requests;
+  }
+
+  const gifRequests = await run({
+    type: "animation",
+    icon: "stable-id",
+    duration: 8,
+  });
+  assert.deepEqual(gifRequests.map((request) => request.url), [
+    "/api/apps/uninstall",
+    "/edit?path=%2FICONS%2Fstable-id.gif",
+  ]);
+
+  const legacyRequests = await run({
+    type: "animation",
+    icon: "stable-id",
+    animation: { fps: 12 },
+    duration: 8,
+  });
+  assert.deepEqual(legacyRequests.map((request) => request.url), [
+    "/api/apps/uninstall",
+  ]);
+
+  const failedRequests = await run(
+    { type: "animation", icon: "stable-id", duration: 8 },
+    { ok: false, json: async () => ({ success: false, error: "failed" }) },
+  );
+  assert.deepEqual(failedRequests.map((request) => request.url), [
+    "/api/apps/uninstall",
+  ]);
 }
 
 async function testLiveUninstallLabelsKeepCanonicalId() {
@@ -1210,6 +1810,7 @@ async function testRegularStoreTagSurvivesLiveRoundTrip() {
       loadStoreFirmwareVersion: async () => {},
       loadStoreManifest: async () => ({ data: {}, url: "store.json" }),
       normalizeStoreList: () => catalog,
+      loadInstalledStoreVersions: async () => ({}),
       storeBase: () => "http://store/",
       setStatus() {},
       renderAppKindTabs() {},
@@ -1450,6 +2051,34 @@ function libraryRowDocument() {
   return document;
 }
 
+function testInstalledAnimationRemainsRemovable() {
+  const document = libraryRowDocument();
+  const list = document.createElement("div");
+  const uninstalls = [];
+  const context = load(
+    "let apps=[{name:'gif-id',enabled:true,type:'animation',icon:'gif-id'}],settings={},activeLibraryKind='app';" +
+      "let E={libraryList:testList,libraryStatus:{},liveAppsPanel:{style:{}}};" +
+      "let t={count:'',countEnd:'',uninstall:'Uninstall',appSettings:'Settings'};" +
+      "function renderAppKindTabs(){} function setIcon(){} function appName(item){return item.name}" +
+      "function appDisplayName(item){return item.name} function appDisplayDescription(){return ''}" +
+      "function installedCastApps(){return []} function castUi(){return ''} function openSettings(){}" +
+      "function uninstallApp(name){uninstalls.push(name)}" +
+      source("app-library.js") +
+      "\nthis.render=renderLibrary;",
+    {
+      document,
+      testList: list,
+      uninstalls,
+      setStatus() {},
+    },
+  );
+  context.render();
+  const trash = list.children[0].querySelector(".trash");
+  assert.equal(trash.classList.contains("hidden"), false);
+  trash.onclick({ stopPropagation() {} });
+  assert.deepEqual(uninstalls, ["gif-id"]);
+}
+
 async function testPendingLibraryTogglePreventsDuplicatesAndPreservesTarget() {
   const document = libraryRowDocument();
   const requests = [];
@@ -1503,6 +2132,7 @@ async function run() {
   testRegularCatalogDescriptionsMatchManifests();
   testStoreAndInstalledLabels();
   testDefaultStoreSourceResolvesRawCatalogPaths();
+  await testStoreManifestPreservesLoadedResponseUrl();
   testLanguageRerenderDispatch();
   await testAboutSettingsTabRendersFetchedVersion();
   await testAboutVersionRequestSurvivesRerendersAndSwitches();
@@ -1521,14 +2151,30 @@ async function run() {
   testLiveDialogUsesTextAndValidIds();
   testTopLevelCastApps();
   await testStableInstallId();
+  testAnimationManifestUrlValidation();
+  await testAnimationManifestFetchRejectsRedirects();
+  await testValidAnimationManifestFetchUsesCatalogBinding();
+  await testAnimationAssetInstallsBeforeStablePayload();
+  await testAnimationAssetFailuresAbortCustomInstall();
+  await testAnimationFirstInstallRollbackDeletesCreatedAssets();
+  await testAnimationRollbackRestoresExistingGif();
+  await testAnimationRollbackRestoresExistingJpg();
+  await testAnimationAssetUrlAndGifValidation();
+  await testAnimationPostFailureRollsBackOnlyNewGif();
+  await testNonAnimationInstallBehaviorIsUnchanged();
+  await testLegacyIndexedAnimationRemainsUpdatable();
   await testInstalledEnrichmentIsNarrowAndPreservesAnimation();
+  await testGifAnimationSettingsUseOnlyTopLevelDuration();
+  testLegacyAnimationSettingsRemainIndexed();
   testRegularDialogRelabelPreservesValue();
-  testUninstallLabelsKeepCanonicalIds();
+  await testUninstallLabelsKeepCanonicalIds();
+  await testUninstallGifCleanupIsNarrowAndPostSuccess();
   await testLiveUninstallLabelsKeepCanonicalId();
   await testFailedStoreLoadClearsRerenderClosure();
   await testRegularStoreTagSurvivesLiveRoundTrip();
   await testLiveStoreTagPersistsUntilSourceChanges();
   await testLibraryLoadsIgnoreOutOfOrderAndStaleFailures();
+  testInstalledAnimationRemainsRemovable();
   await testPendingLibraryTogglePreventsDuplicatesAndPreservesTarget();
   console.log("app localization tests: ok");
 }

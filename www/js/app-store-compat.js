@@ -24,11 +24,40 @@ function incompatibleText(item) {
   return minRequiredVersion(item) ? ">= " + minRequiredVersion(item) : t.install;
 }
 
-async function loadInstalledStoreVersions() {
-  return {};
+async function loadInstalledStoreVersions(installed, catalog) {
+  let animationItems = catalog && Array.isArray(catalog.animation)
+      ? catalog.animation
+      : [],
+    installedNames = new Set(
+      (Array.isArray(installed) ? installed : [])
+        .filter((app) => app && app.name)
+        .map((app) => app.name),
+    ),
+    map = {};
+  await Promise.all(
+    animationItems.map(async (item) => {
+      let id = item && item.id;
+      if (!id || !installedNames.has(id)) return;
+      let saved = await loadSavedCustomPayload(id, null);
+      if (!saved) return;
+      map[id] = {
+        version: saved.version,
+        needsReinstall:
+          saved.type === "animation" &&
+          saved.animation &&
+          typeof saved.animation === "object",
+      };
+    }),
+  );
+  return map;
 }
 
 function installedAppVersion(map, id, name) {
   let app = (map && ((id && map[id]) || (name && map[name]))) || null;
   return app && app.version ? String(app.version) : "";
+}
+
+function installedAppNeedsReinstall(map, id, name) {
+  let app = (map && ((id && map[id]) || (name && map[name]))) || null;
+  return !!(app && app.needsReinstall);
 }

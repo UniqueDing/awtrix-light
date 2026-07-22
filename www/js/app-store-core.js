@@ -154,11 +154,17 @@ async function readStoreJson(res) {
 async function loadStoreManifest(url) {
   try {
     let res = await fetch(url, { cache: "no-store" });
-    return { data: await readStoreJson(res), url };
+    return {
+      data: await readStoreJson(res),
+      url: res.url || url,
+    };
   } catch (e) {
     if (url === FALLBACK_STORE_SOURCE.url) throw e;
     let res = await fetch(FALLBACK_STORE_SOURCE.url, { cache: "no-store" });
-    return { data: await readStoreJson(res), url: FALLBACK_STORE_SOURCE.url };
+    return {
+      data: await readStoreJson(res),
+      url: res.url || FALLBACK_STORE_SOURCE.url,
+    };
   }
 }
 
@@ -188,6 +194,47 @@ function resolveStoreUrl(path, base) {
   if (/^https?:\/\//.test(p)) return p;
   if (p.startsWith("/")) p = p.slice(1);
   return new URL(p, base || location.origin + "/").href;
+}
+
+function animationManifestUrl(item) {
+  let id = String((item && item.id) || ""),
+    value = String(
+      (item && (item.manifestUrl || item.manifest || item.url)) || "",
+    ),
+    base = String((item && item.storeBase) || "");
+  if (
+    !/^[A-Za-z0-9_-]{1,64}$/.test(id) ||
+    !value ||
+    !base ||
+    value.startsWith("//") ||
+    /[\\?#]/.test(value) ||
+    /%(?:2e|2f|5c)/i.test(value)
+  )
+    throw Error("invalid animation manifest URL");
+  let catalog = new URL(base),
+    expected = new URL(
+      "apps/animation/" + encodeURIComponent(id) + ".json",
+      catalog,
+    ),
+    resolved = new URL(value, catalog);
+  if (
+    !/^https?:$/.test(catalog.protocol) ||
+    catalog.username ||
+    catalog.password ||
+    resolved.origin !== catalog.origin ||
+    resolved.username ||
+    resolved.password ||
+    resolved.search ||
+    resolved.hash ||
+    resolved.href !== expected.href
+  )
+    throw Error("invalid animation manifest URL");
+  return expected.href;
+}
+
+function validateAnimationManifestResponseUrl(response, expectedUrl) {
+  if (response.url && new URL(response.url, expectedUrl).href !== expectedUrl)
+    throw Error("invalid animation manifest redirect");
 }
 
 function normalizeLiveStoreList(data, base) {
