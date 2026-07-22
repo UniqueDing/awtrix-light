@@ -164,21 +164,21 @@ Preserve or restore these behaviors when restoring the later UI:
 - Search/tag filters should not appear on the Live tab.
 - Search should match app name, description, and tags.
 - Tag filters should be generated from app `tags` arrays.
-- Install name priority should be:
-  - `payload.name`
-  - `item.name`
-  - `item.id`
-  - fallback name
+- Historical recovered notes listed `payload.name`, `item.name`, `item.id`, then a fallback name as the install-name priority. That order is superseded by the current intentional app-store behavior.
+- For app-store installs, `item.id` is the canonical install name. This keeps filenames and app IDs stable even when display names or payload names change.
+- Only when `item.id` is absent should installation fall back to `payload.name`, then `item.name`, then a generated fallback name.
 
 ## Animation App Requirements
 
-Animation app settings should show only relevant animation controls:
+Recovered legacy notes described animation settings with these fields:
 
 - `animation_fps`
 - `animation_repeat`
 - `displayDuration`
 
-Irrelevant display fields should not be shown for animation apps, including text/icon/alignment/scroll/rainbow/bounce/pushIcon/fadeText/blinkText style controls unless explicitly needed for a specific app type.
+Those names describe an earlier indexed animation source and should not be treated as current runtime firmware settings. In the current GIF-backed model, the regular Animation custom app definition persists as `/CUSTOMAPPS/{name}.json`, its GIF asset lives at `/ICONS/{name}.gif`, and settings expose top-level `duration`. Source FPS and repeat values belong to GIF generation metadata rather than runtime firmware settings.
+
+The recovered intent still applies: irrelevant display fields should not be shown for animation apps, including text/icon/alignment/scroll/rainbow/bounce/pushIcon/fadeText/blinkText style controls unless explicitly needed for a specific app type.
 
 ## Flow App Requirements
 

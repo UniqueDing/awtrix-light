@@ -206,13 +206,13 @@ Shared app settings/display field schemas and compatibility helpers.
 
 Shared icon lookup, fallback rendering, store icon download, and device icon upload helpers.
 
-- Defines `iconText()`, `safeIconName()`, `iconUrlCandidates()`, `setIcon()`, `uploadIconBlob()`, and `installIconForApp()`.
+- Defines icon rendering/upload helpers plus strict same-origin GIF animation asset validation, bounded download checks, and safe stable-ID cleanup helpers.
 
 ## app-store-compat.js
 
 Store item version compatibility helpers.
 
-- Defines `versionParts()`, `compareVersions()`, `minRequiredVersion()`, `isCompatibleVersion()`, `loadInstalledStoreVersions()`, and `installedAppVersion()`.
+- Defines version comparison/compatibility helpers and inspects saved animation payloads so legacy indexed installations remain eligible for the GIF-backed update.
 
 ## app-create-fields.js
 
@@ -242,13 +242,13 @@ Per-app, global display, export, and save settings dialogs.
 
 Custom app uninstall flow.
 
-- `uninstallApp()` opens the uninstall confirmation dialog, calls `/api/apps/uninstall`, and refreshes library/store state.
+- `uninstallApp()` opens the confirmation dialog, inspects the saved payload, calls `/api/apps/uninstall`, removes only a matching stable-ID GIF after successful uninstall, and refreshes library/store state.
 
 ## app-store-render.js
 
 App store catalog rendering and app installation.
 
-- Defines `loadStore()` and `installApp()`.
+- Defines `loadStore()` and `installApp()`, including transactional GIF installation and best-effort rollback when the final custom-app save fails.
 
 ## app-create-defaults.js
 
