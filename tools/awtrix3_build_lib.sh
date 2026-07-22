@@ -27,6 +27,7 @@ awtrix3_patch_already_applied() {
         grep -Fq 'webserver->on(uri, method, authMiddleware(fn), authMiddleware(uploadFn));' "$awtrix3_dir/lib/webserver/esp-fs-webserver.cpp" && \
         grep -Fq 'if (filename.indexOf("..") != -1)' "$awtrix3_dir/lib/webserver/esp-fs-webserver.cpp" && \
         grep -Fq "if (filename.indexOf('\\\\') != -1)" "$awtrix3_dir/lib/webserver/esp-fs-webserver.cpp" && \
+        grep -Fq 'if (!m_filesystem->remove(path))' "$awtrix3_dir/lib/webserver/esp-fs-webserver.cpp" && \
         grep -Fq '"version": "0.98.1-light"' "$awtrix3_dir/docs/ulanzi_flasher/firmware/manifest.json" && \
         grep -Fq 'src_filter = +<*> -<Games/*> -<effects.cpp>' "$awtrix3_dir/platformio.ini" && \
         grep -Fq 'const int numOfEffects = 0;' "$awtrix3_dir/src/effects.h" && \
@@ -39,7 +40,20 @@ awtrix3_patch_already_applied() {
         grep -Fq 'setAwtrixLightRuntimeButton(0, false);' "$awtrix3_dir/src/PeripheryManager.cpp" && \
         grep -Fq 'setAwtrixLightRuntimeButton(2, false);' "$awtrix3_dir/src/PeripheryManager.cpp" && \
         grep -Fq 'if (existingApp != Apps.end())' "$awtrix3_dir/src/DisplayManager.cpp" && \
+        grep -Fq 'bool isCustomAppOrChild(const String &candidate, const String &name)' "$awtrix3_dir/src/DisplayManager.cpp" && \
+        grep -Fq "if (candidate[i] < '0' || candidate[i] > '9')" "$awtrix3_dir/src/DisplayManager.cpp" && \
+        grep -Fq 'bool removeCustomAppFromApps(const String &name, bool setApps)' "$awtrix3_dir/src/DisplayManager.cpp" && \
+        grep -Fq 'return deleteCustomAppFile(name);' "$awtrix3_dir/src/DisplayManager.cpp" && \
+        grep -Fq 'return removeCustomAppFromApps(name, true);' "$awtrix3_dir/src/DisplayManager.cpp" && \
+        grep -Fq 'ui->closeGifFile(&app.icon);' "$awtrix3_dir/src/DisplayManager.cpp" && \
+        grep -Fq 'void MatrixDisplayUi::closeGifFile(File *file)' "$awtrix3_dir/src/MatrixDisplayUi.cpp" && \
         grep -Fq 'if (LittleFS.exists("/CUSTOMAPPS/" + name + ".json"))' "$awtrix3_dir/src/DisplayManager.cpp" && \
+        grep -Fq 'bool validGif = false;' "$awtrix3_dir/src/GifPlayer.h" && \
+        grep -Fq 'keyFrame = true;' "$awtrix3_dir/src/GifPlayer.h" && \
+        grep -Fq 'tbiWidth > WIDTH - tbiImageX || tbiHeight > HEIGHT - tbiImageY' "$awtrix3_dir/src/GifPlayer.h" && \
+        grep -Fq 'if (lzwDataOffset >= lzwDataSize)' "$awtrix3_dir/src/GifPlayer.h" && \
+        grep -Fq 'if (pixel >= colorCount)' "$awtrix3_dir/src/GifPlayer.h" && \
+        grep -Fq 'void closeFile(File *imageFile)' "$awtrix3_dir/src/GifPlayer.h" && \
         grep -Fq 'void DisplayManager_::showRuntime()' "$awtrix3_dir/src/DisplayManager.cpp" && \
         grep -Fq 'uint32_t DisplayManager_::runtimeSequence() const' "$awtrix3_dir/src/DisplayManager.cpp" && \
         grep -Fq 'void showRuntime();' "$awtrix3_dir/src/DisplayManager.h" && \

@@ -20,6 +20,8 @@ server_manager = (root / "src/ServerManager.cpp").read_text()
 update_manager = (root / "src/UpdateManager.cpp").read_text()
 validation, publishing = workflow.split("  publishing:\n", 1)
 platformio_version = "6.1.18"  # Pinned release used with the workflow's Python 3.13 toolchain.
+platformio_install = f"python3 -m pip install --disable-pip-version-check platformio=={platformio_version}"
+animation_assets_install = "python3 -m pip install --disable-pip-version-check -r tools/animation-assets-requirements.txt"
 
 gitlink = subprocess.run(
     ["git", "ls-files", "--stage", "awtrix3"],
@@ -61,20 +63,26 @@ assert "actions/setup-node@v4" in validation
 assert "node-version: '22'" in validation
 assert "actions/setup-python@v5" in validation
 assert "python-version: '3.13'" in validation
-assert f"python3 -m pip install --disable-pip-version-check platformio=={platformio_version}" in validation
+assert validation.count(platformio_install) == 1
+assert validation.count(animation_assets_install) == 1
 test_commands = (
     "node tests/app_localization_test.js",
     "node tests/runtime_transport_test.js",
     "node tests/cast_tools_stopwatch_test.js",
     "python3 tests/runtime_protocol_fixture.py",
     "python3 tests/integrations_test_routes.py",
+    "python3 tests/custom_app_uninstall_contract_test.py",
     "python3 tests/discovery_regression_test.py",
+    "python3 tests/animation_assets_test.py",
     "python3 tests/ota_release_contract_test.py",
     "python3 tests/ota_routes_test.py",
     "python3 tests/release_firmware_contract_test.py",
 )
 test_positions = [validation.index(command) for command in test_commands]
 assert test_positions == sorted(test_positions)
+assert validation.index("python-version: '3.13'") < validation.index(platformio_install)
+assert validation.index(platformio_install) < validation.index(animation_assets_install)
+assert validation.index(animation_assets_install) < test_positions[0]
 for forbidden_nix_dependency in ("install-nix-action", "nix-shell", "NIX_PATH", "<nixpkgs>"):
     assert forbidden_nix_dependency not in workflow
     assert forbidden_nix_dependency not in tool
@@ -173,6 +181,9 @@ expected_overlay_paths = {
     "src/Games/SlotMachine.h",
     "src/Globals.cpp",
     "src/Globals.h",
+    "src/MatrixDisplayUi.cpp",
+    "src/MatrixDisplayUi.h",
+    "src/GifPlayer.h",
     "src/PeripheryManager.cpp",
     "src/effects.h",
 }
@@ -221,9 +232,33 @@ for marker in (
     "void GameManager_::sendPoints(int) {}",
     "void DisplayManager_::showRuntime()",
     "uint32_t DisplayManager_::runtimeSequence() const",
+    "bool isCustomAppOrChild(const String &candidate, const String &name)",
+    "if (candidate[i] < '0' || candidate[i] > '9')",
+    "bool removeCustomAppFromApps(const String &name, bool setApps)",
+    "return deleteCustomAppFile(name);",
+    "return removeCustomAppFromApps(name, true);",
+    "bool validGif = false;",
+    "keyFrame = true;",
+    "tbiWidth > WIDTH - tbiImageX || tbiHeight > HEIGHT - tbiImageY",
+    "if (lzwDataOffset >= lzwDataSize)",
+    "if (pixel >= colorCount)",
+    "void closeFile(File *imageFile)",
+    "ui->closeGifFile(&app.icon);",
+    "void MatrixDisplayUi::closeGifFile(File *file)",
+    "if (!m_filesystem->remove(path))",
 ):
     assert marker in overlay_patch
     assert marker in build_lib
+
+assert server_manager.index('File appFile = LittleFS.open(fileName, "r");') < server_manager.index("DisplayManager.uninstallCustomApp(name)")
+assert 'appDoc["type"].is<const char *>()' in server_manager
+assert 'appDoc["icon"].is<const char *>()' in server_manager
+assert 'appDoc["type"].as<String>() == "animation"' in server_manager
+assert 'appDoc["icon"].as<String>() == name' in server_manager
+assert server_manager.index("DisplayManager.uninstallCustomApp(name)") < server_manager.index('String animationFileName = "/ICONS/" + name + ".gif";')
+assert 'LittleFS.remove(animationFileName)' in server_manager
+assert '"/ICONS/" + name + ".jpg"' not in server_manager
+assert "src/ServerManager.cpp" not in overlay_paths
 for marker in (
     'mws.addOption("HA Prefix", HA_PREFIX);',
     'mws.addOption("HA Base URL", HA_BASE_URL);',
@@ -287,8 +322,133 @@ def run_upstream_overlay():
             ("src/DisplayManager.cpp", "void fetchFlowHaSource(JsonObject app, JsonObject source, DynamicJsonDocument &sourceValues)"),
             ("src/Globals.cpp", 'HA_BASE_URL = doc["ha_base_url"].as<String>();'),
             ("src/Globals.cpp", 'HA_TOKEN = doc["ha_token"].as<String>();'),
+            ("src/GifPlayer.h", "bool readFailed = false;"),
+            ("src/GifPlayer.h", "lsdWidth > 0 && lsdWidth <= WIDTH"),
+            ("src/GifPlayer.h", "tbiWidth > lsdWidth - tbiImageX || tbiHeight > lsdHeight - tbiImageY"),
+            ("src/GifPlayer.h", "offset + dataBlockSize + 1 > (int)sizeof(lzwImageData)"),
+            ("src/GifPlayer.h", "if (code >= LZW_SIZTABLE || sp >= stack + LZW_SIZTABLE)"),
+            ("src/GifPlayer.h", "if (pixel >= colorCount)"),
+            ("src/GifPlayer.h", "void closeFile(File *imageFile)"),
+            ("src/DisplayManager.cpp", "ui->closeGifFile(&app.icon);"),
+            ("src/DisplayManager.cpp", "bool isCustomAppOrChild(const String &candidate, const String &name)"),
+            ("src/DisplayManager.cpp", "if (candidate[i] < '0' || candidate[i] > '9')"),
+            ("src/DisplayManager.cpp", "return deleteCustomAppFile(name);"),
+            ("src/DisplayManager.cpp", "return removeCustomAppFromApps(name, true);"),
+            ("src/MatrixDisplayUi.cpp", "void MatrixDisplayUi::closeGifFile(File *file)"),
+            ("lib/webserver/esp-fs-webserver.cpp", "if (!m_filesystem->remove(path))"),
         ):
             assert marker in (fixture_awtrix3 / path).read_text()
+
+        host_test = fixture_root / "gif-host"
+        host_test.mkdir()
+        (host_test / "LittleFS.h").write_text(
+            """#pragma once
+#include <cstddef>
+#include <cstdint>
+#include <fstream>
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
+enum SeekMode { SeekSet };
+static std::map<std::string, int> openHandles;
+class File {
+ public:
+  File() = default;
+  explicit File(const char *path) : name_(path), data_(std::make_shared<std::vector<uint8_t>>()), position_(std::make_shared<size_t>(0)), open_(true) {
+    std::ifstream input(path, std::ios::binary);
+    data_->assign(std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>());
+    ++openHandles[name_];
+  }
+  explicit operator bool() const { return open_; }
+  int read() { return open_ && data_ && *position_ < data_->size() ? (*data_)[(*position_)++] : -1; }
+  int read(uint8_t *buffer, size_t count) {
+    size_t available = open_ && data_ ? data_->size() - *position_ : 0;
+    size_t copied = count < available ? count : available;
+    for (size_t index = 0; index < copied; index++) buffer[index] = (*data_)[(*position_)++];
+    return static_cast<int>(copied);
+  }
+  bool seek(size_t position, SeekMode) { if (!data_ || position > data_->size()) return false; *position_ = position; return true; }
+  bool seek(size_t position) { return seek(position, SeekSet); }
+  size_t position() const { return position_ ? *position_ : 0; }
+  const char *name() const { return name_.c_str(); }
+  void close() { if (open_) { open_ = false; --openHandles[name_]; } }
+ private:
+  std::string name_;
+  std::shared_ptr<std::vector<uint8_t>> data_;
+  std::shared_ptr<size_t> position_;
+  bool open_ = false;
+};
+""",
+            encoding="ascii",
+        )
+        (host_test / "main.cpp").write_text(
+            """#include <cstdint>
+#include <cstring>
+using byte = uint8_t;
+using boolean = bool;
+struct CRGB { uint8_t r = 0, g = 0, b = 0; static const CRGB Black; };
+const CRGB CRGB::Black{};
+class FastLED_NeoMatrix { public: void drawPixel(int, int, const CRGB &) {} };
+static unsigned long clockValue = 100000;
+unsigned long millis() { return clockValue += 1000; }
+#include "GifPlayer.h"
+int main(int argc, char **argv) {
+  if (argc != 5) return 10;
+  FastLED_NeoMatrix matrix;
+  for (int index = 1; index < argc; index++) {
+    GifPlayer player{};
+    player.setMatrix(&matrix);
+    File unrelated(argv[index]);
+    File file(argv[index]);
+    int width = player.playGif(0, 0, &file);
+    if (index == 1) {
+      if (width != 32 || player.getFrame() == 0) return 20;
+    } else if (width != 0) {
+      return 30 + index;
+    }
+    player.closeFile(&file);
+    if (player.file || !file || openHandles[argv[index]] < 1) return 40 + index;
+  }
+  return 0;
+}
+""",
+            encoding="ascii",
+        )
+        (host_test / "GifPlayer.h").write_bytes((fixture_awtrix3 / "src/GifPlayer.h").read_bytes())
+        valid_gif = (root / "app-store/assets/animation/fade.gif").read_bytes()
+        assert valid_gif[:6] in (b"GIF87a", b"GIF89a")
+        packed = valid_gif[10]
+        descriptor = 13 + (3 * (2 << (packed & 7)) if packed & 0x80 else 0)
+        while valid_gif[descriptor] == 0x21:
+            descriptor += 2
+            while True:
+                block_size = valid_gif[descriptor]
+                descriptor += 1
+                if block_size == 0:
+                    break
+                descriptor += block_size
+        assert valid_gif[descriptor] == 0x2C
+        fixtures = {
+            "valid.gif": valid_gif,
+            "truncated.gif": valid_gif[:5],
+            "wide-screen.gif": valid_gif[:6] + b"\x21\x00" + valid_gif[8:],
+            "bad-image-offset.gif": valid_gif[: descriptor + 1] + b"\x20\x00" + valid_gif[descriptor + 3 :],
+        }
+        for name, content in fixtures.items():
+            (host_test / name).write_bytes(content)
+        host_compile = subprocess.run(
+            ["g++", "-std=c++17", "-I", str(host_test), str(host_test / "main.cpp"), "-o", str(host_test / "gif-host")],
+            capture_output=True,
+            text=True,
+        )
+        assert host_compile.returncode == 0, host_compile.stderr
+        host_run = subprocess.run(
+            [str(host_test / "gif-host"), *[str(host_test / name) for name in fixtures]],
+            capture_output=True,
+            text=True,
+        )
+        assert host_run.returncode == 0, host_run.stderr
 
         second = subprocess.run(command, capture_output=True, text=True)
         assert second.returncode == 0, second.stderr

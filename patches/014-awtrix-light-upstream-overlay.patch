@@ -102,7 +102,27 @@ index 16aa224a49ff935ec96e5945d93d0974409e5a4f..fd0cf9194bbe8bcbdf15048ffc5fc02b
  /*
      Return the list of files in the directory specified by the "dir" query string parameter.
      Also demonstrates the use of chuncked responses.
-@@ -908,22 +922,6 @@ void FSWebServer::handleFileDelete()
+@@ -908,22 +922,18 @@ void FSWebServer::handleFileDelete()
+     if (!root.isDirectory())
+     {
+         root.close();
+-        m_filesystem->remove(path);
++        if (!m_filesystem->remove(path))
++        {
++            replyToCLient(ERROR, PSTR("DELETE FAILED"));
++            return;
++        }
+         replyOK();
+     }
+     else
+     {
+-        m_filesystem->rmdir(path);
++        if (!m_filesystem->rmdir(path))
++        {
++            replyToCLient(ERROR, PSTR("DELETE FAILED"));
++            return;
++        }
+         replyOK();
      }
  }
  
@@ -3617,13 +3637,27 @@ index b151f2076d4adb17b0639987b4d1e6439bb56be2..df1101ede08ab36e825b65e8dee69e58
 +  }
 +}
 +
-+void removeCustomAppFromApps(const String &name, bool setApps)
++bool isCustomAppOrChild(const String &candidate, const String &name)
++{
++  if (candidate == name)
++    return true;
++  if (!candidate.startsWith(name) || candidate.length() == name.length())
++    return false;
++  for (size_t i = name.length(); i < candidate.length(); i++)
++  {
++    if (candidate[i] < '0' || candidate[i] > '9')
++      return false;
++  }
++  return true;
++}
++
++bool removeCustomAppFromApps(const String &name, bool setApps)
 +{
 +  // Remove apps from Apps list
 +  auto it = Apps.begin();
 +  while (it != Apps.end())
 +  {
-+    if (it->first.startsWith(name))
++    if (isCustomAppOrChild(it->first, name))
 +    {
 +      it = Apps.erase(it);
 +    }
@@ -3637,8 +3671,11 @@ index b151f2076d4adb17b0639987b4d1e6439bb56be2..df1101ede08ab36e825b65e8dee69e58
 +  auto mapIt = customApps.begin();
 +  while (mapIt != customApps.end())
 +  {
-+    if (mapIt->first.startsWith(name))
++    if (isCustomAppOrChild(mapIt->first, name))
 +    {
++      CustomApp &app = mapIt->second;
++      ui->closeGifFile(&app.icon);
++      app.icon.close();
 +      mapIt = customApps.erase(mapIt);
 +    }
 +    else
@@ -3650,8 +3687,8 @@ index b151f2076d4adb17b0639987b4d1e6439bb56be2..df1101ede08ab36e825b65e8dee69e58
 +  if (setApps)
 +    ui->setApps(Apps);
 +  DisplayManager.getInstance().setAutoTransition(true);
-+  deleteCustomAppFile(name);
 +  DisplayManager.setAppTime(TIME_PER_APP);
++  return deleteCustomAppFile(name);
 +}
 +
 +bool parseFragmentsText(const JsonArray &fragmentArray, std::vector<uint32_t> &colors, std::vector<String> &fragments, uint32_t standardColor)
@@ -3952,8 +3989,7 @@ index b151f2076d4adb17b0639987b4d1e6439bb56be2..df1101ede08ab36e825b65e8dee69e58
 +{
 +  if ((strcmp(json, "") == 0) || (strcmp(json, "{}") == 0))
 +  {
-+    removeCustomAppFromApps(name, true);
-+    return true;
++    return removeCustomAppFromApps(name, true);
 +  }
 +
 +  DynamicJsonDocument doc(8192);
@@ -4049,7 +4085,7 @@ index b151f2076d4adb17b0639987b4d1e6439bb56be2..df1101ede08ab36e825b65e8dee69e58
 +{
 +  if (!validCustomAppName(name))
 +    return false;
-+  return parseCustomPage(name, "{}", false);
++  return removeCustomAppFromApps(name, true);
 +}
 +
 +
@@ -8775,3 +8811,580 @@ index 7741008f06fc7fe872ee6c82852cb2836b4d4200..bfd970325d623f34c08efa64b07d9b62
  extern Effect effects[];
  void callEffect(FastLED_NeoMatrix *matrix, int16_t x, int16_t y, u_int8_t index);
  int getEffectIndex(String name);
+diff --git a/src/MatrixDisplayUi.cpp b/src/MatrixDisplayUi.cpp
+index 0c460ae..491c8e1 100644
+--- a/src/MatrixDisplayUi.cpp
++++ b/src/MatrixDisplayUi.cpp
+@@ -113,6 +113,11 @@ void MatrixDisplayUi::setApps(const std::vector<std::pair<String, AppCallback>>
+   DisplayManager.setAutoTransition(true);
+ }
+-
++void MatrixDisplayUi::closeGifFile(File *file)
++{
++  gif1.closeFile(file);
++  gif2.closeFile(file);
++}
++
+ // -/----- Overlays ------\-
+ void MatrixDisplayUi::setOverlays(OverlayCallback *overlayFunctions, uint8_t overlayCount)
+ {
+diff --git a/src/MatrixDisplayUi.h b/src/MatrixDisplayUi.h
+index 579ab50..bcd4458 100644
+--- a/src/MatrixDisplayUi.h
++++ b/src/MatrixDisplayUi.h
+@@ -202,7 +202,7 @@ public:
+    * Add app drawing functions
+    */
+   void setApps(const std::vector<std::pair<String, AppCallback>> &appPairs);
++  void closeGifFile(File *file);
+-
+   // Overlay
+   void forceResetState();
+diff --git a/src/GifPlayer.h b/src/GifPlayer.h
+index 7e0b7eb..8cc936f 100644
+--- a/src/GifPlayer.h
++++ b/src/GifPlayer.h
+@@ -72,15 +72,23 @@ public:
+   File file;
++  File *sourceFile = nullptr;
+   byte imageData[WIDTH * HEIGHT];
+   byte imageDataBU[WIDTH * HEIGHT];
++  bool readFailed = false;
++  bool validGif = false;
++  int lzwDataSize = 0;
++  int lzwDataOffset = 0;
+
+   void backUpStream(int n)
+   {
+-    file.seek(file.position() - n, SeekSet);
++    if (n < 0 || file.position() < (size_t)n || !file.seek(file.position() - n, SeekSet))
++      readFailed = true;
+   }
+
+   int readByte()
+   {
+     int b = file.read();
++    if (b < 0)
++      readFailed = true;
+     return b;
+   }
+
+@@ -88,15 +95,39 @@ public:
+   {
+     int b0 = readByte();
+     int b1 = readByte();
++    if (b0 < 0 || b1 < 0)
++      return -1;
+     return (b1 << 8) | b0;
+   }
+
+   int readIntoBuffer(void *buffer, int numberOfBytes)
+   {
++    if (numberOfBytes < 0)
++    {
++      readFailed = true;
++      return 0;
++    }
+     int result = file.read(static_cast<uint8_t *>(buffer), numberOfBytes);
++    if (result != numberOfBytes)
++      readFailed = true;
+     return result;
+   }
+
++  bool skipSubBlocks()
++  {
++    while (!readFailed)
++    {
++      int len = readByte();
++      if (len < 0)
++        return false;
++      if (len == 0)
++        return true;
++      if (readIntoBuffer(tempBuffer, len) != len)
++        return false;
++    }
++    return false;
++  }
++
+   void fillImageDataRect(byte colorIndex, int x, int y, int width, int height)
+   {
+     int yOffset;
+@@ -133,22 +164,24 @@ public:
+
+   void parsePlainTextExtension()
+   {
+-    byte len = readByte();
+-    readIntoBuffer(tempBuffer, len);
+-    len = readByte();
+-    while (len != 0)
+-    {
+-      readIntoBuffer(tempBuffer, len);
+-      len = readByte();
+-    }
++    int len = readByte();
++    if (len < 0 || readIntoBuffer(tempBuffer, len) != len)
++      return;
++    skipSubBlocks();
+   }
+
+   void parseGraphicControlExtension()
+   {
+-    readByte();
++    if (readByte() != 4)
++    {
++      readFailed = true;
++      return;
++    }
+     int packedBits = readByte();
+     frameDelay = readWord();
+     transparentColorIndex = readByte();
++    if (readFailed)
++      return;
+
+     if ((packedBits & TRANSPARENTFLAG) == 0)
+     {
+@@ -161,31 +194,22 @@ public:
+       disposalMethod = 0;
+     }
+
+-    readByte(); // Toss block end
++    if (readByte() != 0)
++      readFailed = true;
+   }
+
+   void parseApplicationExtension()
+   {
+     memset(tempBuffer, 0, sizeof(tempBuffer));
+-    byte len = readByte();
+-    readIntoBuffer(tempBuffer, len);
+-    len = readByte();
+-    while (len != 0)
+-    {
+-      readIntoBuffer(tempBuffer, len);
+-      len = readByte();
+-    }
++    int len = readByte();
++    if (len < 0 || readIntoBuffer(tempBuffer, len) != len)
++      return;
++    skipSubBlocks();
+   }
+
+   void parseCommentExtension()
+   {
+-    byte len = readByte();
+-    while (len != 0)
+-    {
+-      memset(tempBuffer, 0, sizeof(tempBuffer));
+-      readIntoBuffer(tempBuffer, len);
+-      len = readByte();
+-    }
++    skipSubBlocks();
+   }
+
+   int parseGIFFileTerminator()
+@@ -208,6 +232,13 @@ public:
+     tbiWidth = readWord();
+     tbiHeight = readWord();
+     tbiPackedBits = readByte();
++    if (readFailed || tbiWidth <= 0 || tbiHeight <= 0 || tbiImageX < 0 || tbiImageY < 0 ||
++        tbiWidth > WIDTH - tbiImageX || tbiHeight > HEIGHT - tbiImageY ||
++        tbiWidth > lsdWidth - tbiImageX || tbiHeight > lsdHeight - tbiImageY)
++    {
++      validGif = false;
++      return ERROR_BADGIFFORMAT;
++    }
+     tbiInterlaced = ((tbiPackedBits & INTERLACEFLAG) != 0);
+     boolean localColorTable = ((tbiPackedBits & COLORTBLFLAG) != 0);
+     if (localColorTable)
+@@ -215,7 +246,11 @@ public:
+       int colorBits = ((tbiPackedBits & 7) + 1);
+       colorCount = 1 << colorBits;
+       int colorTableBytes = sizeof(_RGB) * colorCount;
+-      readIntoBuffer(gifPalette, colorTableBytes);
++      if (readIntoBuffer(gifPalette, colorTableBytes) != colorTableBytes)
++      {
++        validGif = false;
++        return ERROR_BADGIFFORMAT;
++      }
+     }
+
+     if (keyFrame)
+@@ -273,28 +308,41 @@ public:
+       }
+     }
+     lzwCodeSize = readByte();
++    if (lzwCodeSize < 2 || lzwCodeSize > 8)
++    {
++      validGif = false;
++      return ERROR_BADGIFFORMAT;
++    }
+     int offset = 0;
+     int dataBlockSize = readByte();
+-    while (dataBlockSize != 0)
++    while (!readFailed && dataBlockSize != 0)
+     {
+-      backUpStream(1);
+-      dataBlockSize++;
+-      if (offset + dataBlockSize <= (int)sizeof(lzwImageData))
++      if (dataBlockSize < 0 || offset + dataBlockSize + 1 > (int)sizeof(lzwImageData))
+       {
+-        readIntoBuffer(lzwImageData + offset, dataBlockSize);
++        validGif = false;
++        return ERROR_BADGIFFORMAT;
+       }
+-      else
++      lzwImageData[offset++] = dataBlockSize;
++      if (readIntoBuffer(lzwImageData + offset, dataBlockSize) != dataBlockSize)
+       {
+-        int i;
+-        for (i = 0; i < dataBlockSize; i++)
+-          file.read();
++        validGif = false;
++        return ERROR_BADGIFFORMAT;
+       }
+-
+       offset += dataBlockSize;
+       dataBlockSize = readByte();
+     }
++    if (readFailed || offset == 0)
++    {
++      validGif = false;
++      return ERROR_BADGIFFORMAT;
++    }
++    lzwDataSize = offset;
+     lzw_decode_init(lzwCodeSize, lzwImageData);
+-    decompressAndDisplayFrame();
++    if (!decompressAndDisplayFrame())
++    {
++      validGif = false;
++      return ERROR_BADGIFFORMAT;
++    }
+     redrawLastFrame();
+     transparentColorIndex = NO_TRANSPARENT_INDEX;
+     disposalMethod = DISPOSAL_NONE;
+@@ -349,6 +397,7 @@ public:
+     slot = newcodes = clear_code + 2;
+     oc = fc = -1;
+     sp = stack;
++    lzwDataOffset = 0;
+   }
+
+   int lzw_get_code()
+@@ -357,9 +406,13 @@ public:
+     {
+       if (!bs)
+       {
+-        bs = *pbuf++;
++        if (lzwDataOffset >= lzwDataSize)
++          return -1;
++        bs = pbuf[lzwDataOffset++];
+       }
+-      bbuf |= (*pbuf++) << bbits;
++      if (bs <= 0 || lzwDataOffset >= lzwDataSize)
++        return -1;
++      bbuf |= pbuf[lzwDataOffset++] << bbits;
+       bbits += 8;
+       bs--;
+     }
+@@ -390,6 +443,8 @@ public:
+         }
+       }
+       c = lzw_get_code();
++      if (c < 0)
++        return -1;
+       if (c == end_code)
+       {
+         break;
+@@ -408,6 +463,8 @@ public:
+         code = c;
+         if ((code == slot) && (fc >= 0))
+         {
++          if (sp >= stack + LZW_SIZTABLE)
++            return -1;
+           *sp++ = fc;
+           code = oc;
+         }
+@@ -417,9 +474,13 @@ public:
+         }
+         while (code >= newcodes)
+         {
++          if (code >= LZW_SIZTABLE || sp >= stack + LZW_SIZTABLE)
++            return -1;
+           *sp++ = suffix[code];
+           code = prefix[code];
+         }
++        if (code < 0 || code >= clear_code || sp >= stack + LZW_SIZTABLE)
++          return -1;
+         *sp++ = code;
+         if ((slot < top_slot) && (oc >= 0))
+         {
+@@ -470,32 +531,37 @@ public:
+     }
+   }
+
+-  void decompressAndDisplayFrame()
++  bool decompressAndDisplayFrame()
+   {
+     if (tbiInterlaced)
+     {
+       for (int line = tbiImageY + 0; line < tbiHeight + tbiImageY; line += 8)
+       {
+-        lzw_decode(imageData + (line * WIDTH) + tbiImageX, tbiWidth);
++        if (lzw_decode(imageData + (line * WIDTH) + tbiImageX, tbiWidth) != tbiWidth)
++          return false;
+       }
+       for (int line = tbiImageY + 4; line < tbiHeight + tbiImageY; line += 8)
+       {
+-        lzw_decode(imageData + (line * WIDTH) + tbiImageX, tbiWidth);
++        if (lzw_decode(imageData + (line * WIDTH) + tbiImageX, tbiWidth) != tbiWidth)
++          return false;
+       }
+       for (int line = tbiImageY + 2; line < tbiHeight + tbiImageY; line += 4)
+       {
+-        lzw_decode(imageData + (line * WIDTH) + tbiImageX, tbiWidth);
++        if (lzw_decode(imageData + (line * WIDTH) + tbiImageX, tbiWidth) != tbiWidth)
++          return false;
+       }
+       for (int line = tbiImageY + 1; line < tbiHeight + tbiImageY; line += 2)
+       {
+-        lzw_decode(imageData + (line * WIDTH) + tbiImageX, tbiWidth);
++        if (lzw_decode(imageData + (line * WIDTH) + tbiImageX, tbiWidth) != tbiWidth)
++          return false;
+       }
+     }
+     else
+     {
+       for (int line = tbiImageY; line < tbiHeight + tbiImageY; line++)
+       {
+-        lzw_decode(imageData + (line * WIDTH) + tbiImageX, tbiWidth);
++        if (lzw_decode(imageData + (line * WIDTH) + tbiImageX, tbiWidth) != tbiWidth)
++          return false;
+       }
+     }
+
+@@ -506,6 +572,8 @@ public:
+       for (int x = tbiImageX; x < tbiWidth + tbiImageX; x++)
+       {
+         pixel = imageData[yOffset + x];
++        if (pixel >= colorCount)
++          return false;
+         if (pixel != transparentColorIndex)
+         {
+           CRGB color;
+@@ -525,6 +593,7 @@ public:
+     }
+     ++currentFrame;
+     lastFrameTime = millis();
++    return true;
+   }
+
+ public:
+@@ -538,20 +608,50 @@ public:
+     return currentFrame;
+   }
+-
++  void closeFile(File *imageFile)
++  {
++    if (sourceFile == imageFile)
++    {
++      file.close();
++      file = File();
++      sourceFile = nullptr;
++      validGif = false;
++      currentFrame = 0;
++    }
++  }
++
+   int playGif(int x, int y, File *imageFile, uint32_t frame = 0)
+   {
+     offsetX = x;
+     offsetY = y;
++    sourceFile = imageFile;
+-
+     if (imageFile->name() == file.name())
+     {
++      if (!validGif)
++        return 0;
+       drawFrame();
+-      return lsdWidth;
++      return validGif ? lsdWidth : 0;
+     }
+     else
+     {
+       currentFrame = 0;
+       file = *imageFile;
++      readFailed = false;
++      validGif = false;
++      lsdWidth = 0;
++      lsdHeight = 0;
++      colorCount = 0;
++      frameDelay = 1;
++      transparentColorIndex = NO_TRANSPARENT_INDEX;
++      prevBackgroundIndex = 0;
++      prevDisposalMethod = DISPOSAL_NONE;
++      disposalMethod = DISPOSAL_NONE;
++      keyFrame = true;
++      rectX = 0;
++      rectY = 0;
++      rectWidth = 0;
++      rectHeight = 0;
++      lastFrameTime = 0;
++      newframeDelay = 0;
+
+       memset(FrameBuffer, 0, sizeof(FrameBuffer));
+       memset(gifPalette, 0, sizeof(gifPalette));
+@@ -564,29 +652,30 @@ public:
+       if (frame != 0)
+       {
+
+-        parseGifHeader();
+-        parseLogicalScreenDescriptor();
+-        parseGlobalColorTable();
++        validGif = parseGifHeader() && parseLogicalScreenDescriptor() && parseGlobalColorTable();
++        if (!validGif)
++          return 0;
+         do
+         {
+           drawFrame(true);
+-        } while (currentFrame < frame);
++        } while (validGif && currentFrame < frame);
+       }
+       else
+       {
+-        parseGifHeader();
+-        parseLogicalScreenDescriptor();
+-        parseGlobalColorTable();
++        validGif = parseGifHeader() && parseLogicalScreenDescriptor() && parseGlobalColorTable();
++        if (!validGif)
++          return 0;
+         drawFrame();
+       }
+     }
+-    return lsdWidth;
++    return validGif ? lsdWidth : 0;
+   }
+
+   boolean parseGifHeader()
+   {
+     char buffer[10];
+-    readIntoBuffer(buffer, GIFHDRSIZE);
++    if (readIntoBuffer(buffer, GIFHDRSIZE) != GIFHDRSIZE)
++      return false;
+     if ((strncmp(buffer, GIFHDRTAGNORM, GIFHDRSIZE) != 0) &&
+         (strncmp(buffer, GIFHDRTAGNORM1, GIFHDRSIZE) != 0))
+     {
+@@ -598,23 +687,32 @@ public:
+     }
+   }
+
+-  void parseLogicalScreenDescriptor()
++  bool parseLogicalScreenDescriptor()
+   {
+     lsdWidth = readWord();
+     lsdHeight = readWord();
+     lsdPackedField = readByte();
+     lsdBackgroundIndex = readByte();
+     lsdAspectRatio = readByte();
++    return !readFailed && lsdWidth > 0 && lsdWidth <= WIDTH && lsdHeight > 0 && lsdHeight <= HEIGHT;
+   }
+
+-  void parseGlobalColorTable()
++  bool parseGlobalColorTable()
+   {
+     if (lsdPackedField & COLORTBLFLAG)
+     {
+       colorCount = 1 << ((lsdPackedField & 7) + 1);
+       int colorTableBytes = sizeof(_RGB) * colorCount;
+-      readIntoBuffer(gifPalette, colorTableBytes);
++      if (readIntoBuffer(gifPalette, colorTableBytes) != colorTableBytes)
++        return false;
++      if (lsdBackgroundIndex >= colorCount)
++        return false;
+     }
++    else
++    {
++      colorCount = 0;
++    }
++    return !readFailed;
+   }
+
+   unsigned long drawFrame(bool force = false)
+@@ -634,15 +732,24 @@ public:
+     boolean done = false;
+     while (!done)
+     {
+-      byte b = readByte();
++      int b = readByte();
++      if (b < 0)
++      {
++        validGif = false;
++        return ERROR_BADGIFFORMAT;
++      }
+       if (b == 0x2c)
+       {
+-        parseTableBasedImage();
+-        return 0;
++        return parseTableBasedImage();
+       }
+       else if (b == 0x21)
+       {
+         b = readByte();
++        if (b < 0)
++        {
++          validGif = false;
++          return ERROR_BADGIFFORMAT;
++        }
+         switch (b)
+         {
+         case 0x01:
+@@ -658,22 +765,42 @@ public:
+           parseApplicationExtension();
+           break;
+         default:
++          validGif = false;
+           return ERROR_UNKNOWNCONTROLEXT;
+         }
++        if (readFailed)
++        {
++          validGif = false;
++          return ERROR_BADGIFFORMAT;
++        }
+       }
+-      else
++      else if (b == 0x3b)
+       {
+         done = true;
+-        file.seek(0);
++        if (currentFrame == 0)
++        {
++          validGif = false;
++          return ERROR_BADGIFFORMAT;
++        }
++        if (!file.seek(0))
++        {
++          validGif = false;
++          return ERROR_BADGIFFORMAT;
++        }
++        readFailed = false;
+         currentFrame = 0;
+-        parseGifHeader();
+-        parseLogicalScreenDescriptor();
+-        parseGlobalColorTable();
+-        drawFrame();
++        validGif = parseGifHeader() && parseLogicalScreenDescriptor() && parseGlobalColorTable();
++        if (validGif)
++          drawFrame();
+         return ERROR_FINISHED;
+       }
++      else
++      {
++        validGif = false;
++        return ERROR_BADGIFFORMAT;
++      }
+     }
+     return ERROR_NON;
+   }
+ };
+-#endif
+\ No newline at end of file
++#endif
