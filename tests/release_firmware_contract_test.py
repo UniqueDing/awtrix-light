@@ -21,7 +21,6 @@ update_manager = (root / "src/UpdateManager.cpp").read_text()
 validation, publishing = workflow.split("  publishing:\n", 1)
 platformio_version = "6.1.18"  # Pinned release used with the workflow's Python 3.13 toolchain.
 platformio_install = f"python3 -m pip install --disable-pip-version-check platformio=={platformio_version}"
-animation_assets_install = "python3 -m pip install --disable-pip-version-check -r tools/animation-assets-requirements.txt"
 
 gitlink = subprocess.run(
     ["git", "ls-files", "--stage", "awtrix3"],
@@ -64,7 +63,7 @@ assert "node-version: '22'" in validation
 assert "actions/setup-python@v5" in validation
 assert "python-version: '3.13'" in validation
 assert validation.count(platformio_install) == 1
-assert validation.count(animation_assets_install) == 1
+assert "animation-assets-requirements.txt" not in workflow
 test_commands = (
     "node tests/app_localization_test.js",
     "node tests/runtime_transport_test.js",
@@ -81,8 +80,7 @@ test_commands = (
 test_positions = [validation.index(command) for command in test_commands]
 assert test_positions == sorted(test_positions)
 assert validation.index("python-version: '3.13'") < validation.index(platformio_install)
-assert validation.index(platformio_install) < validation.index(animation_assets_install)
-assert validation.index(animation_assets_install) < test_positions[0]
+assert validation.index(platformio_install) < test_positions[0]
 for forbidden_nix_dependency in ("install-nix-action", "nix-shell", "NIX_PATH", "<nixpkgs>"):
     assert forbidden_nix_dependency not in workflow
     assert forbidden_nix_dependency not in tool
@@ -416,7 +414,7 @@ int main(int argc, char **argv) {
             encoding="ascii",
         )
         (host_test / "GifPlayer.h").write_bytes((fixture_awtrix3 / "src/GifPlayer.h").read_bytes())
-        valid_gif = (root / "app-store/assets/animation/fade.gif").read_bytes()
+        valid_gif = (root / "app-store/apps/animation/fade.gif").read_bytes()
         assert valid_gif[:6] in (b"GIF87a", b"GIF89a")
         packed = valid_gif[10]
         descriptor = 13 + (3 * (2 << (packed & 7)) if packed & 0x80 else 0)
