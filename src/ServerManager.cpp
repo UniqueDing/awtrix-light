@@ -232,10 +232,35 @@ static void uninstallCustomApp()
         return;
     }
 
+    bool removeOwnedAnimation = false;
+    File appFile = LittleFS.open(fileName, "r");
+    if (appFile)
+    {
+        DynamicJsonDocument appDoc(8192);
+        if (deserializeJson(appDoc, appFile) == DeserializationError::Ok)
+        {
+            removeOwnedAnimation = appDoc["type"].is<const char *>() &&
+                                   appDoc["icon"].is<const char *>() &&
+                                   appDoc["type"].as<String>() == "animation" &&
+                                   appDoc["icon"].as<String>() == name;
+        }
+        appFile.close();
+    }
+
     if (!DisplayManager.uninstallCustomApp(name))
     {
         mws.webserver->send(500, F("application/json"), F("{\"success\":false,\"error\":\"uninstall failed\"}"));
         return;
+    }
+
+    if (removeOwnedAnimation)
+    {
+        String animationFileName = "/ICONS/" + name + ".gif";
+        if (LittleFS.exists(animationFileName) && !LittleFS.remove(animationFileName))
+        {
+            mws.webserver->send(200, F("application/json"), F("{\"success\":true,\"cleanupPending\":true,\"warning\":\"animation cleanup failed\"}"));
+            return;
+        }
     }
 
     mws.webserver->send(200, F("application/json"), F("{\"success\":true}"));
