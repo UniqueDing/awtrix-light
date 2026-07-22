@@ -1,10 +1,10 @@
 # Local JSON Flow Template
 
-This document describes the JSON format used by the local AWTRIX Flow Store in `src/AppStore.cpp` and by saved Flow definitions under `/Apps/flow/<flow-id>.json`.
+This document describes the JSON format published through the repository-owned catalog in `app-store/list.json` and used by saved Flow definitions under `/CUSTOMAPPS/<flow-id>.json`. The active catalog is normally loaded from `app-store/list.json` through GitHub Raw. `src/AppStore.cpp` provides only the embedded fallback catalog, whose Flow and Animation lists are currently empty.
 
 ## Flow Store manifest entry
 
-Add one Flow entry to `appStoreManifestJson`:
+Add one Flow entry to the `apps.flow` array in `app-store/list.json`:
 
 ```json
 {
@@ -19,13 +19,13 @@ Add one Flow entry to `appStoreManifestJson`:
 
 Rules:
 
-- `id` is the install id and saved file name: `/Apps/flow/<id>.json`.
+- `id` is the install id and saved file name: `/CUSTOMAPPS/<id>.json`.
 - `icon` should match a file uploaded through the AWTRIX icon tool when possible: `/ICONS/<icon>.jpg` or `/ICONS/<icon>.gif`.
 - Keep `id` stable. Changing it creates a different installed Flow.
 
 ## Standard Flow JSON
 
-This is the recommended base Flow template returned by `getAppStoreAppJson(id)`:
+This is the recommended base Flow payload referenced by a catalog entry:
 
 ```json
 {
@@ -220,4 +220,4 @@ Formula is not JavaScript and does not execute arbitrary code. For complex domai
 - Flow: a device-run data display definition. Flows fetch HTTP/HA/MQTT/formula data and render through `display` rules. They continue running without the browser.
 - Live: a browser-run program. Live require the Web UI to stay open and cast frames to the matrix through `/api/runtime/*`.
 
-The current `/api/apps` name is kept for firmware compatibility, but installed Flow files now live under `/Apps/flow`, installed Animation files under `/Apps/animation`, and installed Live files under `/Apps/cast`.
+The current `/api/apps` name is kept for firmware compatibility. Regular Flow and Animation custom app definitions persist as `/CUSTOMAPPS/<name>.json`. GIF assets used by Animation apps live separately at `/ICONS/<name>.gif`. Installed Live files use `/Apps/cast`.

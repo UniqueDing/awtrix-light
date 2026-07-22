@@ -100,7 +100,7 @@ Runtime helpers:
 
 ## Install And Cache Model
 
-Flow installs live on the device under `/Apps/flow`. Animation installs live under `/Apps/animation`. Live installs use one manifest per app under `/Apps/cast/<id>.json`, so the installed Live list survives changing browser, phone, or computer. Browser `localStorage` remains only as a migration mirror for older installs.
+Regular Flow and Animation custom app definitions persist on the device as `/CUSTOMAPPS/<name>.json`. GIF assets used by Animation apps live separately at `/ICONS/<name>.gif`. Live installs use one manifest per app under `/Apps/cast/<id>.json`, so the installed Live list survives changing browser, phone, or computer. Browser `localStorage` remains only as a migration mirror for older installs.
 
 The current Live loader dynamically imports the locally cached JS module from `/Apps/cast/<id>.js` after install. The original remote URL is kept in the manifest as `entryOriginal` for updates or recovery.
 

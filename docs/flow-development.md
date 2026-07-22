@@ -25,7 +25,7 @@ Add an entry to the `apps.flow` array in `app-store/list.json`.
 }
 ```
 
-`id` is the install id. Installed Flow files are now saved on the device as `/Apps/flow/<id>.json`.
+`id` is the install id. Regular installed Flow definitions are saved on the device as `/CUSTOMAPPS/<id>.json`.
 
 ## 2. Define user inputs
 
