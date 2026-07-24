@@ -295,13 +295,78 @@
 
                                                       min-height:0}
 
-                                                      .field{
+                                                         .field{
 
-                                                        display:grid;
+                                                           display:grid;
 
-                                                        gap:7px}
+                                                           gap:7px}
 
-                                                        .field.switch-field{
+                                                         .field.color-field{
+
+                                                           grid-template-columns:minmax(0,1fr) 54px;
+
+                                                           align-items:center;
+
+                                                           gap:14px}
+
+                                                         .field.color-field>.field-title,
+                                                         .field.color-field>.field-label{
+
+                                                           min-width:0;
+
+                                                           overflow-wrap:anywhere}
+
+                                                         .field.color-field>.field-label{
+
+                                                           flex-wrap:wrap}
+
+                                                         .field.color-field>input{
+
+                                                           width:54px;
+
+                                                           height:32px;
+
+                                                           min-width:54px;
+
+                                                           justify-self:end;
+
+                                                           appearance:none;
+
+                                                           border:2px solid var(--muted);
+
+                                                           border-radius:16px;
+
+                                                           padding:0;
+
+                                                           overflow:hidden;
+
+                                                           background:var(--chip);
+
+                                                           cursor:pointer}
+
+                                                         .field.color-field>input::-webkit-color-swatch-wrapper{
+
+                                                           padding:0}
+
+                                                         .field.color-field>input::-webkit-color-swatch{
+
+                                                           border:0;
+
+                                                           border-radius:14px}
+
+                                                         .field.color-field>input::-moz-color-swatch{
+
+                                                           border:0;
+
+                                                           border-radius:14px}
+
+                                                         .field.color-field>input:focus-visible{
+
+                                                           outline:2px solid var(--primary);
+
+                                                           outline-offset:2px}
+
+                                                         .field.switch-field{
 
                                                           display:flex;
 

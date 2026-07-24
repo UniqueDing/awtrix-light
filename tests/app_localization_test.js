@@ -642,6 +642,51 @@ function testSettingsCheckboxToggleFieldLayout() {
   assert.doesNotMatch(settingsStyles, /\.field:has\(\.segmented\)/);
 }
 
+function testAppSettingsColorFieldLayout() {
+  const document = testDocument();
+  const fields = document.createElement("div");
+  const context = load(
+    "let settings={},legacySettings={};" +
+      "function hex(value){return value} function boolOptions(){return []}" +
+      "function openInputHelpDialog(){}" +
+      source("app-settings-dialog.js") +
+      "\nthis.add=addField;",
+    { document, E: { fields } },
+  );
+
+  context.add(["TIME_COL", "Time color", "color"], { TIME_COL: "#123456" });
+  context.add(["CCORRECTION", "Color correction", "colorString", undefined, "Help text"], {
+    CCORRECTION: "#abcdef",
+  });
+
+  const colorField = fields.children[0];
+  const colorStringField = fields.children[1];
+  assert.equal(colorField.className, "field color-field");
+  assert.equal(colorStringField.className, "field color-field");
+  assert.equal(colorField.children.length, 2);
+  assert.equal(colorField.children[0].className, "field-title");
+  assert.equal(colorField.children[1].type, "color");
+  assert.equal(colorField.children[1].value, "#123456");
+  assert.equal(colorField.children[1].dataset.key, "TIME_COL");
+  assert.equal(colorField.children[1].dataset.type, "color");
+  assert.equal(colorField.children[1].dataset.source, "api");
+  assert.equal(colorStringField.children[0].className, "field-label");
+  assert.equal(colorStringField.children[0].children[0].className, "field-title");
+  assert.equal(colorStringField.children[1].type, "color");
+  assert.equal(colorStringField.children[1].value, "#abcdef");
+  assert.equal(colorStringField.children[1].dataset.type, "colorString");
+
+  const libraryStyles = fs.readFileSync("www/css/library.css", "utf8");
+  assert.match(libraryStyles, /\.field\.color-field\s*\{\s*grid-template-columns:minmax\(0,1fr\) 54px;\s*align-items:center/);
+  assert.match(libraryStyles, /\.field\.color-field>input\s*\{[\s\S]*?width:54px;[\s\S]*?height:32px;[\s\S]*?padding:0/);
+  assert.match(libraryStyles, /\.field\.color-field>input\s*\{[\s\S]*?appearance:none;[\s\S]*?border:2px solid var\(--muted\);[\s\S]*?border-radius:16px;[\s\S]*?overflow:hidden;[\s\S]*?background:var\(--chip\)/);
+  assert.match(libraryStyles, /\.field\.color-field>input::-webkit-color-swatch-wrapper\s*\{\s*padding:0/);
+  assert.match(libraryStyles, /\.field\.color-field>input::-webkit-color-swatch\s*\{\s*border:0;\s*border-radius:14px/);
+  assert.match(libraryStyles, /\.field\.color-field>input::-moz-color-swatch\s*\{\s*border:0;\s*border-radius:14px/);
+  assert.match(libraryStyles, /\.field\.color-field>input:focus-visible\s*\{[\s\S]*?outline:2px solid var\(--primary\)/);
+  assert.doesNotMatch(libraryStyles, /\.field:has\(/);
+}
+
 async function testManualFirmwareUploadInteraction() {
   const document = testDocument();
   const settingsGrid = document.createElement("div");
@@ -2189,6 +2234,7 @@ async function run() {
   await testAboutUpdateErrorsNoUpdateAndDetachedSafety();
   testManualFirmwareUpdateNarrowLayoutContract();
   testSettingsCheckboxToggleFieldLayout();
+  testAppSettingsColorFieldLayout();
   await testManualFirmwareUploadInteraction();
   await testManualFirmwareTargetSurvivesFailedUpdateCheck();
   await testManualFirmwareTargetFailureHasNoUnavailableStatus();

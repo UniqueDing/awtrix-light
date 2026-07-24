@@ -1,7 +1,8 @@
 function addField(f, item, parent) {
   parent = parent || E.fields;
   let wrap = document.createElement("div");
-  wrap.className = "field";
+  wrap.className =
+    f[2] === "color" || f[2] === "colorString" ? "field color-field" : "field";
   wrap.dataset.fieldKey = f[0];
   let src = f[3] === "legacy" ? "legacy" : "api",
     val =
@@ -91,7 +92,7 @@ function addField(f, item, parent) {
     input._segment = group;
   } else {
     input = document.createElement("input");
-    input.type = f[2];
+    input.type = f[2] === "colorString" ? "color" : f[2];
     input.value = f[2] === "color" || f[2] === "colorString" ? hex(val) : val;
   }
   input.dataset.key = f[0];
